@@ -1,3 +1,4 @@
+"""Correct URLs."""
 from django.urls import path
 
 from tests import views
