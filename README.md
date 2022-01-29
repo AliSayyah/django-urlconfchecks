@@ -1,19 +1,19 @@
 # django-UrlConfChecks
 
 
-[![pypi](https://img.shields.io/pypi/v/django-urlconf-checks.svg)](https://pypi.org/project/django-urlconf-checks/)
-[![python](https://img.shields.io/pypi/pyversions/django-urlconf-checks.svg)](https://pypi.org/project/django-urlconf-checks/)
-[![Build Status](https://github.com/AliSayyah/django-urlconf-checks/actions/workflows/dev.yml/badge.svg)](https://github.com/AliSayyah/django-urlconf-checks/actions/workflows/dev.yml)
-[![codecov](https://codecov.io/gh/AliSayyah/django-urlconf-checks/branch/main/graphs/badge.svg)](https://codecov.io/github/AliSayyah/django-urlconf-checks)
+[![pypi](https://img.shields.io/pypi/v/django-urlconfchecks.svg)](https://pypi.org/project/django-urlconfchecks/)
+[![python](https://img.shields.io/pypi/pyversions/django-urlconfchecks.svg)](https://pypi.org/project/django-urlconfchecks/)
+[![Build Status](https://github.com/AliSayyah/django-urlconfchecks/actions/workflows/dev.yml/badge.svg)](https://github.com/AliSayyah/django-urlconfchecks/actions/workflows/dev.yml)
+[![codecov](https://codecov.io/gh/AliSayyah/django-urlconfchecks/branch/main/graphs/badge.svg)](https://codecov.io/github/AliSayyah/django-urlconfchecks)
 
 
 
 a python package for type checking the urls and associated views
 
 
-* Documentation: <https://AliSayyah.github.io/django-urlconf-checks>
-* GitHub: <https://github.com/AliSayyah/django-urlconf-checks>
-* PyPI: <https://pypi.org/project/django-urlconf-checks/>
+* Documentation: <https://AliSayyah.github.io/django-urlconfchecks>
+* GitHub: <https://github.com/AliSayyah/django-urlconfchecks>
+* PyPI: <https://pypi.org/project/django-urlconfchecks/>
 * Free software: MIT
 
 
