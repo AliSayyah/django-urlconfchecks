@@ -46,6 +46,7 @@ mkdocs-autorefs = {version = "^0.2.1", optional = true}
 pre-commit = {version = "^2.12.0", optional = true}
 toml = {version = "^0.10.2", optional = true}
 bump2version = {version = "^1.0.1", optional = true}
+django = {version = "^3.2.0"}
 
 [tool.poetry.extras]
 test = [
@@ -58,7 +59,7 @@ test = [
     "pytest-cov"
     ]
 
-dev = ["tox", "pre-commit", "virtualenv", "pip", "twine", "toml", "bump2version"]
+dev = ["tox", "pre-commit", "virtualenv", "pip", "twine", "toml", "bump2version", "django"]
 
 doc = [
     "mkdocs",
