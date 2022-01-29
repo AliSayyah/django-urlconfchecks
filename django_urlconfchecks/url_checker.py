@@ -1,20 +1,4 @@
-# Quick and dirty URL checker:
-#
-# - checks presence of parameters to every callback registered in main urlconf
-# - checks for bad additional parameters (args without default)
-# - checks type of parameters if possible
-#   - can handle all Django's built-in path converters,
-#     and any other that has a type annotation on the `to_python` method
-#
-# Limitations
-# - can't check callbacks defined using ``**kwargs`` (e.g. most CBVs)
-
-# TODO
-# - Fine-grained methods for silencing checks.
-# - Should only warn for each unhandled Converter once
-# - Regex patterns perhaps? (only RoutePattern supported at the moment)
-# - Probably lots of bugs...
-
+"""Quick and dirty URL checker."""
 import uuid
 from inspect import Parameter, signature
 
@@ -26,6 +10,15 @@ from django.urls.resolvers import RoutePattern
 
 @checks.register(checks.Tags.urls)
 def check_url_signatures(app_configs, **kwargs):
+    """Check that all callbacks in the main urlconf have the correct signature.
+
+    Args:
+        app_configs: A list of AppConfig instances that will be checked.
+        **kwargs: Not used.
+
+    Returns:
+        A list of errors.
+    """
     if not getattr(settings, 'ROOT_URLCONF', None):
         return []
 
@@ -37,6 +30,7 @@ def check_url_signatures(app_configs, **kwargs):
 
 
 def get_all_routes(resolver):
+    """Recursively get all routes from the resolver."""
     for pattern in resolver.url_patterns:
         if isinstance(pattern, URLResolver):
             yield from get_all_routes(pattern)
@@ -46,6 +40,7 @@ def get_all_routes(resolver):
 
 
 def check_url_args_match(url_pattern: URLPattern):
+    """Check that all callbacks in the main urlconf have the correct signature."""
     callback = url_pattern.callback
     callback_repr = f'{callback.__module__}.{callback.__qualname__}'
     errors = []
@@ -161,6 +156,7 @@ CONVERTER_TYPES = {
 
 
 def get_converter_output_type(converter):
+    """Return the type that the converter will output."""
     cls = type(converter)
     if cls in CONVERTER_TYPES:
         return CONVERTER_TYPES[cls]
