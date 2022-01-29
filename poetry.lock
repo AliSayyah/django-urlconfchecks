@@ -1032,12 +1032,12 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [extras]
 dev = ["tox", "pre-commit", "virtualenv", "pip", "twine", "toml", "bump2version", "django"]
 doc = ["mkdocs", "mkdocs-include-markdown-plugin", "mkdocs-material", "mkdocstrings", "mkdocs-autorefs"]
-test = ["pytest", "black", "isort", "mypy", "flake8", "flake8-docstrings", "pytest-cov"]
+test = ["pytest", "black", "isort", "mypy", "flake8", "flake8-docstrings", "pytest-cov", "django"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.0,<4.0"
-content-hash = "4c515e31653d73fe8971f93f32cb8f3477fec9928a8b323fb71bb18fb963db45"
+content-hash = "e678cf3bf8eb43237402cf17876f148aa4168a451749bb5e85144d1295df7c92"
 
 [metadata.files]
 asgiref = [
