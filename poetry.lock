@@ -432,15 +432,15 @@ mkdocs = ">=1.1,<2.0"
 
 [[package]]
 name = "mkdocs-include-markdown-plugin"
-version = "1.0.0"
+version = "3.2.3"
 description = "Mkdocs Markdown includer plugin."
 category = "main"
 optional = true
-python-versions = "*"
+python-versions = ">=3.6"
 
 [package.extras]
-dev = ["twine (==3.2.0)", "bump2version (==1.0.1)", "pre-commit (==2.9.2)", "pytest (==6.1.2)", "pytest-cov (==2.10.1)", "flake8 (==3.8.4)", "flake8-print (==4.0.0)", "flake8-implicit-str-concat (==0.2.0)", "isort (==5.6.4)", "yamllint (==1.25.0)"]
-test = ["pytest (==6.1.2)", "pytest-cov (==2.10.1)"]
+dev = ["bump2version (==1.0.1)", "flake8 (==3.9.2)", "flake8-implicit-str-concat (==0.2.0)", "flake8-print (==4.0.0)", "isort (==5.9.1)", "mdpo (==0.3.61)", "pre-commit (==2.13.0)", "pytest (==6.2.4)", "pytest-cov (==2.12.1)", "pyupgrade (==2.19.4)", "yamllint (==1.26.1)"]
+test = ["pytest (==6.2.4)", "pytest-cov (==2.12.1)"]
 
 [[package]]
 name = "mkdocs-material"
@@ -1014,7 +1014,7 @@ test = ["pytest", "black", "isort", "mypy", "flake8", "flake8-docstrings", "pyte
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.0,<4.0"
-content-hash = "7ee10778e0f32dc87a73dc07f2700f39ea02bd9cd2dbb52772b0eb3bef11bdfb"
+content-hash = "f98c4f3eece10ed8d3017eddd3b2df1176a427bc58d3d3a7f354f102928b9d7a"
 
 [metadata.files]
 asgiref = [
@@ -1333,8 +1333,8 @@ mkdocs-autorefs = [
     {file = "mkdocs_autorefs-0.2.1-py3-none-any.whl", hash = "sha256:f301b983a34259df90b3fcf7edc234b5e6c7065bd578781e66fd90b8cfbe76be"},
 ]
 mkdocs-include-markdown-plugin = [
-    {file = "mkdocs_include_markdown_plugin-1.0.0-py3-none-any.whl", hash = "sha256:5143312d4aa99dfbfb40bab04ea193928f8142ea8d02f64a52e55bf9d6b61b58"},
-    {file = "mkdocs_include_markdown_plugin-1.0.0.tar.gz", hash = "sha256:4c2e53f2d504e3de0d6c9fecf1da63597453a3ebd7f34bb118c84fbf4a8d57ce"},
+    {file = "mkdocs_include_markdown_plugin-3.2.3-py3-none-any.whl", hash = "sha256:5a8b0c60d8981225c012b8f657b6557910997e46dacae4aff039b181487236cf"},
+    {file = "mkdocs_include_markdown_plugin-3.2.3.tar.gz", hash = "sha256:64dd8c408a1b5b7422d4a5a826c434e5372af2fb7bd244dd5c87e09ff8f13302"},
 ]
 mkdocs-material = [
     {file = "mkdocs-material-6.2.8.tar.gz", hash = "sha256:ce2f4a71e5db49540d71fd32f9afba7645765f7eca391e560d1d27f947eb344c"},
