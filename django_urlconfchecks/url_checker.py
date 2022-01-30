@@ -1,7 +1,7 @@
 """Quick and dirty URL checker."""
 import typing as t
 import uuid
-from inspect import Parameter, _empty, signature
+from inspect import Parameter, _empty, signature  # type: ignore[attr-defined]
 
 from django.conf import settings
 from django.core import checks
