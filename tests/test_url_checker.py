@@ -5,9 +5,9 @@ from django.conf import settings
 from django.core import checks
 from django.test.utils import override_settings
 from django.urls import URLPattern
-from django.urls.resolvers import RoutePattern
+from django.urls.resolvers import RoutePattern, get_resolver
 
-from django_urlconfchecks.url_checker import check_url_signatures
+from django_urlconfchecks.url_checker import check_url_signatures, get_all_routes
 from tests.utils import error_eql
 from tests.views import year_archive
 
@@ -44,3 +44,27 @@ def test_incorrect_urls():
     assert len(errors) == 1
 
     assert error_eql(errors[0], expected_error)
+
+
+@override_settings(ROOT_URLCONF='tests.urls.correct_urls')
+def test_all_urls_checked():
+    """Test that all urls are checked.
+
+    Returns:
+        None
+    """
+    resolver = get_resolver()
+    routes = get_all_routes(resolver)
+    assert len(list(routes)) == 3
+
+
+@override_settings(ROOT_URLCONF='tests.urls.parent_urls')
+def test_child_urls_checked():
+    """Test that child urls are checked.
+
+    Returns:
+        None
+    """
+    resolver = get_resolver()
+    routes = get_all_routes(resolver)
+    assert len(list(routes)) == 3
