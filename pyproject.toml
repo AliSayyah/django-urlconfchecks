@@ -46,6 +46,7 @@ mkdocs-autorefs = {version = ">=0.2.1,<0.4.0", optional = true}
 pre-commit = {version = "^2.12.0", optional = true}
 toml = {version = "^0.10.2", optional = true}
 bump2version = {version = "^1.0.1", optional = true}
+pyupgrade = {version= "^2.31.0", optional = true}
 
 [tool.poetry.extras]
 test = [
@@ -56,6 +57,7 @@ test = [
     "flake8",
     "flake8-docstrings",
     "pytest-cov",
+    "pyupgrade",
     "django"
     ]
 
