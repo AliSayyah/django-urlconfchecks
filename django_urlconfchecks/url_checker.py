@@ -1,6 +1,7 @@
 """Quick and dirty URL checker."""
+import typing as t
 import uuid
-from inspect import Parameter, signature
+from inspect import Parameter, _empty, signature
 
 from django.conf import settings
 from django.core import checks
@@ -9,7 +10,7 @@ from django.urls.resolvers import RoutePattern
 
 
 @checks.register(checks.Tags.urls)
-def check_url_signatures(app_configs, **kwargs):
+def check_url_signatures(app_configs, **kwargs) -> t.List[t.Union[checks.Error, checks.Warning]]:
     """Check that all callbacks in the main urlconf have the correct signature.
 
     Args:
@@ -29,7 +30,7 @@ def check_url_signatures(app_configs, **kwargs):
     return errors
 
 
-def get_all_routes(resolver):
+def get_all_routes(resolver: URLResolver) -> t.Iterable[URLPattern]:
     """Recursively get all routes from the resolver."""
     for pattern in resolver.url_patterns:
         if isinstance(pattern, URLResolver):
@@ -39,7 +40,7 @@ def get_all_routes(resolver):
                 yield pattern
 
 
-def check_url_args_match(url_pattern: URLPattern):
+def check_url_args_match(url_pattern: URLPattern) -> t.List[t.Union[checks.Error, checks.Warning]]:
     """Check that all callbacks in the main urlconf have the correct signature."""
     callback = url_pattern.callback
     callback_repr = f'{callback.__module__}.{callback.__qualname__}'
@@ -113,8 +114,9 @@ def check_url_args_match(url_pattern: URLPattern):
             elif expected_type != found_type:
                 errors.append(
                     checks.Error(
-                        f'For parameter `{name}`, annotated type {found_type.__name__} does not match'
-                        f' expected `{expected_type.__name__}` from urlconf',
+                        f'For parameter `{name}`,'  # type: ignore[union-attr]
+                        f' annotated type {found_type.__name__} does not match'  # type: ignore[union-attr]
+                        f' expected `{expected_type.__name__}` from urlconf',  # type: ignore[union-attr]
                         obj=url_pattern,
                         id='urlchecker.E002',
                     )
@@ -155,7 +157,7 @@ CONVERTER_TYPES = {
 }
 
 
-def get_converter_output_type(converter):
+def get_converter_output_type(converter) -> t.Union[int, str, uuid.UUID, t.Type[_empty]]:
     """Return the type that the converter will output."""
     cls = type(converter)
     if cls in CONVERTER_TYPES:
