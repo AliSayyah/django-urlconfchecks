@@ -27,9 +27,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-                  path('articles/<str:year>/', views.year_archive), < -----
-path('articles/<int:year>/<int:month>/', views.month_archive),
-              path('articles/<int:year>/<int:month>/<slug:slug>/', views.article_detail),
+    path('articles/<str:year>/', views.year_archive),
+    path('articles/<int:year>/<int:month>/', views.month_archive),
+    path('articles/<int:year>/<int:month>/<slug:slug>/', views.article_detail),
 ]
 ```
 
@@ -40,11 +40,8 @@ def special_case(request):
     pass
 
 
-def year_archive(request, year: int):  <
-
-
------
-pass
+def year_archive(request, year: int):
+    pass
 
 
 def month_archive(request, year: int, month: int):
