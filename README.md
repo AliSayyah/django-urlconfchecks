@@ -11,7 +11,7 @@ a python package for type checking the urls and associated views
 * Documentation: <https://AliSayyah.github.io/django-urlconfchecks>
 * GitHub: <https://github.com/AliSayyah/django-urlconfchecks>
 * PyPI: <https://pypi.org/project/django-urlconfchecks/>
-* Free software: MIT
+* Free software: GPL3
 
 ## Features
 
