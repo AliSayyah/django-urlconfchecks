@@ -12,7 +12,15 @@ a python package for type checking the urls and associated views
 * GitHub: <https://github.com/AliSayyah/django-urlconfchecks>
 * PyPI: <https://pypi.org/project/django-urlconfchecks/>
 * Free software: GPL3
+## Installation
 
+    pip install django-urlconfchecks
+
+## Usage
+
+Add this to your settings.py imports:
+
+    import django_urlconfchecks
 ## Features
 
 Using this package, URL pattern types will automatically be matched with associated views, and in case of mismatch, an
