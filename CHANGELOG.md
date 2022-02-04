@@ -9,3 +9,7 @@
 ### Added
 - Added the actual functionality.
 - updated dependencies.
+
+## [0.3.0] - 2022-02-04
+### Changed
+- fixed a bug that caused the checks to not work. Package is functional now.
