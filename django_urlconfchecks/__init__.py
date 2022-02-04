@@ -3,4 +3,4 @@ from django_urlconfchecks import url_checker
 
 __author__ = """ali sayyah"""
 __email__ = 'ali.sayyah2@gmail.com'
-__version__ = '0.2.0'
+__version__ = '0.3.0'
