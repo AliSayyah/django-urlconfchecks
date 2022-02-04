@@ -6,7 +6,7 @@ homepage = "https://github.com/AliSayyah/django-urlconfchecks"
 description = "a python package for type checking the urls and associated views."
 authors = ["ali sayyah <ali.sayyah2@gmail.com>"]
 readme = "README.md"
-license =  "MIT"
+license =  "GPLv3"
 classifiers=[
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
