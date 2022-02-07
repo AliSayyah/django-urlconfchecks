@@ -24,3 +24,9 @@
 ### Fixed
 
 - fixed a dependency issue that caused the `mkdocs-material-extensions` to install as a runtime dependency.
+
+## [0.4.0] - 2022-02-07
+
+### Changed
+
+- Now, `django_urlconfchecks` is a Django app. This means that it can be installed as a Django app.
