@@ -1,3 +1,4 @@
+"""Test module as a django app."""
 import os
 
 import django
