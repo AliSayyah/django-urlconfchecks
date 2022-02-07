@@ -376,14 +376,11 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 
 [[package]]
 name = "markdown"
-version = "3.3.4"
+version = "3.3.5"
 description = "Python implementation of Markdown."
 category = "main"
 optional = true
 python-versions = ">=3.6"
-
-[package.dependencies]
-importlib-metadata = {version = "*", markers = "python_version < \"3.8\""}
 
 [package.extras]
 testing = ["coverage", "pyyaml"]
@@ -1327,8 +1324,8 @@ keyring = [
     {file = "keyring-23.5.0.tar.gz", hash = "sha256:9012508e141a80bd1c0b6778d5c610dd9f8c464d75ac6774248500503f972fb9"},
 ]
 markdown = [
-    {file = "Markdown-3.3.4-py3-none-any.whl", hash = "sha256:96c3ba1261de2f7547b46a00ea8463832c921d3f9d6aba3f255a6f71386db20c"},
-    {file = "Markdown-3.3.4.tar.gz", hash = "sha256:31b5b491868dcc87d6c24b7e3d19a0d730d59d3e46f4eea6430a321bed387a49"},
+    {file = "Markdown-3.3.5-py3-none-any.whl", hash = "sha256:0d2d09f75cb8d1ffc6770c65c61770b23a61708101f47bda416a002a0edbc480"},
+    {file = "Markdown-3.3.5.tar.gz", hash = "sha256:26e9546bfbcde5fcd072bd8f612c9c1b6e2677cb8aadbdf65206674f46dde069"},
 ]
 markupsafe = [
     {file = "MarkupSafe-2.0.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:d8446c54dc28c01e5a2dbac5a25f071f6653e6e40f3a8818e8b45d790fe6ef53"},
