@@ -1073,7 +1073,7 @@ test = ["pytest", "black", "isort", "mypy", "flake8", "flake8-docstrings", "pyte
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.0"
-content-hash = "d9ad274464db6daffc1f86f0c1db572f50808e2e27fed9185828e8b8930ea4e2"
+content-hash = "8e26a0c18fdae1322036d10d837972c357e0ef555b04d9752fb5594bf43e1e95"
 
 [metadata.files]
 asgiref = [
