@@ -1,4 +1,4 @@
-# django-UrlConfChecks
+# Django UrlConf Checks
 
 [![pypi](https://img.shields.io/pypi/v/django-urlconfchecks.svg)](https://pypi.org/project/django-urlconfchecks/)
 [![python](https://img.shields.io/pypi/pyversions/django-urlconfchecks.svg)](https://pypi.org/project/django-urlconfchecks/)

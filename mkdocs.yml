@@ -1,7 +1,7 @@
-site_name: django-UrlConf-Checks
-site_url: https://AliSayyah.github.io/django-urlconf-checks
-repo_url: https://github.com/AliSayyah/django-urlconf-checks
-repo_name: AliSayyah/django-urlconf-checks
+site_name: Django UrlConf Checks
+site_url: https://AliSayyah.github.io/django-urlconfchecks
+repo_url: https://github.com/AliSayyah/django-urlconfchecks
+repo_name: AliSayyah/django-urlconfchecks
 #strict: true
 nav:
   - Home: index.md
@@ -54,7 +54,7 @@ plugins:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/AliSayyah/django-urlconf-checks
+      link: https://github.com/AliSayyah/django-urlconfchecks
       name: Github
     - icon: material/email
       link: "mailto:ali.sayyah2@gmail.com"
