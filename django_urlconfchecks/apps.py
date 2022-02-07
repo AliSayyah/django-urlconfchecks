@@ -1,7 +1,10 @@
+"""An apps module for django_urlconfchecks."""
 from django.apps import AppConfig
 
 
 class UrlConfChecksConfig(AppConfig):
+    """An AppConfig for django_urlconfchecks."""
+
     name = 'django_urlconfchecks'
     verbose_name = 'URL Conf Checks'
 
