@@ -1067,13 +1067,13 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 
 [extras]
 dev = ["tox", "pre-commit", "virtualenv", "pip", "twine", "toml", "bump2version", "Markdown"]
-doc = ["Markdown", "mkdocs", "mkdocs-include-markdown-plugin", "mkdocs-material", "mkdocstrings", "mkdocs-autorefs"]
+doc = ["Markdown", "mkdocs", "mkdocs-include-markdown-plugin", "mkdocs-material", "mkdocstrings", "mkdocs-material-extensions", "mkdocs-autorefs"]
 test = ["pytest", "black", "isort", "mypy", "flake8", "flake8-docstrings", "pytest-cov", "pyupgrade"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.0"
-content-hash = "d9ad274464db6daffc1f86f0c1db572f50808e2e27fed9185828e8b8930ea4e2"
+content-hash = "7bcd79f636c64106a5ee817fd292399f08b80173993a79cae77b0bb2ee2a46e8"
 
 [metadata.files]
 asgiref = [
