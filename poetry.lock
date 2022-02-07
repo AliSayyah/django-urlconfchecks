@@ -482,20 +482,37 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "mkdocstrings"
-version = "0.17.0"
+version = "0.18.0"
 description = "Automatic documentation from sources, for MkDocs."
 category = "main"
 optional = true
-python-versions = ">=3.6.2"
+python-versions = ">=3.7"
 
 [package.dependencies]
 Jinja2 = ">=2.11.1"
 Markdown = ">=3.3"
 MarkupSafe = ">=1.1"
 mkdocs = ">=1.2"
-mkdocs-autorefs = ">=0.1"
+mkdocs-autorefs = ">=0.3.1"
+mkdocstrings-python-legacy = ">=0.2"
 pymdown-extensions = ">=6.3"
-pytkdocs = ">=0.14.0"
+
+[package.extras]
+crystal = ["mkdocstrings-crystal (>=0.3.4)"]
+python = ["mkdocstrings-python (>=0.5.2)"]
+python-legacy = ["mkdocstrings-python-legacy (>=0.2.1)"]
+
+[[package]]
+name = "mkdocstrings-python-legacy"
+version = "0.2.1"
+description = "A legacy Python handler for mkdocstrings."
+category = "main"
+optional = true
+python-versions = ">=3.7"
+
+[package.dependencies]
+mkdocstrings = ">=0.18"
+pytkdocs = ">=0.14"
 
 [[package]]
 name = "mypy"
@@ -1053,7 +1070,7 @@ test = ["pytest", "black", "isort", "mypy", "flake8", "flake8-docstrings", "pyte
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.0,<4.0"
-content-hash = "c71edfcf9de19589c2e66fa9f7d6ce10c8a955850d11092b9e2b508921fa899a"
+content-hash = "850e55c0dc3283b11836efa5972308e415e4942c7a5159e796af4e473c7a7ebc"
 
 [metadata.files]
 asgiref = [
@@ -1410,8 +1427,12 @@ mkdocs-material-extensions = [
     {file = "mkdocs_material_extensions-1.0.3-py3-none-any.whl", hash = "sha256:a82b70e533ce060b2a5d9eb2bc2e1be201cf61f901f93704b4acf6e3d5983a44"},
 ]
 mkdocstrings = [
-    {file = "mkdocstrings-0.17.0-py3-none-any.whl", hash = "sha256:103fc1dd58cb23b7e0a6da5292435f01b29dc6fa0ba829132537f3f556f985de"},
-    {file = "mkdocstrings-0.17.0.tar.gz", hash = "sha256:75b5cfa2039aeaf3a5f5cf0aa438507b0330ce76c8478da149d692daa7213a98"},
+    {file = "mkdocstrings-0.18.0-py3-none-any.whl", hash = "sha256:75e277f6a56a894a727efcf6d418d36cd43d4db7da9614c2dc23300e257d95ad"},
+    {file = "mkdocstrings-0.18.0.tar.gz", hash = "sha256:01d8ab962fc1f388c9b15cbf8c078b8738f92adf983b626d74135aaee2bce33a"},
+]
+mkdocstrings-python-legacy = [
+    {file = "mkdocstrings-python-legacy-0.2.1.tar.gz", hash = "sha256:d8b032e1d1b4c75a601fcc5837249e2b2dc2cb21c9ad32a313ffaa54d5838242"},
+    {file = "mkdocstrings_python_legacy-0.2.1-py3-none-any.whl", hash = "sha256:a46f772b24d9a41f0b4eaa27a4ae70195cacc76af462fce691d085e0b4fc8c78"},
 ]
 mypy = [
     {file = "mypy-0.931-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:3c5b42d0815e15518b1f0990cff7a705805961613e701db60387e6fb663fe78a"},
