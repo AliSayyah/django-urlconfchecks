@@ -1,9 +1,10 @@
 # Usage
 
-To use django-UrlConfChecks in a project
+Add `django_urlconfchecks` to your `INSTALLED_APPS` list in your `settings.py` file.
 
+```python
+    INSTALLED_APPS = [
+    ...
+    'django_urlconfchecks',
+]
 ```
-import django_urlconfchecks
-```
-
-in your settings.py file.

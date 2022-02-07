@@ -18,9 +18,12 @@ a python package for type checking the urls and associated views
 
 ## Usage
 
-Add this to your settings.py imports:
+Add `django_urlconfchecks` to your `INSTALLED_APPS` list in your `settings.py` file.
 
-    import django_urlconfchecks
+    INSTALLED_APPS = [
+        ...
+        'django_urlconfchecks',
+    ]
 ## Features
 
 Using this package, URL pattern types will automatically be matched with associated views, and in case of mismatch, an
