@@ -25,8 +25,8 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7.0,<4.0"
-django = ">=3.2.0"
+python = ">=3.7.0"
+Django = ">=3.2.0"
 black  = { version = ">=21.5,<23.0", optional = true}
 isort  = { version = "^5.8.0", optional = true}
 flake8  = { version = "^4.0.1", optional = true}
@@ -41,13 +41,14 @@ mkdocs  = { version = "^1.1.2", optional = true}
 mkdocs-include-markdown-plugin  = { version = "^3.2.3", optional = true}
 mkdocs-material  = { version = "^8.1.8", optional = true}
 mkdocstrings  = { version = ">=0.17,<0.19", optional = true}
-mkdocs-material-extensions  = { version = "^1.0.1", optional = true}
+mkdocs-material-extensions = {version="^1.0.1", optional=true}
 twine  = { version = "^3.3.0", optional = true}
 mkdocs-autorefs = {version = ">=0.2.1,<0.4.0", optional = true}
 pre-commit = {version = "^2.12.0", optional = true}
 toml = {version = "^0.10.2", optional = true}
 bump2version = {version = "^1.0.1", optional = true}
 pyupgrade = {version= "^2.31.0", optional = true}
+Markdown = {version="3.3.4", optional = true}
 
 [tool.poetry.extras]
 test = [
@@ -59,12 +60,12 @@ test = [
     "flake8-docstrings",
     "pytest-cov",
     "pyupgrade",
-    "django"
     ]
 
-dev = ["tox", "pre-commit", "virtualenv", "pip", "twine", "toml", "bump2version", "django"]
+dev = ["tox", "pre-commit", "virtualenv", "pip", "twine", "toml", "bump2version", 'Markdown']
 
 doc = [
+    'Markdown',
     "mkdocs",
     "mkdocs-include-markdown-plugin",
     "mkdocs-material",
