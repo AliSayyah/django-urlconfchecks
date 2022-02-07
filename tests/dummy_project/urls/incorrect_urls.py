@@ -1,7 +1,7 @@
 """Incorrect URLs."""
 from django.urls import path
 
-from tests import views
+from tests.dummy_project import views
 
 urlpatterns = [
     path('articles/<str:year>/', views.year_archive),
