@@ -29,4 +29,4 @@
 
 ### Changed
 
-- Now, `django_urlconfchecks` is a Django app. This means that it can be installed as a Django app.
+- Now, `django_urlconfchecks` is a Django app. This means that it can be installed as a Django app. For more information, see [the documentation](https://alisayyah.github.io/django-urlconfchecks/usage/).
