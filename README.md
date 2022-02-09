@@ -47,10 +47,6 @@ urlpatterns = [
 ```python
 # views.py
 
-def special_case(request):
-    pass
-
-
 def year_archive(request, year: int):
     pass
 
