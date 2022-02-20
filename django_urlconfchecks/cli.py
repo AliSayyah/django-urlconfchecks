@@ -30,8 +30,11 @@ def setup_django():
     try:
         manage = importlib.import_module("manage", ".")
     except ImportError as e:
-        typer.secho("Could not find manage.py in current directory or subdirectories.\n"
-                    "Make sure you are in the project root directory where manage.py exists.", fg=typer.colors.RED)
+        typer.secho(
+            "Could not find manage.py in current directory or subdirectories.\n"
+            "Make sure you are in the project root directory where manage.py exists.",
+            fg=typer.colors.RED,
+        )
         raise typer.Exit(1)
     else:
         main = getattr(manage, 'main', None)
