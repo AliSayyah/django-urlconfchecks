@@ -29,7 +29,7 @@ def setup_django():
 
     try:
         manage = importlib.import_module("manage", ".")
-    except ImportError as e:
+    except ImportError:
         typer.secho(
             "Could not find manage.py in current directory or subdirectories.\n"
             "Make sure you are in the project root directory where manage.py exists.",
@@ -68,7 +68,7 @@ def run(
     Returns:
         None
     """
-    if not django.VERSION[0:2] >= (3, 2):
+    if django.VERSION[0:2] < (3, 2):
         typer.secho("Django version 3.2 or higher is required.", fg=typer.colors.RED)
         typer.Exit(1)
 
