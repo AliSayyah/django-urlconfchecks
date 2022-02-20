@@ -39,6 +39,7 @@ def month_archive(request, year: int, month: int):
     """
     ...
 
+
 def article_detail(request, year: int, month: int, slug: str):
     """This is an article detail.
 
