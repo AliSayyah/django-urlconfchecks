@@ -11,4 +11,4 @@ class UrlConfChecksConfig(AppConfig):
     # noinspection PyUnresolvedReferences
     def ready(self):
         """We only need to import the module to register it as a checker."""
-        from django_urlconfchecks import url_checker  # noqa
+        from django_urlconfchecks import check  # noqa

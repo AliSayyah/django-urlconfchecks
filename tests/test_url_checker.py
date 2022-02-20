@@ -6,7 +6,7 @@ from django.test.utils import override_settings
 from django.urls import URLPattern
 from django.urls.resolvers import RoutePattern, get_resolver
 
-from django_urlconfchecks.url_checker import check_url_signatures, get_all_routes
+from django_urlconfchecks.check import check_url_signatures, get_all_routes
 from tests.dummy_project.views import year_archive
 from tests.utils import error_eql
 
