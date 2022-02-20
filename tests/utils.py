@@ -4,6 +4,7 @@ from django.urls import URLPattern
 from django.urls.resolvers import RoutePattern
 
 
+# noinspection PyProtectedMember
 def route_pattern_eql(route_pattern: RoutePattern, expected_route_pattern: RoutePattern) -> bool:
     """Compare two RoutePatterns.
 

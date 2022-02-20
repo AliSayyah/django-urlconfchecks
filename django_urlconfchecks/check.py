@@ -20,7 +20,6 @@ def check_url_signatures(app_configs, **kwargs) -> t.List[t.Union[checks.Error, 
     Returns:
         A list of errors.
     """
-    print(settings.ROOT_URLCONF)
     if not getattr(settings, 'ROOT_URLCONF', None):
         return []
 

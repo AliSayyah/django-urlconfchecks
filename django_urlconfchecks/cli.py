@@ -1,12 +1,13 @@
 """CLI module for django_urlconfchecks."""
 import importlib
 import os
-from pathlib import Path
+import sys
 from typing import Optional
 
 from django.core.checks import Error
 
 from django_urlconfchecks import __version__
+from django_urlconfchecks.cli_utils import suppress_std
 
 try:
     import django
@@ -23,20 +24,22 @@ def setup_django():
     Returns:
         str: the path to the settings.py
     """
-    current_dir = Path(os.getcwd())
-    for path in current_dir.glob('**/manage.py'):
-        try:
-            manage = importlib.import_module(str(path.relative_to(current_dir)).replace(".py", "").replace("/", "."))
-            main = getattr(manage, 'main')
-            main()
+    if os.getcwd() not in sys.path:
+        sys.path.insert(0, os.getcwd())
+
+    try:
+        manage = importlib.import_module("manage", ".")
+    except ImportError as e:
+        typer.secho("Could not find manage.py in current directory or subdirectories.\n"
+                    "Make sure you are in the project root directory where manage.py exists.", fg=typer.colors.RED)
+        raise typer.Exit(1)
+    else:
+        main = getattr(manage, 'main', None)
+        if main:
+            with suppress_std():
+                main()
             django.setup()
             return
-        except ImportError:
-            continue
-
-    typer.secho("Could not find manage.py in current directory or subdirectories.\n"
-                "Make sure you are in the project root directory.", fg=typer.colors.RED)
-    raise typer.Exit(1)
 
 
 setup_django()
@@ -70,12 +73,14 @@ def run(
 
     errors = check_url_signatures(None)
     if errors:
-        typer.secho(f"{len(errors)} errors found:", fg=typer.colors.BRIGHT_RED)
+        typer.secho(f"{len(errors)} error{'s' if len(errors) > 1 else ''} found:", fg=typer.colors.BRIGHT_RED)
+
         for error in errors:
             if isinstance(error, Error):
-                typer.secho(f"{error}", fg=typer.colors.RED)
+                typer.secho(f"\t{error}", fg=typer.colors.RED)
             else:
-                typer.secho(f"{error}", fg=typer.colors.YELLOW)
+                typer.secho(f"\t{error}", fg=typer.colors.YELLOW)
         typer.Exit(1)
-
-    typer.secho("Done. No errors found.", fg=typer.colors.GREEN)
+    else:
+        typer.secho("Done. No errors found.", fg=typer.colors.GREEN)
+        typer.Exit(0)
