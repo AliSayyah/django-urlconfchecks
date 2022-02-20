@@ -19,7 +19,11 @@ app = typer.Typer()
 
 
 def setup_django():
-    """Find the settings.py in current directory and subdirectories.
+    """
+    We need to set up Django before running checks.
+
+    For running checks, we need to access UrlConf module correctly;
+    so we use manage.py to set the `DJANGO_SETTINGS_MODULE`.
 
     Returns:
         str: the path to the settings.py
