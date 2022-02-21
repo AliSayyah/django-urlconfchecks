@@ -1,0 +1,6 @@
+- id: django-urlconfchecks
+  name: Django UrlConf Checks
+  description: a pre-commit for type checking the urls and associated views
+  entry: urlconfchecks
+  language: python
+  types: [ python ]
