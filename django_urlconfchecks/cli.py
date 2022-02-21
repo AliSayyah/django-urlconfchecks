@@ -28,17 +28,7 @@ def run(
     version: Optional[bool] = typer.Option(None, "--version", callback=version_callback),
     urlconf: Optional[str] = typer.Option(None, "-u", "--urlconf", help="Specify the URLconf to check."),
 ) -> None:
-    """Check all URLConfs for errors.
-
-    Args:
-
-        urlconf (str, optional): Specify the URLconf to check.
-
-        version (bool, optional): Show version.
-
-    Returns:
-        None
-    """
+    """Check all URLConfs for errors."""
     if django.VERSION[0:2] < (3, 2):
         typer.secho("Django version 3.2 or higher is required.", fg=typer.colors.RED)
         raise typer.Exit(1)
