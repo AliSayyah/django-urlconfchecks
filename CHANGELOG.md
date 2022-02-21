@@ -29,4 +29,14 @@
 
 ### Changed
 
-- Now, `django_urlconfchecks` is a Django app. This means that it can be installed as a Django app. For more information, see [the documentation](https://alisayyah.github.io/django-urlconfchecks/usage/).
+- Now, `django_urlconfchecks` is a Django app. This means that it can be installed as a Django app. For more
+  information, see [the documentation](https://alisayyah.github.io/django-urlconfchecks/usage/).
+
+## [0.5.0] - 2022-02-21
+
+### Added
+
+- Added two more ways to use the package: a `CLI tool` and a `pre-commit hook`. For more information, see
+  the [usage documentation](https://alisayyah.github.io/django-urlconfchecks/usage/).
+
+
