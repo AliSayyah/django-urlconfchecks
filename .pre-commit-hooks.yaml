@@ -2,5 +2,6 @@
   name: Django UrlConf Checks
   description: a pre-commit for type checking the urls and associated views
   entry: urlconfchecks
+  pass_filenames: false
   language: python
   types: [ python ]
