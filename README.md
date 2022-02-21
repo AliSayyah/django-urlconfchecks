@@ -51,8 +51,18 @@ $ urlconfchecks --help
       --help                Show this message and exit.
 ```
 
-For more information, see
-the [usage documentation](https://alisayyah.github.io/django-urlconfchecks/usage/).
+### As a pre-commit hook
+
+Add the following to your `.pre-commit-config.yaml` file:
+
+```yaml
+  -   repo: https://github.com/AliSayyah/django-urlconfchecks
+      rev: 0.5.0
+      hooks:
+          -   id: django-urlconfchecks
+```
+
+For more information, see the [usage documentation](https://alisayyah.github.io/django-urlconfchecks/usage/).
 
 ## Features
 
