@@ -38,5 +38,3 @@
 
 - Added two more ways to use the package: a `CLI tool` and a `pre-commit hook`. For more information, see
   the [usage documentation](https://alisayyah.github.io/django-urlconfchecks/usage/).
-
-
