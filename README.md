@@ -6,24 +6,54 @@
 [![codecov](https://codecov.io/gh/AliSayyah/django-urlconfchecks/branch/main/graphs/badge.svg)](https://codecov.io/github/AliSayyah/django-urlconfchecks)
 [![License](https://img.shields.io/github/license/AliSayyah/django-urlconfchecks.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-
 a python package for type checking the urls and associated views
 
 * [Documentation](https://AliSayyah.github.io/django-urlconfchecks)
 * [GitHub](https://github.com/AliSayyah/django-urlconfchecks)
 * [PyPI](https://pypi.org/project/django-urlconfchecks/)
+
 ## Installation
 
     pip install django-urlconfchecks
 
 ## Usage
 
+You can use this package in different ways:
+
+### As a Django app
+
 Add `django_urlconfchecks` to your `INSTALLED_APPS` list in your `settings.py` file.
 
+```python
     INSTALLED_APPS = [
-        ...
-        'django_urlconfchecks',
-    ]
+    ...
+    'django_urlconfchecks',
+]
+```
+
+### As a command line tool
+
+Run this command from the root of your project, were `manage.py` is located:
+
+```bash
+$ urlconfchecks --help
+
+    Usage: urlconfchecks [OPTIONS]
+
+      Check all URLConfs for errors.
+
+    Options:
+      --version
+      -u, --urlconf PATH    Specify the URLconf to check.
+      --install-completion  Install completion for the current shell.
+      --show-completion     Show completion for the current shell, to copy it or
+                            customize the installation.
+      --help                Show this message and exit.
+```
+
+For more information, see
+the [usage documentation](https://alisayyah.github.io/django-urlconfchecks/usage/).
+
 ## Features
 
 Using this package, URL pattern types will automatically be matched with associated views, and in case of mismatch, an

@@ -10,7 +10,7 @@ def special_case(request):
     Returns:
         A response object.
     """
-    pass
+    ...
 
 
 def year_archive(request, year: int):
@@ -23,7 +23,7 @@ def year_archive(request, year: int):
     Returns:
         A response object.
     """
-    pass
+    ...
 
 
 def month_archive(request, year: int, month: int):
@@ -37,7 +37,7 @@ def month_archive(request, year: int, month: int):
     Returns:
         A response object.
     """
-    pass
+    ...
 
 
 def article_detail(request, year: int, month: int, slug: str):
@@ -52,4 +52,4 @@ def article_detail(request, year: int, month: int, slug: str):
     Returns:
         A response object.
     """
-    pass
+    ...

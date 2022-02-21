@@ -21,7 +21,7 @@ repos:
     rev: 22.1.0
     hooks:
       - id: black
-        language_version: python3.8
+        language_version: python3.7
   - repo: https://github.com/pycqa/flake8
     rev: 4.0.1
     hooks:
@@ -32,8 +32,3 @@ repos:
     hooks:
       - id: mypy
         exclude: tests/
-
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v2.31.0
-    hooks:
-      - id: pyupgrade
