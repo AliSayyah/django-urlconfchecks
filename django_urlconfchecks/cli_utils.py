@@ -1,5 +1,12 @@
+import importlib
+import os
+import sys
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from os import devnull
+
+import django
+import typer
+from django.conf import settings
 
 
 @contextmanager
@@ -8,3 +15,46 @@ def suppress_std():
     with open(devnull, 'w') as fnull:
         with redirect_stderr(fnull) as err, redirect_stdout(fnull) as out:
             yield err, out
+
+
+def setup_django(urlconf: str):
+    """
+    We need to set up Django before running checks.
+
+    For running checks, we need to access UrlConf module correctly;
+    so we use manage.py to set the `DJANGO_SETTINGS_MODULE`.
+
+    Returns:
+        str: the path to the settings.py
+    """
+    if not settings.configured:
+        if urlconf:
+            settings.configure(ROOT_URLCONF=urlconf)
+        else:
+            get_manage()
+
+        django.setup()
+    if urlconf:
+        settings.ROOT_URLCONF = urlconf
+
+
+
+def get_manage():
+    if os.getcwd() not in sys.path:
+        sys.path.insert(0, os.getcwd())
+
+    try:
+        manage = importlib.import_module("manage", ".")
+    except ImportError:
+        typer.secho(
+            "Could not find manage.py in current directory or subdirectories.\n"
+            "Make sure you are in the project root directory where manage.py exists.",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(1)
+    else:
+        main = getattr(manage, 'main', None)
+        if main:
+            with suppress_std():
+                main()
+            return

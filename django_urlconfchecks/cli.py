@@ -1,13 +1,10 @@
 """CLI module for django_urlconfchecks."""
-import importlib
-import os
-import sys
 from typing import Optional
 
 from django.core.checks import Error
 
 from django_urlconfchecks import __version__
-from django_urlconfchecks.cli_utils import suppress_std
+from django_urlconfchecks.cli_utils import setup_django
 
 try:
     import django
@@ -16,40 +13,6 @@ except ImportError:
 import typer
 
 app = typer.Typer()
-
-
-def setup_django():
-    """
-    We need to set up Django before running checks.
-
-    For running checks, we need to access UrlConf module correctly;
-    so we use manage.py to set the `DJANGO_SETTINGS_MODULE`.
-
-    Returns:
-        str: the path to the settings.py
-    """
-    if os.getcwd() not in sys.path:
-        sys.path.insert(0, os.getcwd())
-
-    try:
-        manage = importlib.import_module("manage", ".")
-    except ImportError:
-        typer.secho(
-            "Could not find manage.py in current directory or subdirectories.\n"
-            "Make sure you are in the project root directory where manage.py exists.",
-            fg=typer.colors.RED,
-        )
-        raise typer.Exit(1)
-    else:
-        main = getattr(manage, 'main', None)
-        if main:
-            with suppress_std():
-                main()
-            django.setup()
-            return
-
-
-setup_django()
 
 
 def version_callback(value: bool):
@@ -63,11 +26,15 @@ def version_callback(value: bool):
 @app.command()
 def run(
     version: Optional[bool] = typer.Option(None, "--version", callback=version_callback),
+    urlconf: Optional[str] = typer.Option(None, "-u", "--urlconf", help="Specify the URLconf to check."),
 ) -> None:
     """Check all URLConfs for errors.
 
     Args:
-        version (bool, optional): Show version. Defaults to None.
+
+        urlconf (str, optional): Specify the URLconf to check.
+
+        version (bool, optional): Show version.
 
     Returns:
         None
@@ -75,6 +42,8 @@ def run(
     if django.VERSION[0:2] < (3, 2):
         typer.secho("Django version 3.2 or higher is required.", fg=typer.colors.RED)
         typer.Exit(1)
+
+    setup_django(urlconf=urlconf)
 
     from django_urlconfchecks.check import check_url_signatures
 
