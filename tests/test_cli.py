@@ -1,7 +1,7 @@
 from typer.testing import CliRunner
-from django_urlconfchecks.cli import app
-from django_urlconfchecks import __version__
 
+from django_urlconfchecks import __version__
+from django_urlconfchecks.cli import app
 
 runner = CliRunner()
 
@@ -22,6 +22,3 @@ def test_cli_urlconf_correct():
     result = runner.invoke(app, ["--urlconf", "tests.dummy_project.urls.correct_urls"])
     assert "Done. No errors found." in result.output
     assert result.exit_code == 0
-
-
-
