@@ -49,3 +49,17 @@ $ urlconfchecks --urlconf my_project.urls
 
   Done. No errors found.
 ```
+
+### As a pre-commit hook
+Make sure you have `pre-commit` installed and if not, install it with `pip install pre-commit && pre-commit install`.
+
+Then, add the following to your `.pre-commit-config.yaml` file:
+
+```yaml
+  - repo: https://github.com/AliSayyah/django-urlconfchecks
+    rev: 0.4.0
+    hooks:
+      - id: django-urlconfchecks
+```
+
+Run `pre-commit run` to check all URLConfs for errors.
