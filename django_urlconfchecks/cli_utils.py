@@ -1,6 +1,7 @@
 import importlib
 import os
 import sys
+import typing as t
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from os import devnull
 
@@ -17,7 +18,7 @@ def suppress_std():
             yield err, out
 
 
-def setup_django(urlconf: str):
+def setup_django(urlconf: t.Optional[str]):
     """
     We need to set up Django before running checks.
 
@@ -36,7 +37,6 @@ def setup_django(urlconf: str):
         django.setup()
     if urlconf:
         settings.ROOT_URLCONF = urlconf
-
 
 
 def get_manage():
