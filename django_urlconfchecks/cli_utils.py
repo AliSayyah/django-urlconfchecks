@@ -1,3 +1,4 @@
+"""Utils for cli."""
 import importlib
 import os
 import sys
@@ -12,15 +13,14 @@ from django.conf import settings
 
 @contextmanager
 def suppress_std():
-    """A context manager that redirects stdout and stderr to devnull"""
+    """A context manager that redirects stdout and stderr to devnull."""
     with open(devnull, 'w') as fnull:
         with redirect_stderr(fnull) as err, redirect_stdout(fnull) as out:
             yield err, out
 
 
 def setup_django(urlconf: t.Optional[str]):
-    """
-    We need to set up Django before running checks.
+    """We need to set up Django before running checks.
 
     For running checks, we need to access UrlConf module correctly;
     so we use manage.py to set the `DJANGO_SETTINGS_MODULE`.
@@ -40,6 +40,7 @@ def setup_django(urlconf: t.Optional[str]):
 
 
 def get_manage():
+    """Get the path to manage.py and import it with `importlib.import_module`."""
     if os.getcwd() not in sys.path:
         sys.path.insert(0, os.getcwd())
 
