@@ -22,3 +22,23 @@ def test_cli_urlconf_correct():
     result = runner.invoke(app, ["--urlconf", "tests.dummy_project.urls.correct_urls"])
     assert "Done. No errors found." in result.output
     assert result.exit_code == 0
+
+
+def test_cli_urlconf_incorrect_one_error():
+    result = runner.invoke(app, ["--urlconf", "tests.dummy_project.urls.incorrect_urls"])
+    assert "1 error found:\n" \
+           "\t<URLPattern 'articles/<str:year>/'>: (urlchecker.E002) For parameter `year`," \
+           " annotated type int does not match expected `str` from urlconf\n" in result.output
+    assert result.exit_code == 1
+
+
+def test_cli_urlconf_incorrect_multiple_errors():
+    result = runner.invoke(app, ["--urlconf", "tests.dummy_project.urls.child_urls"])
+    assert "3 errors found:\n" \
+           "\t<URLPattern 'articles/<str:year>/<str:month>/'>: (urlchecker.E002) For parameter `year`," \
+           " annotated type int does not match expected `str` from urlconf\n" \
+           "\t<URLPattern 'articles/<str:year>/<str:month>/'>: (urlchecker.E002) For parameter `month`," \
+           " annotated type int does not match expected `str` from urlconf\n" \
+           "\t<URLPattern 'articles/<str:year>/<int:month>/<slug:slug>/'>: (urlchecker.E002) For parameter `year`," \
+           " annotated type int does not match expected `str` from urlconf\n" == result.output
+    assert result.exit_code == 1

@@ -48,7 +48,8 @@ def get_manage():
     except ImportError:
         typer.secho(
             "Could not find manage.py in current directory or subdirectories.\n"
-            "Make sure you are in the project root directory where manage.py exists.",
+            "Make sure you are in the project root directory where manage.py exists."
+            "Or you can specify your main urlconf module path with -u or --urlconf option.",
             fg=typer.colors.RED,
         )
         raise typer.Exit(1)

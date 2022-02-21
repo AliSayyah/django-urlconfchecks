@@ -41,7 +41,7 @@ def run(
     """
     if django.VERSION[0:2] < (3, 2):
         typer.secho("Django version 3.2 or higher is required.", fg=typer.colors.RED)
-        typer.Exit(1)
+        raise typer.Exit(1)
 
     setup_django(urlconf=urlconf)
 
@@ -56,7 +56,7 @@ def run(
                 typer.secho(f"\t{error}", fg=typer.colors.RED)
             else:
                 typer.secho(f"\t{error}", fg=typer.colors.YELLOW)
-        typer.Exit(1)
+        raise typer.Exit(1)
     else:
         typer.secho("Done. No errors found.", fg=typer.colors.GREEN)
-        typer.Exit(0)
+        raise typer.Exit(0)
