@@ -3,6 +3,8 @@ name: Changelog
 on:
   pull_request:
     types: [closed]
+    
+  workflow_dispatch:
 
 jobs:
   generate_changelog:
