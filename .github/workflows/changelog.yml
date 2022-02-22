@@ -18,6 +18,7 @@ jobs:
         with:
           token: ${{ secrets.PERSONAL_TOKEN }}
           output: release-notes.md
+          future_release: future_release
 
       - name: Commit files
         env:
