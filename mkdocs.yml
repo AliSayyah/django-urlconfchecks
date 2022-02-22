@@ -12,15 +12,25 @@ nav:
 theme:
   name: material
   language: en
-  #logo: assets/logo.png
   palette:
-    scheme: preference
-    primary: indigo
-    accent: indigo
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: red
+      accent: red
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
   features:
     - navigation.indexes
     - navigation.instant
     - navigation.tabs.sticky
+    - navigation.tracking
 markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
@@ -58,9 +68,3 @@ extra:
       name: Github
     - icon: material/email
       link: "mailto:ali.sayyah2@gmail.com"
-  # to enable disqus, uncomment the following and put your disqus id below
-  # disqus: disqus_id
-# uncomment the following and put your google tracking id below to enable GA
-#google_analytics:
-  #- UA-xxx
-  #- auto
