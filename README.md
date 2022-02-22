@@ -6,7 +6,8 @@
 [![codecov](https://codecov.io/gh/AliSayyah/django-urlconfchecks/branch/main/graphs/badge.svg)](https://codecov.io/github/AliSayyah/django-urlconfchecks)
 [![License](https://img.shields.io/github/license/AliSayyah/django-urlconfchecks.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-a python package for type checking the urls and associated views
+django-urlconfchecks is a static type checker that checks your URLconf parameter types with argument types specified in associated views.
+It leverages the Django's static check system.
 
 * [Documentation](https://AliSayyah.github.io/django-urlconfchecks)
 * [GitHub](https://github.com/AliSayyah/django-urlconfchecks)
