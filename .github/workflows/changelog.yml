@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Generate changelog for master branch
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2.4.0
 
       - name: Generate changelog
         uses: charmixer/auto-changelog-action@v1
