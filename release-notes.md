@@ -1,6 +1,6 @@
 # Changelog
 
-## [future_release](https://github.com/AliSayyah/django-urlconfchecks/tree/future_release) (2022-02-27)
+## [future_release](https://github.com/AliSayyah/django-urlconfchecks/tree/future_release) (2022-02-28)
 
 [Full Changelog](https://github.com/AliSayyah/django-urlconfchecks/compare/v0.5.0...future_release)
 
