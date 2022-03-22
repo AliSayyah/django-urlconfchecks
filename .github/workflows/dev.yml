@@ -37,7 +37,7 @@ jobs:
           pip install poetry tox tox-gh-actions
 
       - name: Set up cache
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3
         id: cache
         with:
           path: .venv
