@@ -32,6 +32,8 @@ def check_url_signatures(app_configs, **kwargs) -> t.List[t.Union[checks.Error, 
 
 def get_all_routes(resolver: URLResolver) -> t.Iterable[URLPattern]:
     """Recursively get all routes from the resolver."""
+    if resolver.app_name == 'admin':
+        return []
     for pattern in resolver.url_patterns:
         if isinstance(pattern, URLResolver):
             yield from get_all_routes(pattern)
