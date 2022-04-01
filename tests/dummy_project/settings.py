@@ -14,3 +14,4 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django_urlconfchecks",
 ]
+SECRET_KEY = "secret"
