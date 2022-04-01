@@ -30,8 +30,7 @@ urlconfchecks = "django_urlconfchecks.cli:app"
 [tool.poetry.dependencies]
 python = ">=3.7.0"
 Django = ">=3.2"
-typer = { extras = ["all"], version = "^0.4.0" }
-click = "<=8.0.4"
+typer = { extras = ["all"], version = "^0.4.1" }
 
 black = { version = ">=22.3.0", optional = true }
 isort = { version = "^5.8.0", optional = true }
