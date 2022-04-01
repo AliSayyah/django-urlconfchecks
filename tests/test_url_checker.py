@@ -71,7 +71,7 @@ def test_child_urls_checked():
         assert len(list(routes)) == 3
 
 
-def test_admin_urls_checked():
+def test_admin_urls_ignored():
     """Test that admin urls are ignored.
 
     Returns:
