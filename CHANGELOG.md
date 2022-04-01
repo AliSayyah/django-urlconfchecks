@@ -38,3 +38,10 @@
 
 - Added two more ways to use the package: a `CLI tool` and a `pre-commit hook`. For more information, see
   the [usage documentation](https://alisayyah.github.io/django-urlconfchecks/usage/).
+
+## [0.6.0] - 2022-04-01
+
+### Fixed
+
+- Fixed a bug that caused `urlconfchecks` to show warnings for Django's `admin` app. Now, `admin` app will be ignored.
+  Courtesy @nightboard.
