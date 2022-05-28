@@ -110,7 +110,6 @@ output will be:
     - Fine-grained methods for silencing checks.
     - Should only warn for each unhandled Converter once.
     - Regex patterns perhaps? (only RoutePattern supported at the moment).
-    - Explore usage of the package as a pre-commit hook or mypy plugin (or maybe both).
 
 ## Credits
 
