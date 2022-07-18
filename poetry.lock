@@ -13,17 +13,6 @@ typing-extensions = {version = "*", markers = "python_version < \"3.8\""}
 tests = ["pytest", "pytest-asyncio", "mypy (>=0.800)"]
 
 [[package]]
-name = "astunparse"
-version = "1.6.3"
-description = "An AST unparser for Python"
-category = "main"
-optional = true
-python-versions = "*"
-
-[package.dependencies]
-six = ">=1.6.1,<2.0"
-
-[[package]]
 name = "atomicwrites"
 version = "1.4.0"
 description = "Atomic file writes."
@@ -88,14 +77,6 @@ description = "Version-bump your software with a single command!"
 category = "main"
 optional = true
 python-versions = ">=3.5"
-
-[[package]]
-name = "cached-property"
-version = "1.5.2"
-description = "A decorator for caching properties in classes."
-category = "main"
-optional = true
-python-versions = "*"
 
 [[package]]
 name = "certifi"
@@ -485,7 +466,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "mkdocstrings"
-version = "0.18.1"
+version = "0.19.0"
 description = "Automatic documentation from sources, for MkDocs."
 category = "main"
 optional = true
@@ -497,25 +478,12 @@ Markdown = ">=3.3"
 MarkupSafe = ">=1.1"
 mkdocs = ">=1.2"
 mkdocs-autorefs = ">=0.3.1"
-mkdocstrings-python-legacy = ">=0.2"
 pymdown-extensions = ">=6.3"
 
 [package.extras]
 crystal = ["mkdocstrings-crystal (>=0.3.4)"]
 python = ["mkdocstrings-python (>=0.5.2)"]
 python-legacy = ["mkdocstrings-python-legacy (>=0.2.1)"]
-
-[[package]]
-name = "mkdocstrings-python-legacy"
-version = "0.2.1"
-description = "A legacy Python handler for mkdocstrings."
-category = "main"
-optional = true
-python-versions = ">=3.7"
-
-[package.dependencies]
-mkdocstrings = ">=0.18"
-pytkdocs = ">=0.14"
 
 [[package]]
 name = "mypy"
@@ -749,22 +717,6 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 
 [package.dependencies]
 six = ">=1.5"
-
-[[package]]
-name = "pytkdocs"
-version = "0.15.0"
-description = "Load Python objects documentation."
-category = "main"
-optional = true
-python-versions = ">=3.6.2"
-
-[package.dependencies]
-astunparse = {version = ">=1.6", markers = "python_version < \"3.9\""}
-cached-property = {version = ">=1.5", markers = "python_version < \"3.8\""}
-typing-extensions = {version = ">=3.7", markers = "python_version < \"3.8\""}
-
-[package.extras]
-numpy-style = ["docstring_parser (>=0.7)"]
 
 [[package]]
 name = "pytz"
@@ -1082,16 +1034,12 @@ test = ["pytest", "black", "isort", "mypy", "flake8", "flake8-docstrings", "pyte
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.0"
-content-hash = "3ce41e462088bcd501b0eb8442da51929e963222bd7a359a494024f47c3c602d"
+content-hash = "d264413000d24dcae03f1f04ca0719a3e7b0f741625411893028b54aa2ebaa4a"
 
 [metadata.files]
 asgiref = [
     {file = "asgiref-3.5.0-py3-none-any.whl", hash = "sha256:88d59c13d634dcffe0510be048210188edd79aeccb6a6c9028cdad6f31d730a9"},
     {file = "asgiref-3.5.0.tar.gz", hash = "sha256:2f8abc20f7248433085eda803936d98992f1343ddb022065779f37c5da0181d0"},
-]
-astunparse = [
-    {file = "astunparse-1.6.3-py2.py3-none-any.whl", hash = "sha256:c2652417f2c8b5bb325c885ae329bdf3f86424075c4fd1a128674bc6fba4b8e8"},
-    {file = "astunparse-1.6.3.tar.gz", hash = "sha256:5ad93a8456f0d084c3456d059fd9a92cce667963232cbf763eac3bc5b7940872"},
 ]
 atomicwrites = [
     {file = "atomicwrites-1.4.0-py2.py3-none-any.whl", hash = "sha256:6d1784dea7c0c8d4a5172b6c620f40b6e4cbfdf96d783691f2e1302a7b88e197"},
@@ -1133,10 +1081,6 @@ bleach = [
 bump2version = [
     {file = "bump2version-1.0.1-py2.py3-none-any.whl", hash = "sha256:37f927ea17cde7ae2d7baf832f8e80ce3777624554a653006c9144f8017fe410"},
     {file = "bump2version-1.0.1.tar.gz", hash = "sha256:762cb2bfad61f4ec8e2bdf452c7c267416f8c70dd9ecb1653fd0bbb01fa936e6"},
-]
-cached-property = [
-    {file = "cached-property-1.5.2.tar.gz", hash = "sha256:9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130"},
-    {file = "cached_property-1.5.2-py2.py3-none-any.whl", hash = "sha256:df4f613cf7ad9a588cc381aaf4a512d26265ecebd5eb9e1ba12f1319eb85a6a0"},
 ]
 certifi = [
     {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
@@ -1439,12 +1383,8 @@ mkdocs-material-extensions = [
     {file = "mkdocs_material_extensions-1.0.3-py3-none-any.whl", hash = "sha256:a82b70e533ce060b2a5d9eb2bc2e1be201cf61f901f93704b4acf6e3d5983a44"},
 ]
 mkdocstrings = [
-    {file = "mkdocstrings-0.18.1-py3-none-any.whl", hash = "sha256:4053929356df8cd69ed32eef71d8f676a472ef72980c9ffd4f933ead1debcdad"},
-    {file = "mkdocstrings-0.18.1.tar.gz", hash = "sha256:fb7c91ce7e3ab70488d3fa6c073a4f827cdc319042f682ef8ea95459790d64fc"},
-]
-mkdocstrings-python-legacy = [
-    {file = "mkdocstrings-python-legacy-0.2.1.tar.gz", hash = "sha256:d8b032e1d1b4c75a601fcc5837249e2b2dc2cb21c9ad32a313ffaa54d5838242"},
-    {file = "mkdocstrings_python_legacy-0.2.1-py3-none-any.whl", hash = "sha256:a46f772b24d9a41f0b4eaa27a4ae70195cacc76af462fce691d085e0b4fc8c78"},
+    {file = "mkdocstrings-0.19.0-py3-none-any.whl", hash = "sha256:3217d510d385c961f69385a670b2677e68e07b5fea4a504d86bf54c006c87c7d"},
+    {file = "mkdocstrings-0.19.0.tar.gz", hash = "sha256:efa34a67bad11229d532d89f6836a8a215937548623b64f3698a1df62e01cc3e"},
 ]
 mypy = [
     {file = "mypy-0.960-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:3a3e525cd76c2c4f90f1449fd034ba21fcca68050ff7c8397bb7dd25dd8b8248"},
@@ -1546,10 +1486,6 @@ pytest-cov = [
 python-dateutil = [
     {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
     {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
-]
-pytkdocs = [
-    {file = "pytkdocs-0.15.0-py3-none-any.whl", hash = "sha256:d6b2aec34448ec89acb8c1c25062cc1e70c6b26395d46fc7ee753b7e5a4e736a"},
-    {file = "pytkdocs-0.15.0.tar.gz", hash = "sha256:4b45af89d6fa5fa50f979b0f9f54539286b84e245c81991bb838149aa2d9d9c9"},
 ]
 pytz = [
     {file = "pytz-2021.3-py2.py3-none-any.whl", hash = "sha256:3672058bc3453457b622aab7a1c3bfd5ab0bdae451512f6cf25f64ed37f5b87c"},
