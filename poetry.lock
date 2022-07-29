@@ -430,7 +430,7 @@ mkdocs = ">=1.1"
 
 [[package]]
 name = "mkdocs-include-markdown-plugin"
-version = "3.6.0"
+version = "3.6.1"
 description = "Mkdocs Markdown includer plugin."
 category = "main"
 optional = true
@@ -1371,8 +1371,8 @@ mkdocs-autorefs = [
     {file = "mkdocs_autorefs-0.4.1-py3-none-any.whl", hash = "sha256:a2248a9501b29dc0cc8ba4c09f4f47ff121945f6ce33d760f145d6f89d313f5b"},
 ]
 mkdocs-include-markdown-plugin = [
-    {file = "mkdocs_include_markdown_plugin-3.6.0-py3-none-any.whl", hash = "sha256:dc2cb6dc684c281d157f1794694a82f443d8dbab598f41e725889b9c2bac07c8"},
-    {file = "mkdocs_include_markdown_plugin-3.6.0.tar.gz", hash = "sha256:53754a5b91fdf0c18571a41f8c1db6a54cc02a76632d7a49753fd8fc2d5e1169"},
+    {file = "mkdocs_include_markdown_plugin-3.6.1-py3-none-any.whl", hash = "sha256:ea36a7d50ee98028f03574d7bf40a307e16211ad3013a4e42f64494b3c106e9e"},
+    {file = "mkdocs_include_markdown_plugin-3.6.1.tar.gz", hash = "sha256:5e7416f23081085a220f7534b2fc7456e74c5a65f3b401da1f29b9e9132b46e5"},
 ]
 mkdocs-material = [
     {file = "mkdocs-material-8.2.7.tar.gz", hash = "sha256:3314d94ccc11481b1a3aa4f7babb4fb2bc47daa2fa8ace2463665952116f409b"},
