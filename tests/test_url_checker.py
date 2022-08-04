@@ -68,7 +68,7 @@ def test_child_urls_checked():
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.parent_urls'):
         resolver = get_resolver()
         routes = get_all_routes(resolver)
-        assert len(list(routes)) == 3
+        assert len(list(routes)) == 4
 
 
 def test_admin_urls_ignored():
