@@ -1,8 +1,15 @@
 """views for tests."""
 
+from typing import Optional
+
 
 def bad_view(slug: str):
     """View missing the `request` parameter."""
+    ...
+
+
+def bad_arg(request, id: Optional[int] = None):
+    """View with bad argument, using Optional."""
     ...
 
 
