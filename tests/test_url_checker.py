@@ -1,6 +1,4 @@
 """Tests for `django_urlconfchecks` package."""
-import os
-
 from django.core import checks
 from django.test.utils import override_settings
 from django.urls import URLPattern
@@ -9,8 +7,6 @@ from django.urls.resolvers import RoutePattern, get_resolver
 from django_urlconfchecks.check import check_url_signatures, get_all_routes
 from tests.dummy_project.views import year_archive
 from tests.utils import error_eql
-
-os.environ['DJANGO_SETTINGS_MODULE'] = 'django.conf.global_settings'
 
 
 def test_correct_urls():
@@ -68,7 +64,7 @@ def test_child_urls_checked():
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.parent_urls'):
         resolver = get_resolver()
         routes = get_all_routes(resolver)
-        assert len(list(routes)) == 3
+        assert len(list(routes)) == 5
 
 
 def test_admin_urls_ignored():

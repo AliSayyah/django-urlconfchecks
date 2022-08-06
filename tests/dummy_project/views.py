@@ -1,6 +1,11 @@
 """views for tests."""
 
 
+def bad_view(slug: str):
+    """View missing the `request` parameter."""
+    ...
+
+
 def special_case(request):
     """This is a special case.
 

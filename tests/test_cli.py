@@ -42,13 +42,17 @@ def test_cli_urlconf_incorrect_multiple_errors():
     """Test when multiple urlconfs are incorrect."""
     result = runner.invoke(app, ["--urlconf", "tests.dummy_project.urls.child_urls"])
     assert (
-        "3 errors found:\n"
+        "5 errors found:\n"
         "\t<URLPattern 'articles/<str:year>/<str:month>/'>: (urlchecker.E002) For parameter `year`,"
         " annotated type int does not match expected `str` from urlconf\n"
         "\t<URLPattern 'articles/<str:year>/<str:month>/'>: (urlchecker.E002) For parameter `month`,"
         " annotated type int does not match expected `str` from urlconf\n"
         "\t<URLPattern 'articles/<str:year>/<int:month>/<slug:slug>/'>: (urlchecker.E002) For parameter `year`,"
-        " annotated type int does not match expected `str` from urlconf\n" == result.output
+        " annotated type int does not match expected `str` from urlconf\n"
+        "\t<URLPattern '<slug:slug>/'>: (urlchecker.E001) View tests.dummy_project.views.bad_view signature "
+        "does not start with `request` parameter, found `slug`.\n"
+        "\t<URLPattern 'special-case/<int:param>/'>: (urlchecker.E003) View tests.dummy_project.views.special_case "
+        "signature does not contain `param` parameter\n" == result.output
     )
     assert result.exit_code == 1
 
