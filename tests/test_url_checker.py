@@ -29,7 +29,8 @@ def test_incorrect_urls():
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.incorrect_urls'):
         errors = check_url_signatures(None)
         expected_error = checks.Error(
-            'View tests.dummy_project.views.year_archive for parameter `year`, annotated type int does not match expected `str` from urlconf',
+            'View tests.dummy_project.views.year_archive for parameter `year`, annotated '
+            'type int does not match expected `str` from urlconf',
             hint=None,
             obj=URLPattern(
                 pattern=RoutePattern(route='articles/<str:year>/', is_endpoint=True),
