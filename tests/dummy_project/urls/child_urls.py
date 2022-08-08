@@ -8,5 +8,6 @@ urlpatterns = [
     path('articles/<str:year>/<str:month>/', views.month_archive),
     path('articles/<str:year>/<int:month>/<slug:slug>/', views.article_detail),
     path('<slug:slug>/', views.bad_view),
+    path('<int:id>/', views.bad_arg),
     path('special-case/<int:param>/', views.special_case),
 ]

@@ -1,4 +1,6 @@
 """Test module for cli."""
+import sys
+
 import pytest
 from django.conf import settings
 from django.utils.functional import empty
@@ -32,7 +34,8 @@ def test_cli_urlconf_incorrect_one_error():
     result = runner.invoke(app, ["--urlconf", "tests.dummy_project.urls.incorrect_urls"])
     assert (
         "1 error found:\n"
-        "\t<URLPattern 'articles/<str:year>/'>: (urlchecker.E002) For parameter `year`,"
+        "\t<URLPattern 'articles/<str:year>/'>: (urlchecker.E002) View"
+        " tests.dummy_project.views.year_archive for parameter `year`,"
         " annotated type int does not match expected `str` from urlconf\n" in result.output
     )
     assert result.exit_code == 1
@@ -41,16 +44,24 @@ def test_cli_urlconf_incorrect_one_error():
 def test_cli_urlconf_incorrect_multiple_errors():
     """Test when multiple urlconfs are incorrect."""
     result = runner.invoke(app, ["--urlconf", "tests.dummy_project.urls.child_urls"])
+    optional_int_repr = "typing.Optional[int]" if sys.version_info >= (3, 9) else "typing.Union[int, NoneType]"
+
     assert (
-        "5 errors found:\n"
-        "\t<URLPattern 'articles/<str:year>/<str:month>/'>: (urlchecker.E002) For parameter `year`,"
+        "6 errors found:\n"
+        "\t<URLPattern 'articles/<str:year>/<str:month>/'>: (urlchecker.E002) View"
+        " tests.dummy_project.views.month_archive for parameter `year`,"
         " annotated type int does not match expected `str` from urlconf\n"
-        "\t<URLPattern 'articles/<str:year>/<str:month>/'>: (urlchecker.E002) For parameter `month`,"
+        "\t<URLPattern 'articles/<str:year>/<str:month>/'>: (urlchecker.E002) View"
+        " tests.dummy_project.views.month_archive for parameter `month`,"
         " annotated type int does not match expected `str` from urlconf\n"
-        "\t<URLPattern 'articles/<str:year>/<int:month>/<slug:slug>/'>: (urlchecker.E002) For parameter `year`,"
+        "\t<URLPattern 'articles/<str:year>/<int:month>/<slug:slug>/'>: (urlchecker.E002) View"
+        " tests.dummy_project.views.article_detail for parameter `year`,"
         " annotated type int does not match expected `str` from urlconf\n"
         "\t<URLPattern '<slug:slug>/'>: (urlchecker.E001) View tests.dummy_project.views.bad_view signature "
         "does not start with `request` parameter, found `slug`.\n"
+        "\t<URLPattern '<int:id>/'>: (urlchecker.E002) View"
+        " tests.dummy_project.views.bad_arg for parameter `id`,"
+        f" annotated type {optional_int_repr} does not match expected `int` from urlconf\n"
         "\t<URLPattern 'special-case/<int:param>/'>: (urlchecker.E003) View tests.dummy_project.views.special_case "
         "signature does not contain `param` parameter\n" == result.output
     )
