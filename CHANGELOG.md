@@ -45,3 +45,9 @@
 
 - Fixed a bug that caused `urlconfchecks` to show warnings for Django's `admin` app. Now, `admin` app will be ignored.
   Courtesy @nightboard.
+
+## [0.7.0] - 2022-08-11
+
+### Added
+
+- Added fine-grained method for silencing errors. Courtesy @spookylukey
