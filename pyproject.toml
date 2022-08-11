@@ -1,7 +1,7 @@
 [tool]
 [tool.poetry]
 name = "django-urlconfchecks"
-version = "0.6.0"
+version = "0.7.0"
 homepage = "https://github.com/AliSayyah/django-urlconfchecks"
 description = "a python package for type checking the urls and associated views."
 authors = ["ali sayyah <ali.sayyah2@gmail.com>"]
