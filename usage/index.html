@@ -322,6 +322,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#silencing-errors-and-warnings" class="md-nav__link">
+    Silencing errors and warnings
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -418,6 +425,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#silencing-errors-and-warnings" class="md-nav__link">
+    Silencing errors and warnings
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -482,11 +496,43 @@ accessing the main URLConf module.</p>
 <p>Make sure you have <code>pre-commit</code> installed and if not, install it with <code>pip install pre-commit &amp;&amp; pre-commit install</code>.</p>
 <p>Then, add the following to your <code>.pre-commit-config.yaml</code> file:</p>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/AliSayyah/django-urlconfchecks</span><span class="w"></span>
-<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.6.0</span><span class="w"></span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.7.0</span><span class="w"></span>
 <span class="w">    </span><span class="nt">hooks</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">django-urlconfchecks</span><span class="w"></span>
 </code></pre></div>
 <p>Run <code>pre-commit run</code> to check all URLConfs for errors.</p>
+<h3 id="silencing-errors-and-warnings">Silencing errors and warnings<a class="headerlink" href="#silencing-errors-and-warnings" title="Permanent link">&para;</a></h3>
+<p>You can silence specific errors and warnings as described in the <a href="https://docs.djangoproject.com/en/stable/topics/checks/">System check
+framework
+documentation</a>.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="n">SILENCED_SYSTEM_CHECKS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;urlchecker.W003“,</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>However, this turns off the check for all view functions. Instead of this you
+can use the <code>URLCONFCHECKS_SILENCED_VIEWS</code> setting for more fine grained
+silencing. The value must be a dictionary:</p>
+<ul>
+<li>
+<p>whose keys are fully qualified dotted paths to view functions or callables,
+  with globbing syntax allowed, e.g. <code>"my_project.views.my_view"</code> or
+  <code>"other_project.*"</code></p>
+</li>
+<li>
+<p>whose values are comma separated lists of warning or error IDs (without the
+  <code>urlchecker</code> prefix), e.g. <code>"E001,W003”</code></p>
+</li>
+</ul>
+<p>The default value of <code>URLCONFCHECKS_SILENCED_VIEWS</code> is below. If you override it
+in your <code>settings.py</code>, you will probably want to include the following and add
+more items:</p>
+<div class="highlight"><pre><span></span><code><span class="n">URLCONFCHECKS_SILENCED_VIEWS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;*.View.as_view.&lt;locals&gt;.view&quot;</span><span class="p">:</span> <span class="s2">&quot;W001&quot;</span><span class="p">,</span>  <span class="c1"># CBVs</span>
+    <span class="s2">&quot;django.views.generic.base.RedirectView&quot;</span><span class="p">:</span> <span class="s2">&quot;W001&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;django.contrib.*&quot;</span><span class="p">:</span> <span class="s2">&quot;W003&quot;</span><span class="p">,</span>  <span class="c1"># admin etc.</span>
+<span class="p">}</span>
+</code></pre></div>
 
               
             </article>
