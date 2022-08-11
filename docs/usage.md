@@ -57,7 +57,7 @@ Then, add the following to your `.pre-commit-config.yaml` file:
 
 ```yaml
   - repo: https://github.com/AliSayyah/django-urlconfchecks
-    rev: 0.7.0
+    rev: 0.7.1
     hooks:
       - id: django-urlconfchecks
 ```
