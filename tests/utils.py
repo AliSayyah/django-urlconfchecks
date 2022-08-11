@@ -49,9 +49,15 @@ def error_eql(error: checks.Error, expected_error: checks.Error) -> bool:
     Returns:
         True if the Error objects are equal, False otherwise.
     """
+    if isinstance(error.obj, URLPattern) and isinstance(expected_error.obj, URLPattern):
+        obj_equal = url_pattern_eql(error.obj, expected_error.obj)
+    elif isinstance(error.obj, type) and isinstance(expected_error.obj, type):
+        obj_equal = error.obj == expected_error.obj
+    else:
+        obj_equal = False
     return (
         error.msg == expected_error.msg
         and error.hint == expected_error.hint
         and error.id == expected_error.id
-        and url_pattern_eql(error.obj, expected_error.obj)
+        and obj_equal
     )

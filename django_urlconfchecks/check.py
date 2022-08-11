@@ -110,11 +110,13 @@ def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
             found_type = sig.parameters[name].annotation
             if expected_type == Parameter.empty:
                 # TODO - only output this warning once per converter
+                obj = converter.__class__
                 errors.append(
                     checks.Warning(
-                        f'Don\'t know output type for convert {converter}, can\'t verify URL signatures.',
-                        obj=converter,
-                        id=f'urlchecker.W002.{converter.__module__}.{converter.__class__.__name__}',
+                        f"Don\'t know output type for converter {obj.__module__}.{obj.__name__},"
+                        " can\'t verify URL signatures.",
+                        obj=obj,
+                        id=f'urlchecker.W002.{obj.__module__}.{obj.__name__}',
                     )
                 )
             elif found_type == Parameter.empty:
@@ -180,13 +182,14 @@ CONVERTER_TYPES = {
 
 def get_converter_output_type(converter) -> t.Union[int, str, uuid.UUID, t.Type[_empty]]:
     """Return the type that the converter will output."""
-    cls = type(converter)
-    if cls in CONVERTER_TYPES:
-        return CONVERTER_TYPES[cls]
+    for cls in converter.__class__.__mro__:
+        if cls in CONVERTER_TYPES:
+            return CONVERTER_TYPES[cls]
 
-    sig = signature(converter.to_python)
-    if sig.return_annotation != Parameter.empty:
-        return sig.return_annotation
+        if hasattr(cls, "to_python"):
+            sig = signature(cls.to_python)
+            if sig.return_annotation != Parameter.empty:
+                return sig.return_annotation
 
     return Parameter.empty
 

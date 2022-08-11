@@ -4,7 +4,8 @@ from django.test.utils import override_settings
 from django.urls import URLPattern
 from django.urls.resolvers import RoutePattern, get_resolver
 
-from django_urlconfchecks.check import check_url_signatures, get_all_routes
+from django_urlconfchecks.check import check_url_signatures, get_all_routes, get_converter_output_type
+from tests.dummy_project.urls import converter_urls
 from tests.dummy_project.views import year_archive
 from tests.utils import error_eql
 
@@ -101,3 +102,36 @@ def test_admin_urls_ignored():
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.admin_urls'):
         errors = check_url_signatures(None)
         assert len(errors) == 0
+
+
+def test_converters():
+    assert get_converter_output_type(converter_urls.YearConverterViaSubclass()) == int
+    assert get_converter_output_type(converter_urls.YearConverterAsFloat()) == float
+
+    with override_settings(ROOT_URLCONF='tests.dummy_project.urls.converter_urls'):
+        errors = check_url_signatures(None)
+        assert len(errors) == 2
+        assert error_eql(
+            errors[0],
+            checks.Warning(
+                msg="Don't know output type for converter "
+                "tests.dummy_project.urls.converter_urls.YearConverterNoTypeHint, can't verify URL signatures.",
+                hint=None,
+                obj=converter_urls.YearConverterNoTypeHint,
+                id='urlchecker.W002.tests.dummy_project.urls.converter_urls.YearConverterNoTypeHint',
+            ),
+        )
+        assert error_eql(
+            errors[1],
+            checks.Error(
+                msg="View tests.dummy_project.views.year_archive for parameter `year`, "
+                "annotated type int does not match expected `float` from urlconf",
+                hint=None,
+                obj=URLPattern(
+                    pattern=RoutePattern(route="articles_yyyy_float/<yyyy_float:year>/", is_endpoint=True),
+                    callback=year_archive,
+                    default_args={},
+                ),
+                id="urlchecker.E002",
+            ),
+        )
