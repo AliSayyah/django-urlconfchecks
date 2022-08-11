@@ -1,4 +1,5 @@
 """Quick and dirty URL checker."""
+import fnmatch
 import typing as t
 import uuid
 from inspect import Parameter, _empty, signature  # type: ignore[attr-defined]
@@ -8,9 +9,21 @@ from django.core import checks
 from django.urls import URLPattern, URLResolver, converters, get_resolver
 from django.urls.resolvers import RoutePattern
 
+Problem = t.Union[checks.Error, checks.Warning]
+
+# Update docs about default value if you change this:
+_DEFAULT_SILENCED_VIEWS = {
+    # CBVs use **kwargs, and have a `__name__` that ends up looking like this in URLconf
+    "*.View.as_view.<locals>.view": "W001",
+    # RedirectView is used in a way that makes it appear directly, and it has **kwargs
+    "django.views.generic.base.RedirectView": "W001",
+    # Django contrib views currently don’t have type annotations:
+    "django.contrib.*": "W003",
+}
+
 
 @checks.register(checks.Tags.urls)
-def check_url_signatures(app_configs, **kwargs) -> t.List[t.Union[checks.Error, checks.Warning]]:
+def check_url_signatures(app_configs, **kwargs) -> t.List[Problem]:
     """Check that all callbacks in the main urlconf have the correct signature.
 
     Args:
@@ -25,15 +38,14 @@ def check_url_signatures(app_configs, **kwargs) -> t.List[t.Union[checks.Error, 
 
     resolver = get_resolver()
     errors = []
+    silencers = _build_view_silencers(getattr(settings, "URLCONFCHECKS_SILENCED_VIEWS", _DEFAULT_SILENCED_VIEWS))
     for route in get_all_routes(resolver):
         errors.extend(check_url_args_match(route))
-    return errors
+    return _filter_errors(errors, silencers)
 
 
 def get_all_routes(resolver: URLResolver) -> t.Iterable[URLPattern]:
     """Recursively get all routes from the resolver."""
-    if resolver.app_name == 'admin':
-        return []
     for pattern in resolver.url_patterns:
         if isinstance(pattern, URLResolver):
             yield from get_all_routes(pattern)
@@ -42,7 +54,7 @@ def get_all_routes(resolver: URLResolver) -> t.Iterable[URLPattern]:
                 yield pattern
 
 
-def check_url_args_match(url_pattern: URLPattern) -> t.List[t.Union[checks.Error, checks.Warning]]:
+def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
     """Check that all callbacks in the main urlconf have the correct signature."""
     callback = url_pattern.callback
     callback_repr = f'{callback.__module__}.{callback.__qualname__}'
@@ -108,7 +120,7 @@ def check_url_args_match(url_pattern: URLPattern) -> t.List[t.Union[checks.Error
             elif found_type == Parameter.empty:
                 errors.append(
                     checks.Warning(
-                        f'Missing type annotation for parameter `{name}`, can\'t check type.',
+                        f'View {callback_repr} missing type annotation for parameter `{name}`, can\'t check type.',
                         obj=url_pattern,
                         id='urlchecker.W003',
                     )
@@ -177,3 +189,35 @@ def get_converter_output_type(converter) -> t.Union[int, str, uuid.UUID, t.Type[
         return sig.return_annotation
 
     return Parameter.empty
+
+
+class ViewSilencer:
+    """Utility that checks whether errors for a view or set of views should be ignored."""
+
+    def __init__(self, view_glob: str, errors: t.Iterable[str]):
+        self.view_glob = view_glob
+        self.errors = set(errors)
+
+    def matches(self, error: Problem):
+        """Returns True if this silencer matches the given error or warning."""
+        url_pattern = error.obj
+        if not isinstance(url_pattern, URLPattern):
+            # Some other error, eg. for a convertor
+            return False
+        if error.id not in self.errors:
+            return False
+        view_name = f"{url_pattern.callback.__module__}.{url_pattern.callback.__qualname__}"
+        if fnmatch.fnmatch(view_name, self.view_glob):
+            return True
+        return False
+
+
+def _build_view_silencers(silenced_views: t.Dict[str, str]) -> t.List[ViewSilencer]:
+    return [
+        ViewSilencer(view_glob=view_glob, errors=[f"urlchecker.{error}" for error in error_list.split(",")])
+        for view_glob, error_list in silenced_views.items()
+    ]
+
+
+def _filter_errors(errors: t.List[Problem], silencers: t.List[ViewSilencer]) -> t.List[Problem]:
+    return [error for error in errors if not any(silencer.matches(error) for silencer in silencers)]

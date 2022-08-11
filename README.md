@@ -107,7 +107,6 @@ output will be:
 ```
 
 * TODO
-    - Fine-grained methods for silencing checks.
     - Should only warn for each unhandled Converter once.
     - Regex patterns perhaps? (only RoutePattern supported at the moment).
 

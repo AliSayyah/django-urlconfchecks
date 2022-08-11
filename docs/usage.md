@@ -63,3 +63,42 @@ Then, add the following to your `.pre-commit-config.yaml` file:
 ```
 
 Run `pre-commit run` to check all URLConfs for errors.
+
+
+## Silencing errors and warnings
+
+You can silence specific errors and warnings as described in the [System check
+framework
+documentation](https://docs.djangoproject.com/en/stable/topics/checks/).
+
+For example:
+
+```python
+SILENCED_SYSTEM_CHECKS = [
+    "urlchecker.W003“,
+]
+```
+
+However, this turns off the check for all view functions. Instead of this you
+can use the `URLCONFCHECKS_SILENCED_VIEWS` setting for more fine grained
+silencing. The value must be a dictionary:
+
+- whose keys are fully qualified dotted paths to view functions or callables,
+  with globbing syntax allowed, e.g. `"my_project.views.my_view"` or
+  `"other_project.*"`
+
+- whose values are comma separated lists of warning or error IDs (without the
+  `urlchecker` prefix), e.g. `"E001,W003”`
+
+
+The default value of `URLCONFCHECKS_SILENCED_VIEWS` is below. If you override it
+in your `settings.py`, you will probably want to include the following and add
+more items:
+
+```python
+URLCONFCHECKS_SILENCED_VIEWS = {
+    "*.View.as_view.<locals>.view": "W001",  # CBVs
+    "django.views.generic.base.RedirectView": "W001",
+    "django.contrib.*": "W003",  # admin etc.
+}
+```

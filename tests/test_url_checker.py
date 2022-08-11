@@ -44,6 +44,30 @@ def test_incorrect_urls():
         assert error_eql(errors[0], expected_error)
 
 
+def test_silencing():
+    """Test that fine-grained error silencing mechanisms work."""
+    # Specific view silenced
+    with override_settings(
+        ROOT_URLCONF="tests.dummy_project.urls.incorrect_urls",
+        URLCONFCHECKS_SILENCED_VIEWS={"tests.dummy_project.views.year_archive": "E002"},
+    ):
+        assert len(check_url_signatures(None)) == 0
+
+    # Glob pattern
+    with override_settings(
+        ROOT_URLCONF="tests.dummy_project.urls.incorrect_urls",
+        URLCONFCHECKS_SILENCED_VIEWS={"tests.dummy_project.views.*": "E002"},
+    ):
+        assert len(check_url_signatures(None)) == 0
+
+    # Non-matching silencer
+    with override_settings(
+        ROOT_URLCONF="tests.dummy_project.urls.incorrect_urls",
+        URLCONFCHECKS_SILENCED_VIEWS={"tests.dummy_project.views.month_archive": "E002"},
+    ):
+        assert len(check_url_signatures(None)) > 0
+
+
 def test_all_urls_checked():
     """Test that all urls are checked.
 
@@ -69,12 +93,11 @@ def test_child_urls_checked():
 
 
 def test_admin_urls_ignored():
-    """Test that admin urls are ignored.
+    """Test that admin urls errors are ignored with default settings.
 
     Returns:
         None
     """
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.admin_urls'):
-        resolver = get_resolver()
-        routes = get_all_routes(resolver)
-        assert len(list(routes)) == 0
+        errors = check_url_signatures(None)
+        assert len(errors) == 0
