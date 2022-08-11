@@ -51,3 +51,11 @@
 ### Added
 
 - Added fine-grained method for silencing errors. Courtesy @spookylukey
+
+
+## [0.7.1] - 2022-08-11
+
+### Added
+- Support subclasses of builtin converters.
+- More tests.
+- Cleanup output text to be more clear and informative.
