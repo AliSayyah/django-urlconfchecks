@@ -39,7 +39,7 @@ def year_archive(request, year: int):
 
 
 def year_archive_untyped(request, year):
-    """This is a year archive (with no type hint)"""
+    """This is a year archive (with no type hint)."""
     ...
 
 
