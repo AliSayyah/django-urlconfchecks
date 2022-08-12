@@ -62,6 +62,20 @@ def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
     sig = signature(callback)
     parameters = sig.parameters
 
+    # We need to match everything defined in route definition, plus the kwargs
+    # passed to path if any, against the signature of the view function.
+
+    # Overall strategy:
+
+    # 1. For all arguments captured by the RoutePattern, check they are in the
+    #    view sig and that the type matches.
+
+    # 2. For any parameter left in the view sig we didn't see yet,
+    #    check that it either has a default arg in the sig,
+    #    or that we can get it from the default_args in the URLPattern (and the type matches)
+
+    # 3. For anything left over in URLPattern.default_arguments, complain.
+
     has_star_args = False
     if any(p.kind in [Parameter.VAR_KEYWORD, Parameter.VAR_POSITIONAL] for p in parameters.values()):
         errors.append(
@@ -121,6 +135,7 @@ def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
                 )
             elif found_type == Parameter.empty:
                 errors.append(
+                    # This should be synced with W003 below.
                     checks.Warning(
                         f'View {callback_repr} missing type annotation for parameter `{name}`, can\'t check type.',
                         obj=url_pattern,
@@ -146,11 +161,36 @@ def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
                 )
             )
 
-    # Anything left over must have a default argument
+    # Anything left over must have a default argument, either from signature, or from url_pattern.default_args
+    used_from_default_args = []
     for name, param in sig.parameters.items():
         if name in used_from_sig:
             continue
+        if name in url_pattern.default_args:
+            used_from_default_args.append(name)
+            sig_type = param.annotation
+            default_arg = url_pattern.default_args[name]
+            if sig_type == Parameter.empty:
+                errors.append(
+                    checks.Warning(
+                        f'View {callback_repr} missing type annotation for parameter `{name}`, can\'t check type.',
+                        obj=url_pattern,
+                        id='urlchecker.W003',
+                    )
+                )
+            elif not isinstance(default_arg, sig_type):
+                errors.append(
+                    checks.Error(
+                        f'View {callback_repr}: for parameter `{name}`,'
+                        f' default argument {repr(default_arg)} in urlconf, type {_name_type(type(default_arg))},'
+                        f' does not match annotated type {_name_type(sig_type)} from view signature',
+                        obj=url_pattern,
+                        id='urlchecker.E005',
+                    )
+                )
+            continue
         if param.kind in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD):
+            # *args and **kwargs
             continue
         if param.default == Parameter.empty:
             errors.append(
@@ -160,6 +200,19 @@ def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
                     id='urlchecker.E004',
                 )
             )
+
+    # Anything left over in default_args is also an error
+    for name in url_pattern.default_args:
+        if name in used_from_default_args:
+            continue
+        errors.append(
+            checks.Error(
+                f'View {callback_repr} is being passed additional unexpected '
+                f'parameter `{name}` from default arguments in urlconf',
+                obj=url_pattern,
+                id='urlchecker.E006',
+            )
+        )
 
     return errors
 

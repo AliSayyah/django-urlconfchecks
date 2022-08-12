@@ -6,7 +6,7 @@ from django.urls.resolvers import RoutePattern, get_resolver
 
 from django_urlconfchecks.check import check_url_signatures, get_all_routes, get_converter_output_type
 from tests.dummy_project.urls import converter_urls
-from tests.dummy_project.views import year_archive
+from tests.dummy_project.views import year_archive, year_archive_untyped
 from tests.utils import error_eql
 
 
@@ -133,5 +133,71 @@ def test_converters():
                     default_args={},
                 ),
                 id="urlchecker.E002",
+            ),
+        )
+
+
+def test_path_kwargs():
+    """Test that kwargs specified in path(kwargs=...) are included in analysis."""
+    with override_settings(ROOT_URLCONF='tests.dummy_project.urls.path_kwargs_urls'):
+        errors = check_url_signatures(None)
+        assert len(errors) == 4
+
+        assert error_eql(
+            errors[0],
+            checks.Error(
+                msg="View tests.dummy_project.views.year_archive signature contains `year` parameter "
+                "without default or ULRconf parameter",
+                hint=None,
+                obj=URLPattern(
+                    pattern=RoutePattern(route='articles-2021/', is_endpoint=True),
+                    callback=year_archive,
+                    default_args={},
+                ),
+                id="urlchecker.E004",
+            ),
+        )
+
+        assert error_eql(
+            errors[1],
+            checks.Error(
+                msg="View tests.dummy_project.views.year_archive: for parameter `year`, default argument"
+                " '2022' in urlconf, type str, does not match annotated type int from view signature",
+                hint=None,
+                obj=URLPattern(
+                    pattern=RoutePattern(route='articles-2022/', is_endpoint=True),
+                    callback=year_archive,
+                    default_args={'year': '2022'},
+                ),
+                id="urlchecker.E005",
+            ),
+        )
+
+        assert error_eql(
+            errors[2],
+            checks.Error(
+                msg="View tests.dummy_project.views.year_archive is being passed additional unexpected "
+                "parameter `other` from default arguments in urlconf",
+                hint=None,
+                obj=URLPattern(
+                    pattern=RoutePattern(route='articles-2023/', is_endpoint=True),
+                    callback=year_archive,
+                    default_args={'year': 2023, 'other': 123},
+                ),
+                id="urlchecker.E006",
+            ),
+        )
+        assert error_eql(
+            errors[3],
+            checks.Warning(
+                msg="View tests.dummy_project.views.year_archive_untyped missing type annotation for "
+                "parameter `year`, can\'t check type.",
+                hint=None,
+                obj=URLPattern(
+                    pattern=RoutePattern(route='articles-2024/', is_endpoint=True),
+                    callback=year_archive_untyped,
+                    default_args={'year': 2024},
+                ),
+                id="urlchecker.W003",
             ),
         )
