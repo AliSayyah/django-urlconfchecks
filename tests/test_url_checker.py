@@ -4,7 +4,8 @@ from django.test.utils import override_settings
 from django.urls import URLPattern
 from django.urls.resolvers import RoutePattern, get_resolver
 
-from django_urlconfchecks.check import check_url_signatures, get_all_routes, get_converter_output_type
+from django_urlconfchecks.check import check_url_signatures, get_all_routes, get_converter_output_type, \
+    _DEFAULT_SILENCED_VIEWS
 from tests.dummy_project.urls import converter_urls
 from tests.dummy_project.views import year_archive, year_archive_untyped
 from tests.utils import error_eql
@@ -69,6 +70,14 @@ def test_silencing():
         assert len(check_url_signatures(None)) > 0
 
 
+def test_default_silencing_for_cbv():
+    with override_settings(
+        ROOT_URLCONF="tests.dummy_project.urls.cbv_urls",
+        URLCONFCHECKS_SILENCED_VIEWS=_DEFAULT_SILENCED_VIEWS
+    ):
+        assert len(check_url_signatures(None)) == 0
+
+
 def test_all_urls_checked():
     """Test that all urls are checked.
 
@@ -115,7 +124,7 @@ def test_converters():
             errors[0],
             checks.Warning(
                 msg="Don't know output type for converter "
-                "tests.dummy_project.urls.converter_urls.YearConverterNoTypeHint, can't verify URL signatures.",
+                    "tests.dummy_project.urls.converter_urls.YearConverterNoTypeHint, can't verify URL signatures.",
                 hint=None,
                 obj=converter_urls.YearConverterNoTypeHint,
                 id='urlchecker.W002.tests.dummy_project.urls.converter_urls.YearConverterNoTypeHint',
@@ -125,7 +134,7 @@ def test_converters():
             errors[1],
             checks.Error(
                 msg="View tests.dummy_project.views.year_archive for parameter `year`, "
-                "annotated type int does not match expected `float` from urlconf",
+                    "annotated type int does not match expected `float` from urlconf",
                 hint=None,
                 obj=URLPattern(
                     pattern=RoutePattern(route="articles_yyyy_float/<yyyy_float:year>/", is_endpoint=True),
@@ -147,7 +156,7 @@ def test_path_kwargs():
             errors[0],
             checks.Error(
                 msg="View tests.dummy_project.views.year_archive signature contains `year` parameter "
-                "without default or ULRconf parameter",
+                    "without default or ULRconf parameter",
                 hint=None,
                 obj=URLPattern(
                     pattern=RoutePattern(route='articles-2021/', is_endpoint=True),
@@ -162,7 +171,7 @@ def test_path_kwargs():
             errors[1],
             checks.Error(
                 msg="View tests.dummy_project.views.year_archive: for parameter `year`, default argument"
-                " '2022' in urlconf, type str, does not match annotated type int from view signature",
+                    " '2022' in urlconf, type str, does not match annotated type int from view signature",
                 hint=None,
                 obj=URLPattern(
                     pattern=RoutePattern(route='articles-2022/', is_endpoint=True),
@@ -177,7 +186,7 @@ def test_path_kwargs():
             errors[2],
             checks.Error(
                 msg="View tests.dummy_project.views.year_archive is being passed additional unexpected "
-                "parameter `other` from default arguments in urlconf",
+                    "parameter `other` from default arguments in urlconf",
                 hint=None,
                 obj=URLPattern(
                     pattern=RoutePattern(route='articles-2023/', is_endpoint=True),
@@ -191,7 +200,7 @@ def test_path_kwargs():
             errors[3],
             checks.Warning(
                 msg="View tests.dummy_project.views.year_archive_untyped missing type annotation for "
-                "parameter `year`, can\'t check type.",
+                    "parameter `year`, can\'t check type.",
                 hint=None,
                 obj=URLPattern(
                     pattern=RoutePattern(route='articles-2024/', is_endpoint=True),

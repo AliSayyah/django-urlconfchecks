@@ -2,6 +2,8 @@
 
 from typing import Optional
 
+from django.views import View
+
 
 def bad_view(slug: str):
     """View missing the `request` parameter."""
@@ -70,3 +72,9 @@ def article_detail(request, year: int, month: int, slug: str):
         A response object.
     """
     ...
+
+
+class CBVView(View):
+    """This is a simple class based view."""
+    def get(self, request):
+        ...
