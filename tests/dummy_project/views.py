@@ -76,5 +76,6 @@ def article_detail(request, year: int, month: int, slug: str):
 
 class CBVView(View):
     """This is a simple class based view."""
+
     def get(self, request):
         ...
