@@ -1,6 +1,6 @@
 """CBV urls for tests."""
 
-from django.urls import include, path
+from django.urls import path
 
 from tests.dummy_project import views
 

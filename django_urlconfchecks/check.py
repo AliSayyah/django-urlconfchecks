@@ -1,6 +1,5 @@
 """Quick and dirty URL checker."""
 import fnmatch
-import pprint
 import typing as t
 import uuid
 from inspect import Parameter, _empty, signature  # type: ignore[attr-defined]
@@ -273,7 +272,7 @@ class ViewSilencer:
             module = url_pattern.callback.__module__
 
         view_name = f"{module}.{qualname}"
-
+        print(f"1-{view_name}\n2-{self.view_glob}")
         if fnmatch.fnmatch(view_name, self.view_glob):
             return True
         return False
