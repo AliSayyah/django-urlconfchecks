@@ -272,7 +272,6 @@ class ViewSilencer:
             module = url_pattern.callback.__module__
 
         view_name = f"{module}.{qualname}"
-        print(f"1-{view_name}\n2-{self.view_glob}")
         if fnmatch.fnmatch(view_name, self.view_glob):
             return True
         return False
