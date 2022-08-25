@@ -65,3 +65,10 @@
 ### Added
 
 - Handle default arguments passed via path(kwargs). Courtesy @spookylukey
+
+
+## [0.7.3] - 2022-08-25
+
+### Fixed
+
+- Fixed an issue where default CBV silencing only worked for django 4
