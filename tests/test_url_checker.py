@@ -4,7 +4,12 @@ from django.test.utils import override_settings
 from django.urls import URLPattern
 from django.urls.resolvers import RoutePattern, get_resolver
 
-from django_urlconfchecks.check import check_url_signatures, get_all_routes, get_converter_output_type
+from django_urlconfchecks.check import (
+    _DEFAULT_SILENCED_VIEWS,
+    check_url_signatures,
+    get_all_routes,
+    get_converter_output_type,
+)
 from tests.dummy_project.urls import converter_urls
 from tests.dummy_project.views import year_archive, year_archive_untyped
 from tests.utils import error_eql
@@ -67,6 +72,13 @@ def test_silencing():
         URLCONFCHECKS_SILENCED_VIEWS={"tests.dummy_project.views.month_archive": "E002"},
     ):
         assert len(check_url_signatures(None)) > 0
+
+
+def test_default_silencing_for_cbv():
+    with override_settings(
+        ROOT_URLCONF="tests.dummy_project.urls.cbv_urls", URLCONFCHECKS_SILENCED_VIEWS=_DEFAULT_SILENCED_VIEWS
+    ):
+        assert len(check_url_signatures(None)) == 0
 
 
 def test_all_urls_checked():

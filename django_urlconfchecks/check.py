@@ -15,6 +15,8 @@ Problem = t.Union[checks.Error, checks.Warning]
 _DEFAULT_SILENCED_VIEWS = {
     # CBVs use **kwargs, and have a `__name__` that ends up looking like this in URLconf
     "*.View.as_view.<locals>.view": "W001",
+    # for CBVs before django 4
+    "django.views.generic.base.View.as_view": "W001",
     # RedirectView is used in a way that makes it appear directly, and it has **kwargs
     "django.views.generic.base.RedirectView": "W001",
     # Django contrib views currently don’t have type annotations:
@@ -262,7 +264,14 @@ class ViewSilencer:
             return False
         if error.id not in self.errors:
             return False
-        view_name = f"{url_pattern.callback.__module__}.{url_pattern.callback.__qualname__}"
+        if hasattr(url_pattern.callback, "view_class"):
+            qualname = url_pattern.callback.view_class.as_view.__qualname__
+            module = url_pattern.callback.view_class.as_view.__module__
+        else:
+            qualname = url_pattern.callback.__qualname__
+            module = url_pattern.callback.__module__
+
+        view_name = f"{module}.{qualname}"
         if fnmatch.fnmatch(view_name, self.view_glob):
             return True
         return False
