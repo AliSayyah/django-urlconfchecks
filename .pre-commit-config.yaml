@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.3.0
+    rev: v1.3.1
     hooks:
       - id: forbid-crlf
       - id: remove-crlf
@@ -18,12 +18,12 @@ repos:
       - id: isort
         args: [ "--filter-files" ]
   - repo: https://github.com/psf/black
-    rev: 22.6.0
+    rev: 22.8.0
     hooks:
       - id: black
         language_version: python3.7
   - repo: https://github.com/pycqa/flake8
-    rev: 5.0.3
+    rev: 5.0.4
     hooks:
       - id: flake8
         additional_dependencies: [ flake8-typing-imports==1.10.0 ]
