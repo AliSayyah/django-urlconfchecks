@@ -229,6 +229,9 @@ def _type_is_compatible(passed_type, accepted_type):
             # It's difficult to replicate Python 3.10 behaviour. So just let it pass,
             # rather than falsely say it's incompatible.
             return True
+        elif 'parameterized generic' in e.args[0]:
+            # Tricky to handle correctly
+            return True
         else:
             raise  # pragma: no cover
 
@@ -239,6 +242,8 @@ def _instance_is_compatible(instance, accepted_type):
     except TypeError as e:
         # Same as in _type_is_compatible
         if 'Subscripted generics' in e.args[0]:
+            return True
+        elif 'parameterized generic' in e.args[0]:
             return True
         else:
             raise  # pragma: no cover

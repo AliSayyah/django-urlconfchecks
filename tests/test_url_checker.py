@@ -220,7 +220,16 @@ def test_path_kwargs():
 @override_settings(ROOT_URLCONF='tests.dummy_project.urls.optional_args')
 def test_optional_args():
     errors = check_url_signatures(None)
-    if sys.version_info > (3, 10):
+    if sys.version_info >= (3, 10):
         assert len(errors) > 0
     for error in errors:
         assert error.obj.pattern._route.startswith('bad-')
+
+
+@override_settings(ROOT_URLCONF='tests.dummy_project.urls.parameterized_generics')
+def test_parameterized_generics():
+    errors = check_url_signatures(None)
+    # Currently errors is empty, but at least we didn't crash
+    # or falsely return errors for things that are fine
+    for error in errors:
+        assert error.obj.pattern._route.startswith('bad-')  # pragma: no cover

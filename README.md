@@ -110,7 +110,8 @@ output will be:
 (urlchecker.E002) For parameter `year`, annotated type int does not match expected `str` from urlconf
 ```
 
-* TODO
+* TODO:
+    - Handle type checking parameterized generics e.g. `typing.List[int]`, `list[str]` etc.
     - Should only warn for each unhandled Converter once.
     - Regex patterns perhaps? (only RoutePattern supported at the moment).
 
