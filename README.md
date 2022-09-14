@@ -17,6 +17,10 @@ It leverages the Django's static check system.
 
     pip install django-urlconfchecks
 
+Python 3.7 or later is required. However, before Python 3.10 some checks
+relating to `Optional` types in view signatures are skipped due to stdlib
+limitations.
+
 ## Usage
 
 You can use this package in different ways:

@@ -10,11 +10,6 @@ def bad_view(slug: str):
     ...
 
 
-def bad_arg(request, id: Optional[int] = None):
-    """View with bad argument, using Optional."""
-    ...
-
-
 def special_case(request):
     """This is a special case.
 
@@ -79,3 +74,7 @@ class CBVView(View):
 
     def get(self, request):
         ...
+
+
+def optional_arg_view(request, val: Optional[int] = None):
+    ...
