@@ -130,9 +130,9 @@ def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
             used_from_sig.append(name)
         elif name in sig.parameters:
             used_from_sig.append(name)
-            expected_type = get_converter_output_type(converter)
-            found_type = sig.parameters[name].annotation
-            if expected_type == Parameter.empty:
+            urlconf_type = get_converter_output_type(converter)
+            sig_type = sig.parameters[name].annotation
+            if urlconf_type == Parameter.empty:
                 # TODO - only output this warning once per converter
                 obj = converter.__class__
                 errors.append(
@@ -143,7 +143,7 @@ def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
                         id=f'urlchecker.W002.{obj.__module__}.{obj.__name__}',
                     )
                 )
-            elif found_type == Parameter.empty:
+            elif sig_type == Parameter.empty:
                 errors.append(
                     # This should be synced with W003 below.
                     checks.Warning(
@@ -152,12 +152,12 @@ def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
                         id='urlchecker.W003',
                     )
                 )
-            elif expected_type != found_type:
+            elif not _type_is_compatible(urlconf_type, sig_type):  # type: ignore
                 errors.append(
                     checks.Error(
                         f'View {callback_repr} for parameter `{name}`,'  # type: ignore[union-attr]
-                        f' annotated type {_name_type(found_type)} does not match'  # type: ignore[union-attr]
-                        f' expected `{_name_type(expected_type)}` from urlconf',  # type: ignore[union-attr]
+                        f' annotated type {_name_type(sig_type)} does not match'  # type: ignore[union-attr]
+                        f' expected `{_name_type(urlconf_type)}` from urlconf',  # type: ignore[union-attr]
                         obj=url_pattern,
                         id='urlchecker.E002',
                     )
@@ -188,7 +188,7 @@ def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
                         id='urlchecker.W003',
                     )
                 )
-            elif not isinstance(default_arg, sig_type):
+            elif not _instance_is_compatible(default_arg, sig_type):
                 errors.append(
                     checks.Error(
                         f'View {callback_repr}: for parameter `{name}`,'
@@ -225,6 +225,36 @@ def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
         )
 
     return errors
+
+
+def _type_is_compatible(passed_type, accepted_type):
+    try:
+        return issubclass(passed_type, accepted_type)
+    except TypeError as e:
+        # For Python < 3.10 we get:
+        #   Subscripted generics cannot be used with class and instance checks
+        if 'Subscripted generics' in e.args[0]:
+            # It's difficult to replicate Python 3.10 behaviour. So just let it pass,
+            # rather than falsely say it's incompatible.
+            return True
+        elif 'parameterized generic' in e.args[0]:
+            # Tricky to handle correctly
+            return True
+        else:
+            raise  # pragma: no cover
+
+
+def _instance_is_compatible(instance, accepted_type):
+    try:
+        return isinstance(instance, accepted_type)
+    except TypeError as e:
+        # Same as in _type_is_compatible
+        if 'Subscripted generics' in e.args[0]:
+            return True
+        elif 'parameterized generic' in e.args[0]:
+            return True
+        else:
+            raise  # pragma: no cover
 
 
 def _name_type(type_hint):

@@ -17,6 +17,10 @@ It leverages the Django's static check system.
 
     pip install django-urlconfchecks
 
+Python 3.7 or later is required. However, before Python 3.10 some checks
+relating to `Optional` types in view signatures are skipped due to stdlib
+limitations.
+
 ## Usage
 
 You can use this package in different ways:
@@ -106,7 +110,8 @@ output will be:
 (urlchecker.E002) For parameter `year`, annotated type int does not match expected `str` from urlconf
 ```
 
-* TODO
+* TODO:
+    - Handle type checking parameterized generics e.g. `typing.List[int]`, `list[str]` etc.
     - Should only warn for each unhandled Converter once.
     - Regex patterns perhaps? (only RoutePattern supported at the moment).
 

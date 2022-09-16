@@ -1,4 +1,6 @@
 """Tests for `django_urlconfchecks` package."""
+import sys
+
 from django.core import checks
 from django.test.utils import override_settings
 from django.urls import URLPattern
@@ -102,7 +104,7 @@ def test_child_urls_checked():
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.parent_urls'):
         resolver = get_resolver()
         routes = get_all_routes(resolver)
-        assert len(list(routes)) == 6
+        assert len(list(routes)) == 5
 
 
 def test_admin_urls_ignored():
@@ -213,3 +215,21 @@ def test_path_kwargs():
                 id="urlchecker.W003",
             ),
         )
+
+
+@override_settings(ROOT_URLCONF='tests.dummy_project.urls.optional_args')
+def test_optional_args():
+    errors = check_url_signatures(None)
+    if sys.version_info >= (3, 10):
+        assert len(errors) > 0
+    for error in errors:
+        assert error.obj.pattern._route.startswith('bad-')
+
+
+@override_settings(ROOT_URLCONF='tests.dummy_project.urls.parameterized_generics')
+def test_parameterized_generics():
+    errors = check_url_signatures(None)
+    # Currently errors is empty, but at least we didn't crash
+    # or falsely return errors for things that are fine
+    for error in errors:
+        assert error.obj.pattern._route.startswith('bad-')  # pragma: no cover

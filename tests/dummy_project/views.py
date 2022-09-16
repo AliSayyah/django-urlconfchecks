@@ -1,17 +1,12 @@
 """views for tests."""
 
-from typing import Optional
+from typing import List, Optional
 
 from django.views import View
 
 
 def bad_view(slug: str):
     """View missing the `request` parameter."""
-    ...
-
-
-def bad_arg(request, id: Optional[int] = None):
-    """View with bad argument, using Optional."""
     ...
 
 
@@ -79,3 +74,20 @@ class CBVView(View):
 
     def get(self, request):
         ...
+
+
+def optional_arg_view(request, val: Optional[int] = None):
+    ...
+
+
+def parameterized_generic_view(request, val: List[int]):
+    ...
+
+
+try:
+
+    def parameterized_generic_view_2(request, val: list[int]):  # type: ignore
+        ...
+
+except TypeError:
+    parameterized_generic_view_2 = None  # type: ignore
