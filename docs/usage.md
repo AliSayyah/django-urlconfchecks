@@ -97,7 +97,7 @@ more items:
 
 ```python
 URLCONFCHECKS_SILENCED_VIEWS = {
-    "*.View.as_view.<locals>.view": "W001",  # CBVs
+    "*.View.as_view": "W001",  # CBVs
     "django.views.generic.base.RedirectView": "W001",
     "django.contrib.*": "W003",  # admin etc.
 }
