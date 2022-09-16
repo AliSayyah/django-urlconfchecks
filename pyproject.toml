@@ -47,7 +47,7 @@ mkdocs-include-markdown-plugin = { version = "^3.2.3", optional = true }
 mkdocs-material = { version = "^8.1.8", optional = true }
 mkdocstrings = { version = ">=0.17,<0.20", optional = true }
 mkdocs-material-extensions = { version = "^1.0.1", optional = true }
-twine = { version = "^3.3.0", optional = true }
+twine = { version = "^4.0.1", optional = true }
 mkdocs-autorefs = { version = ">=0.2.1,<0.5.0", optional = true }
 pre-commit = { version = "^2.12.0", optional = true }
 toml = { version = "^0.10.2", optional = true }
