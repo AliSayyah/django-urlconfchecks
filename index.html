@@ -528,6 +528,9 @@ It leverages the Django's static check system.</p>
 <h3 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>pip install django-urlconfchecks
 </code></pre></div>
+<p>Python 3.7 or later is required. However, before Python 3.10 some checks
+relating to <code>Optional</code> types in view signatures are skipped due to stdlib
+limitations.</p>
 <h3 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h3>
 <p>You can use this package in different ways:</p>
 <h4 id="as-a-django-app">As a Django app<a class="headerlink" href="#as-a-django-app" title="Permanent link">&para;</a></h4>
@@ -556,7 +559,7 @@ It leverages the Django's static check system.</p>
 <h4 id="as-a-pre-commit-hook">As a pre-commit hook<a class="headerlink" href="#as-a-pre-commit-hook" title="Permanent link">&para;</a></h4>
 <p>Add the following to your <code>.pre-commit-config.yaml</code> file:</p>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/AliSayyah/django-urlconfchecks</span><span class="w"></span>
-<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.7.3</span><span class="w"></span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.8.0</span><span class="w"></span>
 <span class="w">    </span><span class="nt">hooks</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">django-urlconfchecks</span><span class="w"></span>
 </code></pre></div>
@@ -593,7 +596,8 @@ error will be raised.</p>
 <div class="highlight"><pre><span></span><code>(urlchecker.E002) For parameter `year`, annotated type int does not match expected `str` from urlconf
 </code></pre></div>
 <ul>
-<li>TODO<ul>
+<li>TODO:<ul>
+<li>Handle type checking parameterized generics e.g. <code>typing.List[int]</code>, <code>list[str]</code> etc.</li>
 <li>Should only warn for each unhandled Converter once.</li>
 <li>Regex patterns perhaps? (only RoutePattern supported at the moment).</li>
 </ul>

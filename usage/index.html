@@ -496,7 +496,7 @@ accessing the main URLConf module.</p>
 <p>Make sure you have <code>pre-commit</code> installed and if not, install it with <code>pip install pre-commit &amp;&amp; pre-commit install</code>.</p>
 <p>Then, add the following to your <code>.pre-commit-config.yaml</code> file:</p>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/AliSayyah/django-urlconfchecks</span><span class="w"></span>
-<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.7.3</span><span class="w"></span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.8.0</span><span class="w"></span>
 <span class="w">    </span><span class="nt">hooks</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">django-urlconfchecks</span><span class="w"></span>
 </code></pre></div>
@@ -528,7 +528,7 @@ silencing. The value must be a dictionary:</p>
 in your <code>settings.py</code>, you will probably want to include the following and add
 more items:</p>
 <div class="highlight"><pre><span></span><code><span class="n">URLCONFCHECKS_SILENCED_VIEWS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;*.View.as_view.&lt;locals&gt;.view&quot;</span><span class="p">:</span> <span class="s2">&quot;W001&quot;</span><span class="p">,</span>  <span class="c1"># CBVs</span>
+    <span class="s2">&quot;*.View.as_view&quot;</span><span class="p">:</span> <span class="s2">&quot;W001&quot;</span><span class="p">,</span>  <span class="c1"># CBVs</span>
     <span class="s2">&quot;django.views.generic.base.RedirectView&quot;</span><span class="p">:</span> <span class="s2">&quot;W001&quot;</span><span class="p">,</span>
     <span class="s2">&quot;django.contrib.*&quot;</span><span class="p">:</span> <span class="s2">&quot;W003&quot;</span><span class="p">,</span>  <span class="c1"># admin etc.</span>
 <span class="p">}</span>
