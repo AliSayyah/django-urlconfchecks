@@ -69,13 +69,6 @@ def test_cli_urlconf_correct():
     assert result.exit_code == 0
 
 
-def test_cli_help():
-    """Test help."""
-    result = runner.invoke(app, ["--help"])
-    assert result.exit_code == 0
-    assert "Show this message and exit.\n" in result.output
-
-
 def test_cli_version():
     """Test version."""
     result = runner.invoke(app, ["--version"])
