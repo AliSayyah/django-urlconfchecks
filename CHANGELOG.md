@@ -72,3 +72,11 @@
 ### Fixed
 
 - Fixed an issue where default CBV silencing only worked for django 4
+
+
+## [0.8.0] - 2022-09-16
+
+### Fixed
+
+- Made error reporting of view reprs consistent with silencer.
+- Correctly handle views with Optional arguments.
