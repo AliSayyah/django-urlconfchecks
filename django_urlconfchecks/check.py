@@ -240,6 +240,10 @@ def _type_is_compatible(passed_type, accepted_type):
         elif 'parameterized generic' in e.args[0]:
             # Tricky to handle correctly
             return True
+        elif 'must be a class' in e.args[0]:
+            # Can happen for passed_type == `Optional[int]`
+            # Tricky to handle correctly
+            return True
         else:
             raise  # pragma: no cover
 
