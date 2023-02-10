@@ -76,6 +76,10 @@ class CBVView(View):
         ...
 
 
+def non_optional_arg_view(request, val: int):
+    ...
+
+
 def optional_arg_view(request, val: Optional[int] = None):
     ...
 
