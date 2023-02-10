@@ -80,3 +80,11 @@
 
 - Made error reporting of view reprs consistent with silencer.
 - Correctly handle views with Optional arguments.
+
+
+## [0.9.0] - 2023-02-10
+
+### Fixed
+
+- Fixed crasher when urlconf has optional types. Courtesy @spookylukey
+- added python 3.11 support
