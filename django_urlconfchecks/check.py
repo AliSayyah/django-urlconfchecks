@@ -39,19 +39,26 @@ def check_url_signatures(app_configs, **kwargs) -> t.List[Problem]:
     resolver = get_resolver()
     errors = []
     silencers = _build_view_silencers(getattr(settings, "URLCONFCHECKS_SILENCED_VIEWS", _DEFAULT_SILENCED_VIEWS))
-    for route in get_all_routes(resolver):
-        errors.extend(check_url_args_match(route))
+    for route, parent_converters in get_all_routes(resolver, {}):
+        errors.extend(check_url_args_match(route, parent_converters))
     return _filter_errors(errors, silencers)
 
 
-def get_all_routes(resolver: URLResolver) -> t.Iterable[URLPattern]:
+def get_all_routes(resolver: URLResolver, parent_converters: dict) -> t.Iterable[t.Tuple[URLPattern, dict]]:
     """Recursively get all routes from the resolver."""
     for pattern in resolver.url_patterns:
         if isinstance(pattern, URLResolver):
-            yield from get_all_routes(pattern)
+            if hasattr(pattern, 'pattern') and pattern.pattern is not None:
+                # This handles cases involving `include` where the parent `path`
+                # may have captured some parameters in its first argument. Those
+                # parameters will also need to be passed down.
+                new_parent_converters = {**parent_converters, **pattern.pattern.converters}
+            else:
+                new_parent_converters = parent_converters
+            yield from get_all_routes(pattern, new_parent_converters)
         else:
             if isinstance(pattern.pattern, RoutePattern):
-                yield pattern
+                yield pattern, parent_converters
 
 
 def _make_callback_repr(callback):
@@ -64,7 +71,7 @@ def _make_callback_repr(callback):
     return f"{module}.{qualname}"
 
 
-def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
+def check_url_args_match(url_pattern: URLPattern, parent_converters: dict) -> t.List[Problem]:
     """Check that all callbacks in the main urlconf have the correct signature."""
     callback = url_pattern.callback
     callback_repr = _make_callback_repr(callback)
@@ -124,8 +131,9 @@ def check_url_args_match(url_pattern: URLPattern) -> t.List[Problem]:
     else:
         used_from_sig.append('request')
 
+    combined_converters = {**parent_converters, **url_pattern.pattern.converters}
     # Everything in RoutePattern must be in signature
-    for name, converter in url_pattern.pattern.converters.items():
+    for name, converter in combined_converters.items():
         if has_star_args:
             used_from_sig.append(name)
         elif name in sig.parameters:

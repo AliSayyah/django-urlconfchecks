@@ -91,7 +91,7 @@ def test_all_urls_checked():
     """
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.correct_urls'):
         resolver = get_resolver()
-        routes = get_all_routes(resolver)
+        routes = get_all_routes(resolver, {})
         assert len(list(routes)) == 3
 
 
@@ -103,7 +103,7 @@ def test_child_urls_checked():
     """
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.parent_urls'):
         resolver = get_resolver()
-        routes = get_all_routes(resolver)
+        routes = get_all_routes(resolver, {})
         assert len(list(routes)) == 5
 
 
@@ -233,3 +233,13 @@ def test_parameterized_generics():
     # or falsely return errors for things that are fine
     for error in errors:
         assert error.obj.pattern._route.startswith('bad-')  # pragma: no cover
+
+
+@override_settings(ROOT_URLCONF='tests.dummy_project.urls.includes')
+def test_includes():
+    # Positive and negative tests that parameters collected by `path` should be
+    # taken into account by routes that are `include`d
+    errors = check_url_signatures(None)
+    assert len(errors) > 0
+    for error in errors:
+        assert error.obj.pattern._route.startswith('bad-')
