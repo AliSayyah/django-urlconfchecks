@@ -88,3 +88,10 @@
 
 - Fixed crasher when urlconf has optional types. Courtesy @spookylukey
 - added python 3.11 support
+
+
+## [0.10.0] - 2023-08-15
+
+### Added
+
+- Handle cases involving `path` and `include`. Courtesy @spookylukey
