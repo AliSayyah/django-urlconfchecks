@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://AliSayyah.github.io/django-urlconfchecks/">
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.4, mkdocs-material-8.2.7">
+      <meta name="generator" content="mkdocs-1.2.4, mkdocs-material-8.2.6">
     
     
       
@@ -542,26 +542,26 @@ limitations.</p>
 </code></pre></div>
 <h4 id="as-a-command-line-tool">As a command line tool<a class="headerlink" href="#as-a-command-line-tool" title="Permanent link">&para;</a></h4>
 <p>Run this command from the root of your project, were <code>manage.py</code> is located:</p>
-<div class="highlight"><pre><span></span><code>$ urlconfchecks --help
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>urlconfchecks<span class="w"> </span>--help
 
-    Usage: urlconfchecks <span class="o">[</span>OPTIONS<span class="o">]</span>
+<span class="w">    </span>Usage:<span class="w"> </span>urlconfchecks<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 
-      Check all URLConfs <span class="k">for</span> errors.
+<span class="w">      </span>Check<span class="w"> </span>all<span class="w"> </span>URLConfs<span class="w"> </span><span class="k">for</span><span class="w"> </span>errors.
 
-    Options:
-      --version
-      -u, --urlconf PATH    Specify the URLconf to check.
-      --install-completion  Install completion <span class="k">for</span> the current shell.
-      --show-completion     Show completion <span class="k">for</span> the current shell, to copy it or
-                            customize the installation.
-      --help                Show this message and exit.
+<span class="w">    </span>Options:
+<span class="w">      </span>--version
+<span class="w">      </span>-u,<span class="w"> </span>--urlconf<span class="w"> </span>PATH<span class="w">    </span>Specify<span class="w"> </span>the<span class="w"> </span>URLconf<span class="w"> </span>to<span class="w"> </span>check.
+<span class="w">      </span>--install-completion<span class="w">  </span>Install<span class="w"> </span>completion<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>current<span class="w"> </span>shell.
+<span class="w">      </span>--show-completion<span class="w">     </span>Show<span class="w"> </span>completion<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>current<span class="w"> </span>shell,<span class="w"> </span>to<span class="w"> </span>copy<span class="w"> </span>it<span class="w"> </span>or
+<span class="w">                            </span>customize<span class="w"> </span>the<span class="w"> </span>installation.
+<span class="w">      </span>--help<span class="w">                </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.
 </code></pre></div>
 <h4 id="as-a-pre-commit-hook">As a pre-commit hook<a class="headerlink" href="#as-a-pre-commit-hook" title="Permanent link">&para;</a></h4>
 <p>Add the following to your <code>.pre-commit-config.yaml</code> file:</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/AliSayyah/django-urlconfchecks</span><span class="w"></span>
-<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.9.0</span><span class="w"></span>
-<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">django-urlconfchecks</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/AliSayyah/django-urlconfchecks</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.10.0</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">django-urlconfchecks</span>
 </code></pre></div>
 <p>For more information, see the <a href="https://alisayyah.github.io/django-urlconfchecks/usage/">usage documentation</a>.</p>
 <h3 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h3>
