@@ -95,3 +95,15 @@
 ### Added
 
 - Handle cases involving `path` and `include`. Courtesy @spookylukey
+
+
+## [0.11.0] - 2024-02-27
+
+### Added
+
+- Python 3.12 support
+- Django 5 support
+
+### Removed
+
+- Python 3.7 support
