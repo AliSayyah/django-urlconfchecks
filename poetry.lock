@@ -957,30 +957,6 @@ files = [
 ]
 
 [[package]]
-name = "mkdocstrings"
-version = "0.19.1"
-description = "Automatic documentation from sources, for MkDocs."
-optional = true
-python-versions = ">=3.7"
-files = [
-    {file = "mkdocstrings-0.19.1-py3-none-any.whl", hash = "sha256:32a38d88f67f65b264184ea71290f9332db750d189dea4200cbbe408d304c261"},
-    {file = "mkdocstrings-0.19.1.tar.gz", hash = "sha256:d1037cacb4b522c1e8c164ed5d00d724a82e49dcee0af80db8fb67b384faeef9"},
-]
-
-[package.dependencies]
-Jinja2 = ">=2.11.1"
-Markdown = ">=3.3"
-MarkupSafe = ">=1.1"
-mkdocs = ">=1.2"
-mkdocs-autorefs = ">=0.3.1"
-pymdown-extensions = ">=6.3"
-
-[package.extras]
-crystal = ["mkdocstrings-crystal (>=0.3.4)"]
-python = ["mkdocstrings-python (>=0.5.2)"]
-python-legacy = ["mkdocstrings-python-legacy (>=0.2.1)"]
-
-[[package]]
 name = "more-itertools"
 version = "10.2.0"
 description = "More routines for operating on iterables, beyond itertools"
@@ -1921,10 +1897,10 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [extras]
 dev = ["Markdown", "bump2version", "pre-commit", "toml", "tox", "twine", "virtualenv"]
-doc = ["Markdown", "mkdocs", "mkdocs-autorefs", "mkdocs-include-markdown-plugin", "mkdocs-material", "mkdocstrings"]
+doc = ["Markdown", "mkdocs", "mkdocs-autorefs", "mkdocs-include-markdown-plugin", "mkdocs-material"]
 test = ["black", "flake8", "flake8-docstrings", "isort", "mypy", "pytest", "pytest-cov", "pytest-django"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.0,<4"
-content-hash = "4e11d910ca6b97efa245e00706536608d80e41a800fe67e5c6ea62bd9deccba1"
+content-hash = "ec1e3b36aff84170d438949c6dd8d75e9845e7a7739cbed7d5ad6199edf5ebfc"

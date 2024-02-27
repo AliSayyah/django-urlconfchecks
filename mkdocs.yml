@@ -58,9 +58,7 @@ plugins:
   - include-markdown
   - search:
       lang: en
-  - mkdocstrings:
-      watch:
-        - django-urlconfchecks
+
 extra:
   social:
     - icon: fontawesome/brands/github
@@ -68,3 +66,5 @@ extra:
       name: Github
     - icon: material/email
       link: "mailto:ali.sayyah2@gmail.com"
+  watch:
+    - django-urlconfchecks
