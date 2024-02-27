@@ -1,4 +1,5 @@
 """Tests for `django_urlconfchecks` package."""
+
 import sys
 
 from django.core import checks

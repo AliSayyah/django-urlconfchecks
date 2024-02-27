@@ -1,4 +1,5 @@
 """util functions for tests."""
+
 import typing
 
 from django.core import checks

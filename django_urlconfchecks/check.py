@@ -1,4 +1,5 @@
 """Quick and dirty URL checker."""
+
 import fnmatch
 import typing as t
 import uuid

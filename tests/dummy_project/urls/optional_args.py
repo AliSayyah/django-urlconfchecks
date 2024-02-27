@@ -1,4 +1,5 @@
 """Views with Optional args."""
+
 from typing import Optional
 
 from django.urls import path, register_converter

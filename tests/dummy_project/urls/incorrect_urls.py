@@ -1,4 +1,5 @@
 """Incorrect URLs."""
+
 from django.urls import path
 
 from tests.dummy_project import views

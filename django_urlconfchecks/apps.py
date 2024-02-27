@@ -1,4 +1,5 @@
 """An apps module for django_urlconfchecks."""
+
 from django.apps import AppConfig
 
 

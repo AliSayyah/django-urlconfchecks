@@ -1,4 +1,5 @@
 """Settings module for dummy_project."""
+
 DEBUG = True
 USE_TZ = True
 DATABASES = {

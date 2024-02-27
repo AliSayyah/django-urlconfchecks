@@ -1,4 +1,5 @@
 """CLI module for django_urlconfchecks."""
+
 from typing import Optional
 
 from django.core.checks import Error

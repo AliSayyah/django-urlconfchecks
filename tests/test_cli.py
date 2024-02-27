@@ -1,4 +1,5 @@
 """Test module for cli."""
+
 import pytest
 from django.conf import settings
 from django.utils.functional import empty
