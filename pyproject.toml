@@ -12,11 +12,11 @@ classifiers = [
     'Intended Audience :: Developers',
     'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
     'Natural Language :: English',
-    'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
     'Framework :: Django :: 3.2',
     'Framework :: Django :: 4.0',
 ]
@@ -29,7 +29,7 @@ packages = [
 urlconfchecks = "django_urlconfchecks.cli:app"
 
 [tool.poetry.dependencies]
-python = ">=3.7.0,<4"
+python = ">=3.8.0,<4"
 Django = ">=3.2"
 typer = { extras = ["all"], version = ">=0.4.1,<0.8.0" }
 
@@ -83,7 +83,7 @@ doc = [
 [tool.black]
 line-length = 120
 skip-string-normalization = true
-target-version = ['py37']
+target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
 /(
