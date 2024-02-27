@@ -1778,4 +1778,4 @@ test = ["black", "flake8", "flake8-docstrings", "isort", "mypy", "pytest", "pyte
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.0,<4"
-content-hash = "e2895fab94ff027622328324d5132426b680c6e628d8fb1b1b637e01087b2d64"
+content-hash = "687b28cb826f689e7324deea4a2949e7928c250d42e23129c1cccc8f5758a13a"
