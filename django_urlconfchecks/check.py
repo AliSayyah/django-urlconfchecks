@@ -274,7 +274,7 @@ def _name_type(type_hint):
     # Things like `Optional[int]`:
     # - repr() does a better job than `__name__`
     # - `__name__` is not available in some Python versions.
-    return type_hint.__name__ if (hasattr(type_hint, "__name__") and type(type_hint) == type) else repr(type_hint)
+    return type_hint.__name__ if (hasattr(type_hint, "__name__") and isinstance(type_hint, type)) else repr(type_hint)
 
 
 CONVERTER_TYPES = {
