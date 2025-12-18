@@ -231,10 +231,45 @@ def test_optional_args():
 @override_settings(ROOT_URLCONF='tests.dummy_project.urls.parameterized_generics')
 def test_parameterized_generics():
     errors = check_url_signatures(None)
-    # Currently errors is empty, but at least we didn't crash
-    # or falsely return errors for things that are fine
-    for error in errors:
-        assert error.obj.pattern._route.startswith('bad-')  # pragma: no cover
+
+    expected = {
+        ('urlchecker.E002', 'bad-2-with-val/<path:val>'),
+        ('urlchecker.E005', 'bad-2-with-kwarg1/'),
+        ('urlchecker.E005', 'bad-2-with-kwarg2/'),
+        ('urlchecker.E002', 'bad-tuple-with-val/<path:val>'),
+        ('urlchecker.E005', 'bad-tuple-wronglen/'),
+        ('urlchecker.E005', 'bad-tuple-wrong-elem/'),
+        ('urlchecker.E005', 'bad-tuple-variadic/'),
+        ('urlchecker.E005', 'bad-dict/'),
+        ('urlchecker.E005', 'bad-set/'),
+    }
+
+    seen = {(error.id, error.obj.pattern._route) for error in errors}
+
+    assert seen == expected
+
+
+@override_settings(ROOT_URLCONF='tests.dummy_project.urls.parameterized_generics')
+def test_optional_parameterized_generics_accepts_none_or_list():
+    # No errors for optional list when kwargs provide a matching list
+    errors = check_url_signatures(None)
+    assert not any('optional_list_view' in e.msg for e in errors)
+
+
+@override_settings(ROOT_URLCONF='tests.dummy_project.urls.parameterized_generics')
+def test_container_defaults_match_annotations():
+    """Good container defaults should not raise errors."""
+    errors = check_url_signatures(None)
+    good_routes = {
+        'good-2-with-kwarg2/',
+        'good-optional-list/',
+        'good-tuple-fixed/',
+        'good-tuple-variadic/',
+        'good-dict/',
+        'good-set/',
+    }
+    error_routes = {e.obj.pattern._route for e in errors}
+    assert good_routes.isdisjoint(error_routes)
 
 
 @override_settings(ROOT_URLCONF='tests.dummy_project.urls.includes')

@@ -1,5 +1,6 @@
 """Quick and dirty URL checker."""
 
+import collections.abc as cabc
 import fnmatch
 import functools
 import types
@@ -239,35 +240,97 @@ def check_url_args_match(url_pattern: URLPattern, parent_converters: dict) -> t.
     return errors
 
 
-def _type_is_compatible(passed_type, accepted_type):
-    for candidate in _iter_type_candidates(accepted_type, include_none=False):
-        if candidate is Any or candidate is object:
-            return True
-        try:
-            if issubclass(passed_type, candidate):
+def _type_is_compatible(passed_type, accepted_type) -> bool:
+    """Compare a converter return type to an annotation."""
+    if passed_type is Parameter.empty:
+        return False
+
+    passed_candidates = _iter_type_candidates(passed_type, include_none=True) or (passed_type,)
+    accepted_candidates = _iter_type_candidates(accepted_type, include_none=False)
+
+    for passed in passed_candidates:
+        for candidate in accepted_candidates:
+            if _type_candidate_matches(passed, candidate):
                 return True
-        except TypeError as e:
-            # Gracefully handle generics/Optionals/Unions we can't issubclass
-            msg = e.args[0] if e.args else ""
-            if "Subscripted generics" in msg or "parameterized generic" in msg or "must be a class" in msg:
-                return True
-            raise  # pragma: no cover
     return False
 
 
-def _instance_is_compatible(instance, accepted_type):
-    for candidate in _iter_type_candidates(accepted_type, include_none=True):
-        if candidate is Any or candidate is object:
-            return True
+def _type_candidate_matches(passed_type, candidate) -> bool:
+    if candidate in (Any, object):
+        return True
+
+    # Unions are handled by the caller (_iter_type_candidates splits them)
+    origin_candidate = get_origin(candidate)
+
+    origin_passed = get_origin(passed_type)
+
+    if origin_candidate:
         try:
-            if isinstance(instance, candidate):
+            base_matches = issubclass(origin_passed or passed_type, origin_candidate)
+        except TypeError:
+            return False
+        return base_matches
+
+    try:
+        return issubclass(origin_passed or passed_type, candidate)
+    except TypeError:
+        return False
+
+
+def _instance_is_compatible(instance, accepted_type) -> bool:
+    return any(
+        _instance_candidate_matches(instance, candidate)
+        for candidate in _iter_type_candidates(accepted_type, include_none=True)
+    )
+
+
+def _instance_candidate_matches(instance, candidate) -> bool:
+    if candidate in (Any, object):
+        return True
+
+    # None handling
+    if instance is None:
+        return candidate is type(None)
+
+    origin = get_origin(candidate)
+    args = get_args(candidate)
+
+    if origin:
+        if not isinstance(instance, origin):
+            return False
+
+        # Homogeneous containers (list/set/frozenset/Sequence/etc.)
+        if origin in {list, set, frozenset} or issubclass(origin, (cabc.Sequence, cabc.Set)) and origin is not tuple:
+            inner = args[0] if args else Any
+            return all(_instance_is_compatible(item, inner) for item in instance)
+
+        # Tuples: fixed length or variadic tuple[T, ...]
+        if origin is tuple or issubclass(origin, tuple):
+            if not args:
                 return True
-        except TypeError as e:
-            msg = e.args[0] if e.args else ""
-            if "Subscripted generics" in msg or "parameterized generic" in msg:
-                return True
-            raise  # pragma: no cover
-    return False
+            if len(args) == 2 and args[1] is Ellipsis:
+                inner = args[0]
+                return all(_instance_is_compatible(item, inner) for item in instance)
+            if len(args) != len(instance):
+                return False
+            return all(_instance_is_compatible(item, ann) for item, ann in zip(instance, args, strict=True))
+
+        # Mappings / dicts
+        if origin in {dict} or issubclass(origin, cabc.Mapping):
+            key_type = args[0] if args else Any
+            value_type = args[1] if len(args) > 1 else Any
+            return all(
+                _instance_is_compatible(k, key_type) and _instance_is_compatible(v, value_type)
+                for k, v in instance.items()
+            )
+
+        # Fallback: if it's the right origin and we can't/don't want to inspect contents
+        return True
+
+    try:
+        return isinstance(instance, candidate)
+    except TypeError:
+        return False
 
 
 def _iter_type_candidates(annotation, include_none: bool) -> t.Tuple[t.Any, ...]:

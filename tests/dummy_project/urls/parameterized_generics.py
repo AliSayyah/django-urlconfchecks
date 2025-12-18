@@ -20,8 +20,19 @@ if views.parameterized_generic_view_2 is not None:
     urlpatterns = [
         # All these are valid
         path('good-2-with-kwarg2/', views.parameterized_generic_view_2, kwargs={'val': [123]}),
+        path('good-optional-list/', views.optional_list_view, kwargs={'val': [1, 2, 3]}),
+        path('good-tuple-fixed/', views.tuple_view, kwargs={'val': (1, 'x')}),
+        path('good-tuple-variadic/', views.tuple_variadic_view, kwargs={'val': (1, 2, 3)}),
+        path('good-dict/', views.dict_view, kwargs={'val': {'a': 1}}),
+        path('good-set/', views.set_view, kwargs={'val': {1, 2}}),
         # These are not
         path('bad-2-with-val/<path:val>', views.parameterized_generic_view_2),
         path('bad-2-with-kwarg1/', views.parameterized_generic_view_2, kwargs={'val': "abc"}),
         path('bad-2-with-kwarg2/', views.parameterized_generic_view_2, kwargs={'val': ["abc"]}),
+        path('bad-tuple-with-val/<path:val>', views.tuple_view),
+        path('bad-tuple-wronglen/', views.tuple_view, kwargs={'val': (1, 2, 3)}),
+        path('bad-tuple-wrong-elem/', views.tuple_view, kwargs={'val': (1, 2)}),
+        path('bad-tuple-variadic/', views.tuple_variadic_view, kwargs={'val': ('a',)}),
+        path('bad-dict/', views.dict_view, kwargs={'val': {1: 'a'}}),
+        path('bad-set/', views.set_view, kwargs={'val': {'a'}}),
     ]
