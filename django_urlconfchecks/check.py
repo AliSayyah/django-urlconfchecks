@@ -1,9 +1,12 @@
 """Quick and dirty URL checker."""
 
 import fnmatch
+import functools
+import types
 import typing as t
 import uuid
 from inspect import Parameter, _empty, signature  # type: ignore[attr-defined]
+from typing import Any, get_args, get_origin
 
 from django.conf import settings
 from django.core import checks
@@ -214,7 +217,7 @@ def check_url_args_match(url_pattern: URLPattern, parent_converters: dict) -> t.
         if param.default == Parameter.empty:
             errors.append(
                 checks.Error(
-                    f'View {callback_repr} signature contains `{name}` parameter without default or ULRconf parameter',
+                    f'View {callback_repr} signature contains `{name}` parameter without default or URLconf parameter',
                     obj=url_pattern,
                     id='urlchecker.E004',
                 )
@@ -237,37 +240,62 @@ def check_url_args_match(url_pattern: URLPattern, parent_converters: dict) -> t.
 
 
 def _type_is_compatible(passed_type, accepted_type):
-    try:
-        return issubclass(passed_type, accepted_type)
-    except TypeError as e:
-        # For Python < 3.10 we get:
-        #   Subscripted generics cannot be used with class and instance checks
-        if 'Subscripted generics' in e.args[0]:
-            # It's difficult to replicate Python 3.10 behaviour. So just let it pass,
-            # rather than falsely say it's incompatible.
+    for candidate in _iter_type_candidates(accepted_type, include_none=False):
+        if candidate is Any or candidate is object:
             return True
-        elif 'parameterized generic' in e.args[0]:
-            # Tricky to handle correctly
-            return True
-        elif 'must be a class' in e.args[0]:
-            # Can happen for passed_type == `Optional[int]`
-            # Tricky to handle correctly
-            return True
-        else:
+        try:
+            if issubclass(passed_type, candidate):
+                return True
+        except TypeError as e:
+            # Gracefully handle generics/Optionals/Unions we can't issubclass
+            msg = e.args[0] if e.args else ""
+            if "Subscripted generics" in msg or "parameterized generic" in msg or "must be a class" in msg:
+                return True
             raise  # pragma: no cover
+    return False
 
 
 def _instance_is_compatible(instance, accepted_type):
-    try:
-        return isinstance(instance, accepted_type)
-    except TypeError as e:
-        # Same as in _type_is_compatible
-        if 'Subscripted generics' in e.args[0]:
+    for candidate in _iter_type_candidates(accepted_type, include_none=True):
+        if candidate is Any or candidate is object:
             return True
-        elif 'parameterized generic' in e.args[0]:
-            return True
-        else:
+        try:
+            if isinstance(instance, candidate):
+                return True
+        except TypeError as e:
+            msg = e.args[0] if e.args else ""
+            if "Subscripted generics" in msg or "parameterized generic" in msg:
+                return True
             raise  # pragma: no cover
+    return False
+
+
+def _iter_type_candidates(annotation, include_none: bool) -> t.Tuple[t.Any, ...]:
+    """Return a tuple of acceptable types for compatibility checks."""
+    if annotation is Parameter.empty:
+        return ()
+
+    annotation = _unwrap_annotated(annotation)
+    origin = get_origin(annotation)
+    args = get_args(annotation)
+
+    # PEP 604 unions (X | Y) and typing.Union
+    if origin in (t.Union, types.UnionType):
+        candidates = args
+    else:
+        candidates = (annotation,)
+
+    if not include_none:
+        candidates = tuple(c for c in candidates if c is not type(None))
+
+    return candidates
+
+
+def _unwrap_annotated(annotation):
+    """Peel off typing.Annotated layers, returning the underlying type."""
+    while get_origin(annotation) is t.Annotated:
+        annotation = get_args(annotation)[0]
+    return annotation
 
 
 def _name_type(type_hint):
@@ -288,7 +316,13 @@ CONVERTER_TYPES = {
 
 def get_converter_output_type(converter) -> t.Union[int, str, uuid.UUID, t.Type[_empty]]:
     """Return the type that the converter will output."""
-    for cls in converter.__class__.__mro__:
+    return _converter_output_type_for_class(converter.__class__)
+
+
+@functools.lru_cache(maxsize=None)
+def _converter_output_type_for_class(converter_cls) -> t.Union[int, str, uuid.UUID, t.Type[_empty]]:
+    """Cached resolution of converter output type by class."""
+    for cls in converter_cls.__mro__:
         if cls in CONVERTER_TYPES:
             return CONVERTER_TYPES[cls]
 

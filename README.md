@@ -19,9 +19,9 @@ It leverages the Django's static check system.
 
 Python 3.10–3.14 are supported. Django compatibility follows upstream:
 
-- Python 3.10–3.12: Django 4.2–<6.1
-- Python 3.13: Django 5.1.3–<6.1
-- Python 3.14: Django 5.2.8–<6.1
+* Python 3.10–3.12: Django 4.2–<6.1
+* Python 3.13: Django 5.1.3–<6.1
+* Python 3.14: Django 5.2.8–<6.1
 
 ## Usage
 
@@ -52,6 +52,8 @@ $ urlconfchecks --help
     Options:
       --version
       -u, --urlconf PATH    Specify the URLconf to check.
+      -q, --quiet           Suppress human-readable output; exit codes still set.
+      -f, --format TEXT     Output format. Supported: json.
       --install-completion  Install completion for the current shell.
       --show-completion     Show completion for the current shell, to copy it or
                             customize the installation.
@@ -113,12 +115,12 @@ output will be:
 ```
 
 * TODO:
-    - Handle type checking parameterized generics e.g. `typing.List[int]`, `list[str]` etc.
-    - Should only warn for each unhandled Converter once.
-    - Regex patterns perhaps? (only RoutePattern supported at the moment).
+  * Handle type checking parameterized generics e.g. `typing.List[int]`, `list[str]` etc.
+  * Should only warn for each unhandled Converter once.
+  * Regex patterns perhaps? (only RoutePattern supported at the moment).
 
 ## Credits
 
-- [Luke Plant](https://github.com/spookylukey) for providing the idea and the initial code.
-- This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and
+* [Luke Plant](https://github.com/spookylukey) for providing the idea and the initial code.
+* This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and
   the [waynerv/cookiecutter-pypackage](https://github.com/waynerv/cookiecutter-pypackage) project template.

@@ -32,7 +32,7 @@ def test_cli_urlconf_incorrect_one_error():
     """Test when one urlconf is incorrect."""
     result = runner.invoke(app, ["--urlconf", "tests.dummy_project.urls.incorrect_urls"])
     assert (
-        "1 error found:\n"
+        "1 error(s), 0 warning(s) found:\n"
         "\t<URLPattern 'articles/<str:year>/'>: (urlchecker.E002) View"
         " tests.dummy_project.views.year_archive for parameter `year`,"
         " annotated type int does not match expected `str` from urlconf\n" in result.output
@@ -45,7 +45,7 @@ def test_cli_urlconf_incorrect_multiple_errors():
     result = runner.invoke(app, ["--urlconf", "tests.dummy_project.urls.child_urls"])
 
     assert (
-        "5 errors found:\n"
+        "5 error(s), 0 warning(s) found:\n"
         "\t<URLPattern 'articles/<str:year>/<str:month>/'>: (urlchecker.E002) View"
         " tests.dummy_project.views.month_archive for parameter `year`,"
         " annotated type int does not match expected `str` from urlconf\n"
@@ -68,6 +68,23 @@ def test_cli_urlconf_correct():
     result = runner.invoke(app, ["--urlconf", "tests.dummy_project.urls.correct_urls"])
     assert "Done. No errors found.\n" == result.output
     assert result.exit_code == 0
+
+
+def test_cli_quiet():
+    """Quiet should suppress human output but keep exit code."""
+    result = runner.invoke(app, ["--quiet", "--urlconf", "tests.dummy_project.urls.incorrect_urls"])
+    assert result.output == ""
+    assert result.exit_code == 1
+
+
+def test_cli_json_output():
+    """JSON output should include counts and issues."""
+    result = runner.invoke(app, ["--format", "json", "--urlconf", "tests.dummy_project.urls.incorrect_urls"])
+    assert result.exit_code == 1
+    payload = result.output.strip()
+    assert '"total_errors": 1' in payload
+    assert '"total_warnings": 0' in payload
+    assert '"id": "urlchecker.E002"' in payload
 
 
 def test_cli_version():

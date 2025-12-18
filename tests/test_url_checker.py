@@ -122,6 +122,7 @@ def test_admin_urls_ignored():
 def test_converters():
     assert get_converter_output_type(converter_urls.YearConverterViaSubclass()) is int
     assert get_converter_output_type(converter_urls.YearConverterAsFloat()) is float
+    assert get_converter_output_type(converter_urls.BoolConverter()) is bool
 
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.converter_urls'):
         errors = check_url_signatures(None)
@@ -162,7 +163,7 @@ def test_path_kwargs():
             errors[0],
             checks.Error(
                 msg="View tests.dummy_project.views.year_archive signature contains `year` parameter "
-                "without default or ULRconf parameter",
+                "without default or URLconf parameter",
                 hint=None,
                 obj=URLPattern(
                     pattern=RoutePattern(route='articles-2021/', is_endpoint=True),
@@ -244,3 +245,10 @@ def test_includes():
     assert len(errors) > 0
     for error in errors:
         assert error.obj.pattern._route.startswith('bad-')
+
+
+@override_settings(ROOT_URLCONF='tests.dummy_project.urls.annotated_union')
+def test_annotated_and_union_annotations():
+    """Annotated and Union annotations should be treated as compatible if any member matches."""
+    errors = check_url_signatures(None)
+    assert errors == []
