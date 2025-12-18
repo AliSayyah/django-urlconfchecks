@@ -55,11 +55,11 @@ Ready to contribute? Here's how to set up `django-urlconfchecks` for local devel
     $ git clone git@github.com:your_name_here/django-urlconfchecks.git
     ```
 
-3. Ensure [poetry](https://python-poetry.org/docs/) is installed.
-4. Install dependencies and start your virtualenv:
+3. Ensure [uv](https://github.com/astral-sh/uv) is installed (`pip install uv`).
+4. Install dependencies and create the virtualenv:
 
     ```
-    $ poetry install -E test -E doc -E dev
+    $ uv sync --extra test --extra doc --extra dev
     ```
 
 5. Create a branch for local development:
@@ -74,7 +74,7 @@ Ready to contribute? Here's how to set up `django-urlconfchecks` for local devel
    tests, including testing other Python versions, with tox:
 
     ```
-    $ poetry run tox
+    $ uv run tox
     ```
 
 7. Commit your changes and push your branch to GitHub:
@@ -102,7 +102,7 @@ Before you submit a pull request, check that it meets these guidelines:
 ## Tips
 
 ```
-$ poetry run pytest tests
+$ uv run pytest tests
 ```
 
 To run a subset of tests.
@@ -115,7 +115,7 @@ Make sure all your changes are committed (including an entry in CHANGELOG.md).
 Then run:
 
 ```
-$ poetry run bump2version patch # possible: major / minor / patch
+$ uv run bump2version patch # possible: major / minor / patch
 $ git push
 $ git push --tags
 ```
