@@ -214,7 +214,7 @@ def check_url_args_match(url_pattern: URLPattern, parent_converters: dict) -> t.
         if param.default == Parameter.empty:
             errors.append(
                 checks.Error(
-                    f'View {callback_repr} signature contains `{name}` parameter without default or ULRconf parameter',
+                    f'View {callback_repr} signature contains `{name}` parameter without default or URLconf parameter',
                     obj=url_pattern,
                     id='urlchecker.E004',
                 )

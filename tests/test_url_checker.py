@@ -162,7 +162,7 @@ def test_path_kwargs():
             errors[0],
             checks.Error(
                 msg="View tests.dummy_project.views.year_archive signature contains `year` parameter "
-                "without default or ULRconf parameter",
+                "without default or URLconf parameter",
                 hint=None,
                 obj=URLPattern(
                     pattern=RoutePattern(route='articles-2021/', is_endpoint=True),
