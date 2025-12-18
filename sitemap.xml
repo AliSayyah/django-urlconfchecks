@@ -2,27 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://AliSayyah.github.io/django-urlconfchecks/</loc>
-         <lastmod>2024-02-27</lastmod>
-         <changefreq>daily</changefreq>
+         <lastmod>2025-12-18</lastmod>
     </url>
     <url>
          <loc>https://AliSayyah.github.io/django-urlconfchecks/changelog/</loc>
-         <lastmod>2024-02-27</lastmod>
-         <changefreq>daily</changefreq>
+         <lastmod>2025-12-18</lastmod>
     </url>
     <url>
          <loc>https://AliSayyah.github.io/django-urlconfchecks/contributing/</loc>
-         <lastmod>2024-02-27</lastmod>
-         <changefreq>daily</changefreq>
+         <lastmod>2025-12-18</lastmod>
     </url>
     <url>
          <loc>https://AliSayyah.github.io/django-urlconfchecks/installation/</loc>
-         <lastmod>2024-02-27</lastmod>
-         <changefreq>daily</changefreq>
+         <lastmod>2025-12-18</lastmod>
     </url>
     <url>
          <loc>https://AliSayyah.github.io/django-urlconfchecks/usage/</loc>
-         <lastmod>2024-02-27</lastmod>
-         <changefreq>daily</changefreq>
+         <lastmod>2025-12-18</lastmod>
     </url>
 </urlset>
