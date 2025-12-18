@@ -92,6 +92,8 @@ celerybeat-schedule
 .venv
 venv/
 ENV/
+.uv-cache/
+.uv-tools/
 
 # Spyder project settings
 .spyderproject
