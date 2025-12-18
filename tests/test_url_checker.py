@@ -120,8 +120,8 @@ def test_admin_urls_ignored():
 
 
 def test_converters():
-    assert get_converter_output_type(converter_urls.YearConverterViaSubclass()) == int
-    assert get_converter_output_type(converter_urls.YearConverterAsFloat()) == float
+    assert get_converter_output_type(converter_urls.YearConverterViaSubclass()) is int
+    assert get_converter_output_type(converter_urls.YearConverterAsFloat()) is float
 
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.converter_urls'):
         errors = check_url_signatures(None)
@@ -206,7 +206,7 @@ def test_path_kwargs():
             errors[3],
             checks.Warning(
                 msg="View tests.dummy_project.views.year_archive_untyped missing type annotation for "
-                "parameter `year`, can\'t check type.",
+                "parameter `year`, can't check type.",
                 hint=None,
                 obj=URLPattern(
                     pattern=RoutePattern(route='articles-2024/', is_endpoint=True),

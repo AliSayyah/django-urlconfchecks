@@ -146,8 +146,8 @@ def check_url_args_match(url_pattern: URLPattern, parent_converters: dict) -> t.
                 obj = converter.__class__
                 errors.append(
                     checks.Warning(
-                        f"Don\'t know output type for converter {obj.__module__}.{obj.__name__},"
-                        " can\'t verify URL signatures.",
+                        f"Don't know output type for converter {obj.__module__}.{obj.__name__},"
+                        " can't verify URL signatures.",
                         obj=obj,
                         id=f'urlchecker.W002.{obj.__module__}.{obj.__name__}',
                     )

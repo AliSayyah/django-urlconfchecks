@@ -54,7 +54,7 @@ def get_manage():
             "Or you can specify your main urlconf module path with -u or --urlconf option.",
             fg=typer.colors.RED,
         )
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
     else:
         main = getattr(manage, 'main', None)
         if main:
