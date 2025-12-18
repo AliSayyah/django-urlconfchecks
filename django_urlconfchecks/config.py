@@ -21,6 +21,14 @@ CONFIG_ENV_VAR = "URLCONFCHECKS_PYPROJECT"
 
 @dataclass(frozen=True)
 class AppConfig:
+    """Configuration settings for django-urlconfchecks.
+
+    Attributes:
+        quiet: Whether to suppress non-error output.
+        format: Output format for results.
+        silenced_views: Dictionary mapping view names to silence reasons.
+    """
+
     quiet: Optional[bool] = None
     format: Optional[str] = None
     silenced_views: Optional[Dict[str, str]] = None

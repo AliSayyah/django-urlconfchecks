@@ -99,7 +99,7 @@ def test_cli_version():
 
 
 def test_cli_uses_pyproject_defaults(monkeypatch, tmp_path):
-    """pyproject config should set defaults for quiet/format/silenced views."""
+    """Pyproject config should set defaults for quiet/format/silenced views."""
     pyproject = tmp_path / "pyproject.toml"
     pyproject.write_text(
         """
