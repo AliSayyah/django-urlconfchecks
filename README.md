@@ -17,9 +17,11 @@ It leverages the Django's static check system.
 
     pip install django-urlconfchecks
 
-Python 3.8 or later is required. However, before Python 3.10 some checks
-relating to `Optional` types in view signatures are skipped due to stdlib
-limitations.
+Python 3.10–3.14 are supported. Django compatibility follows upstream:
+
+- Python 3.10–3.12: Django 4.2–<6.1
+- Python 3.13: Django 5.1.3–<6.1
+- Python 3.14: Django 5.2.8–<6.1
 
 ## Usage
 
