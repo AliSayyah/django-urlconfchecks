@@ -5,7 +5,7 @@ description = "a python package for type checking the urls and associated views.
 authors = [{ name = "ali sayyah", email = "ali.sayyah2@gmail.com" }]
 requires-python = ">=3.10,<3.15"
 readme = "README.md"
-license = "GPLv3"
+license = { file = "LICENSE" }
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
