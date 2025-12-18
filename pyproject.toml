@@ -82,6 +82,7 @@ exclude = [
     ".venv",
     ".uv-cache",
     ".uv-tools",
+    ".ruff_cache",
     ".mypy_cache",
     ".pytest_cache",
     "build",
