@@ -77,6 +77,19 @@ build-backend = "hatchling.build"
 [tool.ruff]
 line-length = 120
 target-version = "py310"
+exclude = [
+    ".git",
+    ".venv",
+    ".uv-cache",
+    ".uv-tools",
+    ".mypy_cache",
+    ".pytest_cache",
+    "build",
+    "dist",
+    "site",
+    "docs/_build",
+    "docs/site",
+]
 
 [tool.ruff.format]
 quote-style = "preserve"
