@@ -9,8 +9,6 @@
 ## Nice-to-Have (adoption & DX)
 - **Discovery command**: `urlconfchecks --list-routes` to show routes and inferred types, aiding onboarding and debugging.
 - **Settings hinting**: Add `--settings` option and clearer error messaging when Django settings aren’t configured.
-- **Export formats**: Support `--format sarif` (and/or `jsonlines`) so findings integrate with GitHub Code Scanning and other tooling.
-- **Pre-commit quick mode**: `--changed-only` to check only routes touched in the current git diff for faster local/CI runs.
 
 ## Deprioritized / Won’t Do Now
 - **RegexPattern support**: Legacy and deprecated in Django; skip with a single informational warning rather than full parsing.
