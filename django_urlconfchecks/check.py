@@ -1,6 +1,7 @@
 """Quick and dirty URL checker."""
 
 import fnmatch
+import functools
 import types
 import typing as t
 import uuid
@@ -319,7 +320,13 @@ CONVERTER_TYPES = {
 
 def get_converter_output_type(converter) -> t.Union[int, str, uuid.UUID, t.Type[_empty]]:
     """Return the type that the converter will output."""
-    for cls in converter.__class__.__mro__:
+    return _converter_output_type_for_class(converter.__class__)
+
+
+@functools.lru_cache(maxsize=None)
+def _converter_output_type_for_class(converter_cls) -> t.Union[int, str, uuid.UUID, t.Type[_empty]]:
+    """Cached resolution of converter output type by class."""
+    for cls in converter_cls.__mro__:
         if cls in CONVERTER_TYPES:
             return CONVERTER_TYPES[cls]
 

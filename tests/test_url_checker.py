@@ -122,6 +122,7 @@ def test_admin_urls_ignored():
 def test_converters():
     assert get_converter_output_type(converter_urls.YearConverterViaSubclass()) is int
     assert get_converter_output_type(converter_urls.YearConverterAsFloat()) is float
+    assert get_converter_output_type(converter_urls.BoolConverter()) is bool
 
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.converter_urls'):
         errors = check_url_signatures(None)

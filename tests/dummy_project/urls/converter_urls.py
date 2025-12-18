@@ -41,14 +41,26 @@ class YearConverterAsFloat(IntConverter):
         return float(super().to_python(value))
 
 
+class BoolConverter:
+    regex = "true|false"
+
+    def to_python(self, value: str) -> bool:
+        return value == "true"
+
+    def to_url(self, value: bool) -> str:
+        return "true" if value else "false"
+
+
 register_converter(YearConverter, "yyyy")
 register_converter(YearConverterNoTypeHint, "yyyy_notype")
 register_converter(YearConverterViaSubclass, "yyyy_subclass")
 register_converter(YearConverterAsFloat, "yyyy_float")
+register_converter(BoolConverter, "bool")
 
 urlpatterns = [
     path('articles_yyyy/<yyyy:year>/', views.year_archive),
     path('articles_yyyy_notype/<yyyy_notype:year>/', views.year_archive),
     path('articles_yyyy_subclass/<yyyy_subclass:year>/', views.year_archive),
     path('articles_yyyy_float/<yyyy_float:year>/', views.year_archive),
+    path('articles_bool/<bool:flag>/', views.bool_view),
 ]
