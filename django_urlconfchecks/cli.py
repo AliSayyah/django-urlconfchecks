@@ -29,9 +29,7 @@ def run(
     version: Optional[bool] = typer.Option(None, "--version", callback=version_callback),
     urlconf: Optional[str] = typer.Option(None, "-u", "--urlconf", help="Specify the URLconf to check."),
     quiet: bool = typer.Option(False, "--quiet", "-q", help="Suppress human-friendly output; exit codes still set."),
-    format: Optional[Literal["json"]] = typer.Option(
-        None, "--format", "-f", help="Output format. Supported: json."
-    ),
+    format: Optional[Literal["json"]] = typer.Option(None, "--format", "-f", help="Output format. Supported: json."),
 ) -> None:
     """Check all URLConfs for errors."""
     if django.VERSION[0:2] < (4, 2):

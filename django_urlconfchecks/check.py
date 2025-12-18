@@ -249,11 +249,7 @@ def _type_is_compatible(passed_type, accepted_type):
         except TypeError as e:
             # Gracefully handle generics/Optionals/Unions we can't issubclass
             msg = e.args[0] if e.args else ""
-            if (
-                "Subscripted generics" in msg
-                or "parameterized generic" in msg
-                or "must be a class" in msg
-            ):
+            if "Subscripted generics" in msg or "parameterized generic" in msg or "must be a class" in msg:
                 return True
             raise  # pragma: no cover
     return False
