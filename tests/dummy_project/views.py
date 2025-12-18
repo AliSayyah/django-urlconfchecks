@@ -1,6 +1,6 @@
 """views for tests."""
 
-from typing import List, Optional
+from typing import Annotated, List, Optional, Union
 
 from django.views import View
 
@@ -91,3 +91,9 @@ try:
 
 except TypeError:
     parameterized_generic_view_2 = None  # type: ignore
+
+
+def annotated_int_view(request, val: Annotated[int, "year"]): ...
+
+
+def union_int_str_view(request, val: Union[int, str]): ...

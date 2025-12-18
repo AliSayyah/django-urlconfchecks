@@ -244,3 +244,10 @@ def test_includes():
     assert len(errors) > 0
     for error in errors:
         assert error.obj.pattern._route.startswith('bad-')
+
+
+@override_settings(ROOT_URLCONF='tests.dummy_project.urls.annotated_union')
+def test_annotated_and_union_annotations():
+    """Annotated and Union annotations should be treated as compatible if any member matches."""
+    errors = check_url_signatures(None)
+    assert errors == []
