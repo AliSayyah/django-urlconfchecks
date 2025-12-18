@@ -32,6 +32,8 @@ $ urlconfchecks --help
     Options:
       --version
       -u, --urlconf PATH    Specify the URLconf to check.
+      -q, --quiet           Suppress human-readable output; exit codes still set.
+      -f, --format TEXT     Output format. Supported: json.
       --install-completion  Install completion for the current shell.
       --show-completion     Show completion for the current shell, to copy it or
                             customize the installation.
@@ -63,6 +65,23 @@ Then, add the following to your `.pre-commit-config.yaml` file:
 ```
 
 Run `pre-commit run` to check all URLConfs for errors.
+
+## Configuration defaults
+
+You can set defaults in `pyproject.toml` so teams don’t repeat flags:
+
+```toml
+[tool.urlconfchecks]
+quiet = true
+format = "json"
+silenced_views = { "myproj.views.legacy_view" = "E002" }
+```
+
+Notes:
+
+- CLI flags override these values.
+- Built-in silencers remain; custom entries are merged.
+- To point to a specific config file, set `URLCONFCHECKS_PYPROJECT=/path/to/pyproject.toml`.
 
 
 ## Silencing errors and warnings

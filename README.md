@@ -60,6 +60,19 @@ $ urlconfchecks --help
       --help                Show this message and exit.
 ```
 
+### Configuration defaults (pyproject.toml)
+
+You can set default flags and silenced views in `pyproject.toml`:
+
+```toml
+[tool.urlconfchecks]
+quiet = true
+format = "json"
+silenced_views = { "myproj.views.legacy_view" = "E002" }
+```
+
+These defaults are applied when running the CLI (and merge with built-in silencers). You can override them with CLI flags.
+
 ### As a pre-commit hook
 
 Add the following to your `.pre-commit-config.yaml` file:

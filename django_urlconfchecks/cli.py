@@ -6,6 +6,7 @@ from django.core.checks import Error
 
 from django_urlconfchecks import __version__
 from django_urlconfchecks.cli_utils import setup_django
+from django_urlconfchecks.config import load_config
 
 try:
     import django
@@ -28,7 +29,9 @@ def version_callback(value: bool):
 def run(
     version: Optional[bool] = typer.Option(None, "--version", callback=version_callback),
     urlconf: Optional[str] = typer.Option(None, "-u", "--urlconf", help="Specify the URLconf to check."),
-    quiet: bool = typer.Option(False, "--quiet", "-q", help="Suppress human-friendly output; exit codes still set."),
+    quiet: Optional[bool] = typer.Option(
+        None, "--quiet", "-q", help="Suppress human-friendly output; exit codes still set."
+    ),
     format: Optional[Literal["json"]] = typer.Option(None, "--format", "-f", help="Output format. Supported: json."),
 ) -> None:
     """Check all URLConfs for errors."""
@@ -36,17 +39,26 @@ def run(
         typer.secho("Django version 4.2 or higher is required.", fg=typer.colors.RED)
         raise typer.Exit(1)
 
+    config = load_config()
+
     setup_django(urlconf=urlconf)
 
-    from django_urlconfchecks.check import check_url_signatures
+    resolved_quiet = quiet if quiet is not None else bool(config.quiet)
+    resolved_format = format or (config.format if config.format in (None, "json") else None)
+
+    from django_urlconfchecks.check import _DEFAULT_SILENCED_VIEWS, check_url_signatures
+
+    if config.silenced_views and not getattr(django.conf.settings, "URLCONFCHECKS_SILENCED_VIEWS", None):
+        merged_silencers = {**_DEFAULT_SILENCED_VIEWS, **config.silenced_views}
+        django.conf.settings.URLCONFCHECKS_SILENCED_VIEWS = merged_silencers
 
     errors = check_url_signatures(None)
     warnings = [e for e in errors if not isinstance(e, Error)]
     errors_only = [e for e in errors if isinstance(e, Error)]
 
-    if format == "json":
+    if resolved_format == "json":
         _print_json(errors, errors_only, warnings)
-    elif not quiet:
+    elif not resolved_quiet:
         _print_human(errors, errors_only, warnings)
 
     raise typer.Exit(1 if errors_only else 0)

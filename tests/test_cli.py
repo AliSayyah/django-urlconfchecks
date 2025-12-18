@@ -1,5 +1,7 @@
 """Test module for cli."""
 
+import json
+
 import pytest
 from django.conf import settings
 from django.utils.functional import empty
@@ -14,6 +16,8 @@ runner = CliRunner()
 @pytest.fixture(autouse=True)
 def configure():
     """Configure."""
+    settings._wrapped = empty
+    yield
     settings._wrapped = empty
 
 
@@ -92,3 +96,24 @@ def test_cli_version():
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
     assert f"Django Urlconf Checks Version: {__version__}\n" == result.output
+
+
+def test_cli_uses_pyproject_defaults(monkeypatch, tmp_path):
+    """pyproject config should set defaults for quiet/format/silenced views."""
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text(
+        """
+[tool.urlconfchecks]
+quiet = true
+format = "json"
+silenced_views = { "tests.dummy_project.views.year_archive" = "E002" }
+"""
+    )
+    monkeypatch.setenv("URLCONFCHECKS_PYPROJECT", str(pyproject))
+
+    result = runner.invoke(app, ["--urlconf", "tests.dummy_project.urls.incorrect_urls"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["total_errors"] == 0
+    assert payload["total_warnings"] == 0
