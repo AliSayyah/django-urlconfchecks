@@ -10,7 +10,7 @@ from django_urlconfchecks.cli_utils import setup_django
 try:
     import django
 except ImportError:
-    raise ImportError('django_urlconfchecks requires django. Install it with `pip install django`.')
+    raise ImportError('django_urlconfchecks requires django. Install it with `pip install django`.') from None
 import typer
 
 app = typer.Typer()
