@@ -66,13 +66,11 @@
 
 - Handle default arguments passed via path(kwargs). Courtesy @spookylukey
 
-
 ## [0.7.3] - 2022-08-25
 
 ### Fixed
 
 - Fixed an issue where default CBV silencing only worked for django 4
-
 
 ## [0.8.0] - 2022-09-16
 
@@ -81,7 +79,6 @@
 - Made error reporting of view reprs consistent with silencer.
 - Correctly handle views with Optional arguments.
 
-
 ## [0.9.0] - 2023-02-10
 
 ### Fixed
@@ -89,13 +86,11 @@
 - Fixed crasher when urlconf has optional types. Courtesy @spookylukey
 - added python 3.11 support
 
-
 ## [0.10.0] - 2023-08-15
 
 ### Added
 
 - Handle cases involving `path` and `include`. Courtesy @spookylukey
-
 
 ## [0.11.0] - 2024-02-27
 
@@ -107,3 +102,22 @@
 ### Removed
 
 - Python 3.7 support
+
+## [0.12.0] - 2025-12-18
+
+### Added
+
+- Added python 3.13 and 3.14 support.
+- CLI now supports `--format json` to emit structured results with per-type counts and totals.
+- CLI gains `--quiet / -q` to suppress normal output while preserving exit codes and summaries.
+
+### Changed
+
+- Dropped python 3.9 support
+- Project tooling now uses uv for syncing/building and Ruff for linting/formatting (pre-commit and CI).
+- Raised the minimum supported Django version to 4.2 (with targeted upper bounds per Python release).
+- Improved type compatibility checks for `typing.Annotated`, `Optional`, and `Union`, and cache URL converter lookups for faster runs.
+
+### Fixed
+
+- Custom boolean path converters are recognized and validated alongside the built-ins.
