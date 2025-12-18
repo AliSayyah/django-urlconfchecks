@@ -8,26 +8,48 @@
 [![codecov](https://codecov.io/gh/AliSayyah/django-urlconfchecks/branch/main/graphs/badge.svg)](https://codecov.io/github/AliSayyah/django-urlconfchecks)
 [![License](https://img.shields.io/github/license/AliSayyah/django-urlconfchecks.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-django-urlconfchecks is a static type checker that checks your URLconf parameter types with argument types specified in associated views.
-It leverages the Django's static check system.
+Static checker that keeps your URL patterns and view annotations in sync, using Django’s built-in check framework.
 
 * [Documentation](https://AliSayyah.github.io/django-urlconfchecks)
 * [GitHub](https://github.com/AliSayyah/django-urlconfchecks)
 * [PyPI](https://pypi.org/project/django-urlconfchecks/)
 
+## Key features
+
+* Detects mismatches between URL converters/default kwargs and view annotations (ints, UUIDs, container generics, etc.).
+* Works as a Django system check (`manage.py check`) or standalone CLI.
+* Honors custom converters and fine-grained silencing per view.
+* Pre-commit friendly; CI-ready with machine-readable output.
+
 ## Installation
 
     pip install django-urlconfchecks
 
-Python 3.10–3.14 are supported. Django compatibility follows upstream:
+Compatibility:
 
-* Python 3.10–3.12: Django 4.2–<6.1
-* Python 3.13: Django 5.1.3–<6.1
-* Python 3.14: Django 5.2.8–<6.1
+| Python | Django |
+| --- | --- |
+| 3.10–3.12 | 4.2 – <6.1 |
+| 3.13 | 5.1.3 – <6.1 |
+| 3.14 | 5.2.8 – <6.1 |
+
+## Quick start
+
+1) Install: `pip install django-urlconfchecks`
+2) From your project root (where `manage.py` lives): `urlconfchecks`
+   * Or target a specific module: `urlconfchecks --urlconf myproj.urls`
+3) Optional: add defaults in `pyproject.toml`:
+
+   ```toml
+   [tool.urlconfchecks]
+   quiet = true
+   format = "json"
+   silenced_views = { "myproj.views.legacy_view" = "E002" }
+   ```
+
+   CLI flags always override these defaults.
 
 ## Usage
-
-You can use this package in different ways:
 
 ### As a Django app
 
@@ -62,19 +84,6 @@ $ urlconfchecks --help
       --help                Show this message and exit.
 ```
 
-### Configuration defaults (pyproject.toml)
-
-You can set default flags and silenced views in `pyproject.toml`:
-
-```toml
-[tool.urlconfchecks]
-quiet = true
-format = "json"
-silenced_views = { "myproj.views.legacy_view" = "E002" }
-```
-
-These defaults are applied when running the CLI (and merge with built-in silencers). You can override them with CLI flags.
-
 ### As a pre-commit hook
 
 Add the following to your `.pre-commit-config.yaml` file:
@@ -88,12 +97,7 @@ Add the following to your `.pre-commit-config.yaml` file:
 
 For more information, see the [usage documentation](https://alisayyah.github.io/django-urlconfchecks/usage/).
 
-## Features
-
-Using this package, URL pattern types will automatically be matched with associated views, and in case of mismatch, an
-error will be raised.
-
-Example:
+## What it catches (example)
 
 ```python
 # urls.py
@@ -123,10 +127,28 @@ def article_detail(request, year: int, month: int, slug: str):
     pass
 ```
 
-output will be:
+Output:
 
 ```
 (urlchecker.E002) For parameter `year`, annotated type int does not match expected `str` from urlconf
+```
+
+JSON (`--format json`):
+
+```json
+{
+  "errors": [
+    {
+      "id": "urlchecker.E002",
+      "message": "View myproj.views.year_archive for parameter `year`, annotated type int does not match expected `str` from urlconf",
+      "obj": "<URLPattern 'articles/<str:year>/'>",
+      "hint": null
+    }
+  ],
+  "warnings": [],
+  "total_errors": 1,
+  "total_warnings": 0
+}
 ```
 
 ## Credits
