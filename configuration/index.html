@@ -8,13 +8,9 @@
       
       
       
-        <link rel="canonical" href="https://AliSayyah.github.io/django-urlconfchecks/usage/">
+        <link rel="canonical" href="https://AliSayyah.github.io/django-urlconfchecks/configuration/">
       
       
-        <link rel="prev" href="../installation/">
-      
-      
-        <link rel="next" href="../contributing/">
       
       
         
@@ -25,7 +21,7 @@
     
     
       
-        <title>Usage - Django UrlConf Checks</title>
+        <title>Configuration - Django UrlConf Checks</title>
       
     
     
@@ -76,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#usage" class="md-skip">
+        <a href="#configuration" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Usage
+              Configuration
             
           </span>
         </div>
@@ -309,35 +305,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Usage
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
         
   
   
@@ -353,96 +324,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Usage
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#as-a-django-app" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        As a Django app
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#as-a-command-line-tool" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        As a command line tool
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#as-a-pre-commit-hook" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        As a pre-commit hook
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#configuration-defaults" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration defaults
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#silencing-errors-and-warnings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Silencing errors and warnings
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -526,74 +407,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
+  <a href="#configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Usage
+        Configuration
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#as-a-django-app" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        As a Django app
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#as-a-command-line-tool" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        As a command line tool
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#as-a-pre-commit-hook" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        As a pre-commit hook
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#configuration-defaults" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration defaults
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#silencing-errors-and-warnings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Silencing errors and warnings
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -617,99 +437,27 @@
   
 
 
-  <h1>Usage</h1>
+  <h1>Configuration</h1>
 
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<p>You can use this package in different ways:</p>
-<h4 id="as-a-django-app">As a Django app<a class="headerlink" href="#as-a-django-app" title="Permanent link">&para;</a></h4>
-<p>Add <code>django_urlconfchecks</code> to your <code>INSTALLED_APPS</code> list in your <code>settings.py</code> file.</p>
-<div class="highlight"><pre><span></span><code>    <span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="o">...</span>
-    <span class="s1">&#39;django_urlconfchecks&#39;</span><span class="p">,</span>
-<span class="p">]</span>
-</code></pre></div>
-<p>Now, if there is any error, you can check it when you run <code>python manage.py check</code> or when your django server runs or
-reloads with <code>python manage.py runserver</code>.</p>
-<h4 id="as-a-command-line-tool">As a command line tool<a class="headerlink" href="#as-a-command-line-tool" title="Permanent link">&para;</a></h4>
-<p><code>urlconfchecks</code> uses the <code>Typer</code> module to parse command line arguments.</p>
-<p>Run this command from the root of your project, were <code>manage.py</code> is located:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>urlconfchecks<span class="w"> </span>--help
-
-<span class="w">    </span>Usage:<span class="w"> </span>urlconfchecks<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-
-<span class="w">      </span>Check<span class="w"> </span>all<span class="w"> </span>URLConfs<span class="w"> </span><span class="k">for</span><span class="w"> </span>errors.
-
-<span class="w">    </span>Options:
-<span class="w">      </span>--version
-<span class="w">      </span>-u,<span class="w"> </span>--urlconf<span class="w"> </span>PATH<span class="w">    </span>Specify<span class="w"> </span>the<span class="w"> </span>URLconf<span class="w"> </span>to<span class="w"> </span>check.
-<span class="w">      </span>-q,<span class="w"> </span>--quiet<span class="w">           </span>Suppress<span class="w"> </span>human-readable<span class="w"> </span>output<span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span>codes<span class="w"> </span>still<span class="w"> </span>set.
-<span class="w">      </span>-f,<span class="w"> </span>--format<span class="w"> </span>TEXT<span class="w">     </span>Output<span class="w"> </span>format.<span class="w"> </span>Supported:<span class="w"> </span>json.
-<span class="w">      </span>--install-completion<span class="w">  </span>Install<span class="w"> </span>completion<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>current<span class="w"> </span>shell.
-<span class="w">      </span>--show-completion<span class="w">     </span>Show<span class="w"> </span>completion<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>current<span class="w"> </span>shell,<span class="w"> </span>to<span class="w"> </span>copy<span class="w"> </span>it<span class="w"> </span>or
-<span class="w">                            </span>customize<span class="w"> </span>the<span class="w"> </span>installation.
-<span class="w">      </span>--help<span class="w">                </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.
-</code></pre></div>
-<p><code>--urlconf</code> is optional, and if not specified, app will try to find the manage.py in your current directory for
-accessing the main URLConf module.</p>
-<p>Example:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>urlconfchecks<span class="w"> </span>--urlconf<span class="w"> </span>my_project.urls
-
-<span class="w">  </span>Done.<span class="w"> </span>No<span class="w"> </span>errors<span class="w"> </span>found.
-</code></pre></div>
-<h4 id="as-a-pre-commit-hook">As a pre-commit hook<a class="headerlink" href="#as-a-pre-commit-hook" title="Permanent link">&para;</a></h4>
-<p>Make sure you have <code>pre-commit</code> installed and if not, install it with <code>pip install pre-commit &amp;&amp; pre-commit install</code>.</p>
-<p>Then, add the following to your <code>.pre-commit-config.yaml</code> file:</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/AliSayyah/django-urlconfchecks</span>
-<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.13.0</span>
-<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">django-urlconfchecks</span>
-</code></pre></div>
-<p>Run <code>pre-commit run</code> to check all URLConfs for errors.</p>
-<h3 id="configuration-defaults">Configuration defaults<a class="headerlink" href="#configuration-defaults" title="Permanent link">&para;</a></h3>
-<p>You can set defaults in <code>pyproject.toml</code> so teams don’t repeat flags:</p>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<p>You can set defaults for <code>django-urlconfchecks</code> in your <code>pyproject.toml</code> so teams don’t have to repeat CLI flags.</p>
 <div class="highlight"><pre><span></span><code><span class="k">[tool.urlconfchecks]</span>
+<span class="c1"># Suppress human-readable output; exit codes still reflect errors.</span>
 <span class="n">quiet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Output format. Supported: &quot;json&quot; (default remains human output).</span>
 <span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;json&quot;</span>
+
+<span class="c1"># Merge additional silencers with built-in defaults.</span>
+<span class="c1"># Key: glob for view import path; Value: comma-separated error codes.</span>
 <span class="n">silenced_views</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;myproj.views.legacy_view&quot;</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;E002&quot;</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<p>Notes:</p>
+<p>Notes</p>
 <ul>
-<li>CLI flags override these values.</li>
-<li>Built-in silencers remain; custom entries are merged.</li>
-<li>To point to a specific config file, set <code>URLCONFCHECKS_PYPROJECT=/path/to/pyproject.toml</code>.</li>
+<li>CLI flags always win: <code>urlconfchecks --quiet</code> overrides <code>quiet = false</code> and vice versa.</li>
+<li>You can point to a specific config file with <code>URLCONFCHECKS_PYPROJECT=/path/to/pyproject.toml</code>.</li>
+<li>Built-in silencers (e.g., Django contrib views without type hints) stay active; custom silencers are merged.</li>
 </ul>
-<h3 id="silencing-errors-and-warnings">Silencing errors and warnings<a class="headerlink" href="#silencing-errors-and-warnings" title="Permanent link">&para;</a></h3>
-<p>You can silence specific errors and warnings as described in the <a href="https://docs.djangoproject.com/en/stable/topics/checks/">System check
-framework
-documentation</a>.</p>
-<p>For example:</p>
-<div class="highlight"><pre><span></span><code><span class="n">SILENCED_SYSTEM_CHECKS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;urlchecker.W003“,</span>
-<span class="p">]</span>
-</code></pre></div>
-<p>However, this turns off the check for all view functions. Instead of this you
-can use the <code>URLCONFCHECKS_SILENCED_VIEWS</code> setting for more fine grained
-silencing. The value must be a dictionary:</p>
-<ul>
-<li>
-<p>whose keys are fully qualified dotted paths to view functions or callables,
-  with globbing syntax allowed, e.g. <code>"my_project.views.my_view"</code> or
-  <code>"other_project.*"</code></p>
-</li>
-<li>
-<p>whose values are comma separated lists of warning or error IDs (without the
-  <code>urlchecker</code> prefix), e.g. <code>"E001,W003”</code></p>
-</li>
-</ul>
-<p>The default value of <code>URLCONFCHECKS_SILENCED_VIEWS</code> is below. If you override it
-in your <code>settings.py</code>, you will probably want to include the following and add
-more items:</p>
-<div class="highlight"><pre><span></span><code><span class="n">URLCONFCHECKS_SILENCED_VIEWS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;*.View.as_view&quot;</span><span class="p">:</span> <span class="s2">&quot;W001&quot;</span><span class="p">,</span>  <span class="c1"># CBVs</span>
-    <span class="s2">&quot;django.views.generic.base.RedirectView&quot;</span><span class="p">:</span> <span class="s2">&quot;W001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;django.contrib.*&quot;</span><span class="p">:</span> <span class="s2">&quot;W003&quot;</span><span class="p">,</span>  <span class="c1"># admin etc.</span>
-<span class="p">}</span>
-</code></pre></div>
 
 
 
