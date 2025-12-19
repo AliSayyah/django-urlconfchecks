@@ -121,3 +121,14 @@
 ### Fixed
 
 - Custom boolean path converters are recognized and validated alongside the built-ins.
+
+## [0.13.0] - 2025-12-19
+
+### Added
+
+- Parameterized generics validation: lists, tuples (fixed/variadic), dicts, sets, and optional containers are now type-checked against URL converters and default kwargs.
+- Pyproject configuration: `[tool.urlconfchecks]` supports defaults for `quiet`, `format`, and `silenced_views`, with `URLCONFCHECKS_PYPROJECT` override; custom silencers merge with built-ins.
+
+### Fixed
+
+- Container type checking now reports mismatches instead of silently passing parameterized generics.
