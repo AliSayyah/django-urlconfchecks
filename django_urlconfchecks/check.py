@@ -70,6 +70,9 @@ def _make_callback_repr(callback):
     if hasattr(callback, "view_class"):
         qualname = callback.view_class.as_view.__qualname__
         module = callback.view_class.as_view.__module__
+    elif isinstance(callback, functools.partial):
+        qualname = callback.func.__qualname__
+        module = callback.func.__module__
     else:
         qualname = callback.__qualname__
         module = callback.__module__
