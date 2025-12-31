@@ -32,12 +32,13 @@ dependencies = [
 
 [project.optional-dependencies]
 test = [
-    "pytest>=8.0.2,<10",
+    "pytest>=9.0.0,<10",
     "ruff>=0.14.0,<1",
-    "mypy>=1.15.0,<2",
     "pytest-cov>=6.1.1,<8",
     "pytest-django>=4.5.2,<5",
     "pyupgrade>=3.19,<4",
+    "coverage[toml]>=7.1,<8",
+    "ty>=0.0.7,<1",
     "djangorestframework>=3.14,<4",
     "django-ninja>=1.1,<2",
 ]
@@ -87,7 +88,6 @@ exclude = [
     ".uv-cache",
     ".uv-tools",
     ".ruff_cache",
-    ".mypy_cache",
     ".pytest_cache",
     "build",
     "dist",
@@ -112,3 +112,142 @@ max-complexity = 18
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.pytest]
+DJANGO_SETTINGS_MODULE = "tests.dummy_project.settings"
+
+[tool.coverage.run]
+# omit = []
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "def main",
+]
+
+[tool.tox]
+requires = ["tox>=4", "tox-uv>=1.1"]
+env_list = [
+    "py310-django42",
+    "py311-django42",
+    "py312-django42",
+    "py310-django50",
+    "py311-django50",
+    "py312-django50",
+    "py310-django51",
+    "py311-django51",
+    "py312-django51",
+    "py313-django51",
+    "py310-django52",
+    "py311-django52",
+    "py312-django52",
+    "py313-django52",
+    "py314-django52",
+    "py312-django60",
+    "py313-django60",
+    "py314-django60",
+    "format",
+    "lint",
+    "build",
+]
+
+[tool.tox.env_run_base]
+description = "Run tests under {base_python}"
+allowlist_externals = ["pytest"]
+extras = ["test"]
+pass_env = ["*"]
+set_env = { PYTHONPATH = "{tox_root}", PYTHONWARNINGS = "ignore" }
+commands = [
+    [
+        "pytest",
+        "--cov=django_urlconfchecks",
+        "--cov-branch",
+        "--cov-report=xml",
+        "--cov-report=term-missing",
+        "tests",
+    ],
+]
+
+[tool.tox.env.py310-django42]
+deps = ["django==4.2.8"]
+
+[tool.tox.env.py311-django42]
+deps = ["django==4.2.8"]
+
+[tool.tox.env.py312-django42]
+deps = ["django==4.2.8"]
+
+[tool.tox.env.py310-django50]
+deps = ["django==5.0.0"]
+
+[tool.tox.env.py311-django50]
+deps = ["django==5.0.0"]
+
+[tool.tox.env.py312-django50]
+deps = ["django==5.0.0"]
+
+[tool.tox.env.py310-django51]
+deps = ["django==5.1.3"]
+
+[tool.tox.env.py311-django51]
+deps = ["django==5.1.3"]
+
+[tool.tox.env.py312-django51]
+deps = ["django==5.1.3"]
+
+[tool.tox.env.py313-django51]
+deps = ["django==5.1.3"]
+
+[tool.tox.env.py310-django52]
+deps = ["django==5.2.8"]
+
+[tool.tox.env.py311-django52]
+deps = ["django==5.2.8"]
+
+[tool.tox.env.py312-django52]
+deps = ["django==5.2.8"]
+
+[tool.tox.env.py313-django52]
+deps = ["django==5.2.8"]
+
+[tool.tox.env.py314-django52]
+deps = ["django==5.2.8"]
+
+[tool.tox.env.py312-django60]
+deps = ["django==6.0.0"]
+
+[tool.tox.env.py313-django60]
+deps = ["django==6.0.0"]
+
+[tool.tox.env.py314-django60]
+deps = ["django==6.0.0"]
+
+[tool.tox.env.format]
+allowlist_externals = ["ruff"]
+commands = [
+    ["ruff", "format", "django_urlconfchecks", "tests"],
+    ["ruff", "check", "--select", "I", "--fix", "django_urlconfchecks", "tests"],
+]
+
+[tool.tox.env.lint]
+allowlist_externals = ["ruff", "ty"]
+commands = [
+    ["ruff", "check", "django_urlconfchecks", "tests"],
+    ["ty", "check", "django_urlconfchecks", "tests"],
+]
+
+[tool.tox.env.build]
+allowlist_externals = ["uv", "mkdocs", "twine"]
+extras = ["doc", "dev"]
+commands = [
+    ["uv", "build"],
+    ["mkdocs", "build"],
+    ["twine", "check", "dist/*"],
+]

@@ -4,24 +4,24 @@ sources = django_urlconfchecks
 test: format lint unittest
 
 format:
-	ruff format $(sources) tests
-	ruff check --select I --fix $(sources) tests
+	uv run ruff format $(sources) tests
+	uv run ruff check --select I --fix $(sources) tests
 
 lint:
-	ruff check $(sources) tests
-	mypy $(sources) tests
+	uv run ruff check $(sources) tests
+	uv run ty check $(sources) tests
 
 unittest:
-	pytest
+	uv run pytest
 
 coverage:
-	pytest --cov=$(sources) --cov-branch --cov-report=term-missing tests
+	uv run pytest --cov=$(sources) --cov-branch --cov-report=term-missing tests
 
 pre-commit:
 	pre-commit run --all-files
 
 clean:
-	rm -rf .mypy_cache .pytest_cache
+	rm -rf .pytest_cache
 	rm -rf *.egg-info
 	rm -rf .tox dist site
 	rm -rf coverage.xml .coverage
