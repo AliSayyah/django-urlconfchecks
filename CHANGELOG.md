@@ -132,3 +132,9 @@
 ### Fixed
 
 - Container type checking now reports mismatches instead of silently passing parameterized generics.
+
+## [0.13.1] - 2025-12-31
+
+### Fixed
+
+- Handle functools.partial callbacks in _make_callback_repr for Django Ninja or similar frameworks. thanks @joseanoxp
