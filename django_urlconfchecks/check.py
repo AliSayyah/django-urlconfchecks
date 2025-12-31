@@ -6,7 +6,7 @@ import functools
 import types
 import typing as t
 import uuid
-from inspect import Parameter, _empty, signature  # type: ignore[attr-defined]
+from inspect import Parameter, _empty, signature
 from typing import Any, get_args, get_origin
 
 from django.conf import settings
@@ -371,7 +371,9 @@ def _name_type(type_hint):
     return type_hint.__name__ if (hasattr(type_hint, "__name__") and isinstance(type_hint, type)) else repr(type_hint)
 
 
-CONVERTER_TYPES = {
+ConverterOutputType: t.TypeAlias = t.Union[type[int], type[str], type[uuid.UUID], t.Type[_empty]]
+
+CONVERTER_TYPES: dict[type, ConverterOutputType] = {
     converters.IntConverter: int,
     converters.StringConverter: str,
     converters.UUIDConverter: uuid.UUID,
@@ -380,13 +382,13 @@ CONVERTER_TYPES = {
 }
 
 
-def get_converter_output_type(converter) -> t.Union[int, str, uuid.UUID, t.Type[_empty]]:
+def get_converter_output_type(converter) -> ConverterOutputType:
     """Return the type that the converter will output."""
     return _converter_output_type_for_class(converter.__class__)
 
 
 @functools.lru_cache(maxsize=None)
-def _converter_output_type_for_class(converter_cls) -> t.Union[int, str, uuid.UUID, t.Type[_empty]]:
+def _converter_output_type_for_class(converter_cls) -> ConverterOutputType:
     """Cached resolution of converter output type by class."""
     for cls in converter_cls.__mro__:
         if cls in CONVERTER_TYPES:
@@ -395,7 +397,7 @@ def _converter_output_type_for_class(converter_cls) -> t.Union[int, str, uuid.UU
         if hasattr(cls, "to_python"):
             sig = signature(cls.to_python)
             if sig.return_annotation != Parameter.empty:
-                return sig.return_annotation
+                return t.cast(ConverterOutputType, sig.return_annotation)
 
     return Parameter.empty
 

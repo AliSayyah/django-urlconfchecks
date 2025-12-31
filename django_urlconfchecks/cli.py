@@ -10,8 +10,10 @@ from django_urlconfchecks.config import load_config
 
 try:
     import django
+    from django.conf import settings as django_settings
 except ImportError:
     raise ImportError('django_urlconfchecks requires django. Install it with `pip install django`.') from None
+
 import typer
 
 app = typer.Typer()
@@ -48,9 +50,9 @@ def run(
 
     from django_urlconfchecks.check import _DEFAULT_SILENCED_VIEWS, check_url_signatures
 
-    if config.silenced_views and not getattr(django.conf.settings, "URLCONFCHECKS_SILENCED_VIEWS", None):
+    if config.silenced_views and not getattr(django_settings, "URLCONFCHECKS_SILENCED_VIEWS", None):
         merged_silencers = {**_DEFAULT_SILENCED_VIEWS, **config.silenced_views}
-        django.conf.settings.URLCONFCHECKS_SILENCED_VIEWS = merged_silencers
+        django_settings.URLCONFCHECKS_SILENCED_VIEWS = merged_silencers
 
     errors = check_url_signatures(None)
     warnings = [e for e in errors if not isinstance(e, Error)]
