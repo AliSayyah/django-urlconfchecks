@@ -43,7 +43,7 @@ test = [
     "django-ninja~=1.5.1",
 ]
 dev = [
-    "tox~=4.32.0",
+    "tox>=4.32,<4.35",
     "tox-uv~=1.29.0",
     "pre-commit~=4.5.1",
     "virtualenv~=20.35.4",
