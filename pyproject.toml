@@ -44,7 +44,7 @@ test = [
 ]
 dev = [
     "tox~=4.32.0",
-    "tox-uv~=1.29.0",
+    "tox-uv>=1.29,<1.33",
     "pre-commit~=4.5.1",
     "virtualenv~=20.35.4",
     "twine~=6.2.0",
