@@ -18,3 +18,5 @@ base_path = ["."]
 [project.markdown_extensions.pymdownx.highlight]
 
 [project.markdown_extensions.pymdownx.superfences]
+
+[project.plugins.offline]
