@@ -46,14 +46,9 @@ dev = [
     "twine~=6.2.0",
     "toml~=0.10.2",
     "bump2version~=1.0.1",
-    "Markdown~=3.10",
 ]
 doc = [
-    "Markdown~=3.10",
-    "mkdocs~=1.6.1",
-    "mkdocs-include-markdown-plugin~=7.2.0",
-    "mkdocs-material~=9.7.1",
-    "mkdocs-autorefs~=1.4.3",
+    "zensical~=0.0.43",
 ]
 
 [project.urls]
@@ -203,10 +198,10 @@ commands = [
 ]
 
 [tool.tox.env.build]
-allowlist_externals = ["uv", "mkdocs", "twine"]
+allowlist_externals = ["uv", "zensical", "twine"]
 extras = ["doc", "dev"]
 commands = [
     ["uv", "build"],
-    ["mkdocs", "build"],
+    ["zensical", "build"],
     ["twine", "check", "dist/*"],
 ]

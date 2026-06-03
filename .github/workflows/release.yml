@@ -56,7 +56,7 @@ jobs:
         run: uv sync --extra doc --extra dev --frozen
 
       - name: build documentation
-        run: uv run mkdocs build
+        run: uv run zensical build
 
       - name: publish documentation
         uses: peaceiris/actions-gh-pages@v4

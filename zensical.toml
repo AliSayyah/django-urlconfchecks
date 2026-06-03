@@ -1,0 +1,20 @@
+[project]
+site_name = "Django UrlConf Checks"
+site_url = "https://AliSayyah.github.io/django-urlconfchecks"
+repo_url = "https://github.com/AliSayyah/django-urlconfchecks"
+use_directory_urls = false
+nav = [
+  { "Home" = "index.md" },
+  { "Installation" = "installation.md" },
+  { "Usage" = "usage.md" },
+  { "Configuration" = "configuration.md" },
+  { "Contributing" = "contributing.md" },
+  { "Changelog" = "changelog.md" },
+]
+
+[project.markdown_extensions.pymdownx.snippets]
+base_path = ["."]
+
+[project.markdown_extensions.pymdownx.highlight]
+
+[project.markdown_extensions.pymdownx.superfences]
