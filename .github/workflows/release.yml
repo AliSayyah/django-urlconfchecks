@@ -18,6 +18,8 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     strategy:
       matrix:
@@ -28,7 +30,7 @@ jobs:
       - name: Get version from tag
         id: tag_name
         run: |
-          echo ::set-output name=current_version::${GITHUB_REF#refs/tags/v}
+          echo "current_version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
         shell: bash
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -73,9 +75,7 @@ jobs:
 
       - name: create github release
         id: create_release
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v3
         with:
           body: ${{ steps.changelog_reader.outputs.changes }}
           files: dist/*.whl
@@ -88,3 +88,6 @@ jobs:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
           skip-existing: true
+          # API-token publishing cannot upload PEP 740 attestations. Remove
+          # this once PyPI Trusted Publishing is configured for this workflow.
+          attestations: false
