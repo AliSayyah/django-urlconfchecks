@@ -29,6 +29,51 @@ def test_correct_urls():
         assert not errors
 
 
+def test_future_annotations_are_resolved():
+    """Test that deferred annotations are resolved before type compatibility checks."""
+    with override_settings(ROOT_URLCONF='tests.dummy_project.urls.future_annotations'):
+        errors = check_url_signatures(None)
+        assert not errors
+
+
+def test_future_converter_return_annotations_are_resolved():
+    """Test that deferred converter return annotations are resolved before checking view types."""
+    with override_settings(ROOT_URLCONF='tests.dummy_project.urls.future_converter_annotations'):
+        errors = check_url_signatures(None)
+        assert not errors
+
+
+def test_future_converter_return_annotation_mismatches_are_still_reported():
+    """Test that resolved deferred converter annotations are still checked for compatibility."""
+    with override_settings(ROOT_URLCONF='tests.dummy_project.urls.future_converter_annotation_mismatch'):
+        errors = check_url_signatures(None)
+        assert [error.id for error in errors] == ['urlchecker.E002']
+        assert "annotated type str does not match expected `int`" in errors[0].msg
+
+
+def test_future_annotation_mismatches_are_still_reported():
+    """Test that resolved deferred annotations are still checked for compatibility."""
+    with override_settings(ROOT_URLCONF='tests.dummy_project.urls.future_annotation_mismatch'):
+        errors = check_url_signatures(None)
+        assert [error.id for error in errors] == ['urlchecker.E002']
+        assert "annotated type int does not match expected `str`" in errors[0].msg
+
+
+def test_unresolved_future_annotations_are_treated_as_unknown():
+    """Test that unresolved deferred annotations do not become hard type mismatches."""
+    with override_settings(ROOT_URLCONF='tests.dummy_project.urls.future_unresolved_annotations'):
+        errors = check_url_signatures(None)
+        assert [error.id for error in errors] == ['urlchecker.W003']
+
+
+def test_future_annotations_are_resolved_for_default_args():
+    """Test that deferred annotations are resolved before checking default argument types."""
+    with override_settings(ROOT_URLCONF='tests.dummy_project.urls.future_default_args'):
+        errors = check_url_signatures(None)
+        assert [error.id for error in errors] == ['urlchecker.E005']
+        assert "default argument '2024' in urlconf, type str, does not match annotated type int" in errors[0].msg
+
+
 def test_incorrect_urls():
     """Test that errors are raised when the urlconf is incorrect.
 
