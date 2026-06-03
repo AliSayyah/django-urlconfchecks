@@ -138,3 +138,9 @@
 ### Fixed
 
 - Handle functools.partial callbacks in _make_callback_repr for Django Ninja or similar frameworks. thanks @joseanoxp
+
+## [Unreleased]
+
+### Changed
+
+- Updated the supported version matrix to Python 3.10-3.14 with Django 5.2 and 6.0.

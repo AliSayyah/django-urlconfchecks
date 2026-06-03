@@ -3,17 +3,15 @@
 from __future__ import annotations
 
 import os
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-try:  # Python 3.11+
-    import tomllib  # type: ignore[attr-defined]
-except ImportError:  # pragma: no cover
-    try:
-        import tomli as tomllib  # type: ignore
-    except ImportError:  # pragma: no cover
-        tomllib = None  # type: ignore
+if sys.version_info >= (3, 11):
+    import tomllib
+else:  # pragma: no cover - Python 3.10 fallback
+    import tomli as tomllib
 
 
 CONFIG_ENV_VAR = "URLCONFCHECKS_PYPROJECT"
@@ -36,9 +34,6 @@ class AppConfig:
 
 def load_config(pyproject_path: Optional[Path] = None) -> AppConfig:
     """Load configuration from pyproject.toml [tool.urlconfchecks]."""
-    if tomllib is None:
-        return AppConfig()
-
     path = pyproject_path or _find_pyproject()
     if path is None or not path.is_file():
         return AppConfig()

@@ -16,16 +16,12 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "Framework :: Django :: 4.2",
-    "Framework :: Django :: 5.0",
-    "Framework :: Django :: 5.1",
     "Framework :: Django :: 5.2",
     "Framework :: Django :: 6.0",
 ]
 dependencies = [
-    "Django>=4.2,<6.1 ; python_version < '3.13'",
-    "Django>=5.1.3,<6.1 ; python_version == '3.13'",
-    "Django>=5.2.8,<6.1 ; python_version >= '3.14'",
+    "Django>=5.2.8,<5.3 ; python_version < '3.12'",
+    "Django>=5.2.8,<6.1 ; python_version >= '3.12'",
     "typer>=0.9.0,<1.0.0",
     "tomli>=2.0.1,<3 ; python_version < '3.11'",
 ]
@@ -135,16 +131,6 @@ exclude_lines = [
 [tool.tox]
 requires = ["tox>=4", "tox-uv>=1.1"]
 env_list = [
-    "py310-django42",
-    "py311-django42",
-    "py312-django42",
-    "py310-django50",
-    "py311-django50",
-    "py312-django50",
-    "py310-django51",
-    "py311-django51",
-    "py312-django51",
-    "py313-django51",
     "py310-django52",
     "py311-django52",
     "py312-django52",
@@ -175,59 +161,29 @@ commands = [
     ],
 ]
 
-[tool.tox.env.py310-django42]
-deps = ["django==4.2.8"]
-
-[tool.tox.env.py311-django42]
-deps = ["django==4.2.8"]
-
-[tool.tox.env.py312-django42]
-deps = ["django==4.2.8"]
-
-[tool.tox.env.py310-django50]
-deps = ["django==5.0.0"]
-
-[tool.tox.env.py311-django50]
-deps = ["django==5.0.0"]
-
-[tool.tox.env.py312-django50]
-deps = ["django==5.0.0"]
-
-[tool.tox.env.py310-django51]
-deps = ["django==5.1.3"]
-
-[tool.tox.env.py311-django51]
-deps = ["django==5.1.3"]
-
-[tool.tox.env.py312-django51]
-deps = ["django==5.1.3"]
-
-[tool.tox.env.py313-django51]
-deps = ["django==5.1.3"]
-
 [tool.tox.env.py310-django52]
-deps = ["django==5.2.8"]
+deps = ["Django>=5.2.8,<5.3"]
 
 [tool.tox.env.py311-django52]
-deps = ["django==5.2.8"]
+deps = ["Django>=5.2.8,<5.3"]
 
 [tool.tox.env.py312-django52]
-deps = ["django==5.2.8"]
+deps = ["Django>=5.2.8,<5.3"]
 
 [tool.tox.env.py313-django52]
-deps = ["django==5.2.8"]
+deps = ["Django>=5.2.8,<5.3"]
 
 [tool.tox.env.py314-django52]
-deps = ["django==5.2.8"]
+deps = ["Django>=5.2.8,<5.3"]
 
 [tool.tox.env.py312-django60]
-deps = ["django==6.0.0"]
+deps = ["Django>=6.0,<6.1"]
 
 [tool.tox.env.py313-django60]
-deps = ["django==6.0.0"]
+deps = ["Django>=6.0,<6.1"]
 
 [tool.tox.env.py314-django60]
-deps = ["django==6.0.0"]
+deps = ["Django>=6.0,<6.1"]
 
 [tool.tox.env.format]
 allowlist_externals = ["ruff"]
@@ -238,6 +194,7 @@ commands = [
 
 [tool.tox.env.lint]
 allowlist_externals = ["ruff", "ty"]
+deps = ["tomli>=2.0.1,<3"]
 commands = [
     ["ruff", "check", "django_urlconfchecks", "tests"],
     ["ty", "check", "django_urlconfchecks", "tests"],
