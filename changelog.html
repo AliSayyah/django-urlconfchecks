@@ -8,18 +8,18 @@
       
       
       
-        <link rel="canonical" href="https://AliSayyah.github.io/django-urlconfchecks/changelog/">
+        <link rel="canonical" href="https://AliSayyah.github.io/django-urlconfchecks/changelog.html">
       
       
-        <link rel="prev" href="../contributing/">
+        <link rel="prev" href="./contributing.html">
       
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <link rel="icon" href="./assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.43">
     
     
       
@@ -27,16 +27,23 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      <link rel="stylesheet" href="./assets/stylesheets/modern/main.fba56155.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="./assets/stylesheets/modern/palette.dfe2e883.min.css">
       
       
 
 
     
     
+      
+        <script src="https://unpkg.com/iframe-worker/shim" type="text/javascript"></script>
       
     
     
@@ -44,12 +51,12 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL(".",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
     
       
 
@@ -65,12 +72,12 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
     <div data-md-component="skip">
       
         
@@ -88,17 +95,17 @@
 
   
 
-<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Django UrlConf Checks" class="md-header__button md-logo" aria-label="Django UrlConf Checks" data-md-component="logo">
+    <a href="./index.html" title="Django UrlConf Checks" class="md-header__button md-logo" aria-label="Django UrlConf Checks" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 7v14M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
 
     </a>
-    <label class="md-header__button md-icon" for="__drawer">
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
       
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -123,20 +130,30 @@
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
       </label>
     
   
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="red"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
     
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
       </label>
     
   
@@ -150,66 +167,39 @@
     
       
       
-        <label class="md-header__button md-icon" for="__search">
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
           
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
         </label>
-        <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Search">
-        
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-      </nav>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
-            Initializing search
-          </div>
-          <ol class="md-search-result__list" role="presentation"></ol>
-        </div>
-      </div>
-    </div>
-  </div>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
 </div>
       
     
-    
-      <div class="md-header__source">
+    <div class="md-header__source">
+      
         <a href="https://github.com/AliSayyah/django-urlconfchecks" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
-    AliSayyah/django-urlconfchecks
+    GitHub
   </div>
 </a>
-      </div>
-    
+      
+    </div>
   </nav>
-  
-    
   
 </header>
     
     <div class="md-container" data-md-component="container">
       
       
+        
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -226,10 +216,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Django UrlConf Checks" class="md-nav__button md-logo" aria-label="Django UrlConf Checks" data-md-component="logo">
+    <a href="./index.html" title="Django UrlConf Checks" class="md-nav__button md-logo" aria-label="Django UrlConf Checks" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 7v14M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
 
     </a>
     Django UrlConf Checks
@@ -239,10 +229,10 @@
       <a href="https://github.com/AliSayyah/django-urlconfchecks" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
-    AliSayyah/django-urlconfchecks
+    GitHub
   </div>
 </a>
     </div>
@@ -256,15 +246,14 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="./index.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Home
-  
+  Home
 
     
   </span>
@@ -283,15 +272,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../installation/" class="md-nav__link">
+      <a href="./installation.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Installation
-  
+  Installation
 
     
   </span>
@@ -310,15 +298,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../usage/" class="md-nav__link">
+      <a href="./usage.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Usage
-  
+  Usage
 
     
   </span>
@@ -337,15 +324,40 @@
   
   
     <li class="md-nav__item">
-      <a href="../contributing/" class="md-nav__link">
+      <a href="./configuration.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Contributing
+  Configuration
+
+    
+  </span>
   
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./contributing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Contributing
 
     
   </span>
@@ -367,8 +379,10 @@
   
     <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
+      
+      
+        
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
@@ -378,8 +392,7 @@
   <span class="md-ellipsis">
     
   
-    Changelog
-  
+  Changelog
 
     
   </span>
@@ -389,15 +402,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="./" class="md-nav__link md-nav__link--active">
+      <a href="changelog.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    Changelog
-  
+  Changelog
 
     
   </span>
@@ -408,35 +420,26 @@
       
         
 
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
   
   
+  
+    
   
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      Table of contents
+      On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#changelog" class="md-nav__link">
+  <a href="#010-2022-01-28" class="md-nav__link">
     <span class="md-ellipsis">
-      
-        Changelog
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Changelog">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#010---2022-01-28" class="md-nav__link">
-    <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.1.0] - 2022-01-28
-      
+      </span>
     </span>
   </a>
   
@@ -446,9 +449,9 @@
           <li class="md-nav__item">
   <a href="#added" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -458,13 +461,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#020---2022-01-29" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#020-2022-01-29" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.2.0] - 2022-01-29
-      
+      </span>
     </span>
   </a>
   
@@ -474,9 +477,9 @@
           <li class="md-nav__item">
   <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -486,13 +489,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#030---2022-02-04" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#030-2022-02-04" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.3.0] - 2022-02-04
-      
+      </span>
     </span>
   </a>
   
@@ -502,9 +505,9 @@
           <li class="md-nav__item">
   <a href="#changed" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Changed
-      
+      </span>
     </span>
   </a>
   
@@ -514,13 +517,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#031---2022-02-07" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#031-2022-02-07" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.3.1] - 2022-02-07
-      
+      </span>
     </span>
   </a>
   
@@ -530,9 +533,9 @@
           <li class="md-nav__item">
   <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -542,13 +545,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#040---2022-02-07" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#040-2022-02-07" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.4.0] - 2022-02-07
-      
+      </span>
     </span>
   </a>
   
@@ -558,9 +561,9 @@
           <li class="md-nav__item">
   <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Changed
-      
+      </span>
     </span>
   </a>
   
@@ -570,13 +573,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#050---2022-02-21" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#050-2022-02-21" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.5.0] - 2022-02-21
-      
+      </span>
     </span>
   </a>
   
@@ -586,9 +589,9 @@
           <li class="md-nav__item">
   <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -598,13 +601,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#060---2022-04-01" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#060-2022-04-01" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.6.0] - 2022-04-01
-      
+      </span>
     </span>
   </a>
   
@@ -614,9 +617,9 @@
           <li class="md-nav__item">
   <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -626,13 +629,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#070---2022-08-11" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#070-2022-08-11" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.7.0] - 2022-08-11
-      
+      </span>
     </span>
   </a>
   
@@ -642,9 +645,9 @@
           <li class="md-nav__item">
   <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -654,13 +657,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#071---2022-08-11" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#071-2022-08-11" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.7.1] - 2022-08-11
-      
+      </span>
     </span>
   </a>
   
@@ -670,9 +673,9 @@
           <li class="md-nav__item">
   <a href="#added_4" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -682,13 +685,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#072---2022-08-12" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#072-2022-08-12" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.7.2] - 2022-08-12
-      
+      </span>
     </span>
   </a>
   
@@ -698,9 +701,9 @@
           <li class="md-nav__item">
   <a href="#added_5" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -710,13 +713,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#073---2022-08-25" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#073-2022-08-25" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.7.3] - 2022-08-25
-      
+      </span>
     </span>
   </a>
   
@@ -726,9 +729,9 @@
           <li class="md-nav__item">
   <a href="#fixed_2" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -738,13 +741,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#080---2022-09-16" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#080-2022-09-16" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.8.0] - 2022-09-16
-      
+      </span>
     </span>
   </a>
   
@@ -754,9 +757,9 @@
           <li class="md-nav__item">
   <a href="#fixed_3" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -766,13 +769,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#090---2023-02-10" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#090-2023-02-10" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.9.0] - 2023-02-10
-      
+      </span>
     </span>
   </a>
   
@@ -782,9 +785,9 @@
           <li class="md-nav__item">
   <a href="#fixed_4" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -794,13 +797,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#0100---2023-08-15" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#0100-2023-08-15" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.10.0] - 2023-08-15
-      
+      </span>
     </span>
   </a>
   
@@ -810,9 +813,9 @@
           <li class="md-nav__item">
   <a href="#added_6" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -822,13 +825,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#0110---2024-02-27" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#0110-2024-02-27" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.11.0] - 2024-02-27
-      
+      </span>
     </span>
   </a>
   
@@ -838,9 +841,9 @@
           <li class="md-nav__item">
   <a href="#added_7" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -849,9 +852,9 @@
           <li class="md-nav__item">
   <a href="#removed" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Removed
-      
+      </span>
     </span>
   </a>
   
@@ -861,13 +864,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#0120---2025-12-18" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#0120-2025-12-18" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.12.0] - 2025-12-18
-      
+      </span>
     </span>
   </a>
   
@@ -877,9 +880,9 @@
           <li class="md-nav__item">
   <a href="#added_8" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -888,9 +891,9 @@
           <li class="md-nav__item">
   <a href="#changed_2" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Changed
-      
+      </span>
     </span>
   </a>
   
@@ -899,9 +902,9 @@
           <li class="md-nav__item">
   <a href="#fixed_5" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -911,13 +914,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#0130---2025-12-19" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#0130-2025-12-19" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.13.0] - 2025-12-19
-      
+      </span>
     </span>
   </a>
   
@@ -927,9 +930,9 @@
           <li class="md-nav__item">
   <a href="#added_9" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -938,9 +941,9 @@
           <li class="md-nav__item">
   <a href="#fixed_6" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -950,13 +953,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#0131---2025-12-31" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#0131-2025-12-31" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.13.1] - 2025-12-31
-      
+      </span>
     </span>
   </a>
   
@@ -966,9 +969,9 @@
           <li class="md-nav__item">
   <a href="#fixed_7" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -978,9 +981,54 @@
     </nav>
   
 </li>
+      
+        <li class="md-nav__item">
+  <a href="#0132-2026-06-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        [0.13.2] - 2026-06-03
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.13.2] - 2026-06-03">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Changed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fixed
+      </span>
+    </span>
+  </a>
+  
+</li>
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        [Unreleased]
+      </span>
+    </span>
+  </a>
   
 </li>
       
@@ -1002,38 +1050,42 @@
               
               <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
                   <div class="md-sidebar__inner">
                     
 
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
   
   
+  
+    
   
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      Table of contents
+      On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#changelog" class="md-nav__link">
+  <a href="#010-2022-01-28" class="md-nav__link">
     <span class="md-ellipsis">
-      
-        Changelog
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Changelog">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#010---2022-01-28" class="md-nav__link">
-    <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.1.0] - 2022-01-28
-      
+      </span>
     </span>
   </a>
   
@@ -1043,9 +1095,9 @@
           <li class="md-nav__item">
   <a href="#added" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -1055,13 +1107,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#020---2022-01-29" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#020-2022-01-29" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.2.0] - 2022-01-29
-      
+      </span>
     </span>
   </a>
   
@@ -1071,9 +1123,9 @@
           <li class="md-nav__item">
   <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -1083,13 +1135,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#030---2022-02-04" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#030-2022-02-04" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.3.0] - 2022-02-04
-      
+      </span>
     </span>
   </a>
   
@@ -1099,9 +1151,9 @@
           <li class="md-nav__item">
   <a href="#changed" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Changed
-      
+      </span>
     </span>
   </a>
   
@@ -1111,13 +1163,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#031---2022-02-07" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#031-2022-02-07" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.3.1] - 2022-02-07
-      
+      </span>
     </span>
   </a>
   
@@ -1127,9 +1179,9 @@
           <li class="md-nav__item">
   <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -1139,13 +1191,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#040---2022-02-07" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#040-2022-02-07" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.4.0] - 2022-02-07
-      
+      </span>
     </span>
   </a>
   
@@ -1155,9 +1207,9 @@
           <li class="md-nav__item">
   <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Changed
-      
+      </span>
     </span>
   </a>
   
@@ -1167,13 +1219,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#050---2022-02-21" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#050-2022-02-21" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.5.0] - 2022-02-21
-      
+      </span>
     </span>
   </a>
   
@@ -1183,9 +1235,9 @@
           <li class="md-nav__item">
   <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -1195,13 +1247,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#060---2022-04-01" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#060-2022-04-01" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.6.0] - 2022-04-01
-      
+      </span>
     </span>
   </a>
   
@@ -1211,9 +1263,9 @@
           <li class="md-nav__item">
   <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -1223,13 +1275,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#070---2022-08-11" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#070-2022-08-11" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.7.0] - 2022-08-11
-      
+      </span>
     </span>
   </a>
   
@@ -1239,9 +1291,9 @@
           <li class="md-nav__item">
   <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -1251,13 +1303,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#071---2022-08-11" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#071-2022-08-11" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.7.1] - 2022-08-11
-      
+      </span>
     </span>
   </a>
   
@@ -1267,9 +1319,9 @@
           <li class="md-nav__item">
   <a href="#added_4" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -1279,13 +1331,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#072---2022-08-12" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#072-2022-08-12" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.7.2] - 2022-08-12
-      
+      </span>
     </span>
   </a>
   
@@ -1295,9 +1347,9 @@
           <li class="md-nav__item">
   <a href="#added_5" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -1307,13 +1359,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#073---2022-08-25" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#073-2022-08-25" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.7.3] - 2022-08-25
-      
+      </span>
     </span>
   </a>
   
@@ -1323,9 +1375,9 @@
           <li class="md-nav__item">
   <a href="#fixed_2" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -1335,13 +1387,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#080---2022-09-16" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#080-2022-09-16" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.8.0] - 2022-09-16
-      
+      </span>
     </span>
   </a>
   
@@ -1351,9 +1403,9 @@
           <li class="md-nav__item">
   <a href="#fixed_3" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -1363,13 +1415,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#090---2023-02-10" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#090-2023-02-10" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.9.0] - 2023-02-10
-      
+      </span>
     </span>
   </a>
   
@@ -1379,9 +1431,9 @@
           <li class="md-nav__item">
   <a href="#fixed_4" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -1391,13 +1443,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#0100---2023-08-15" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#0100-2023-08-15" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.10.0] - 2023-08-15
-      
+      </span>
     </span>
   </a>
   
@@ -1407,9 +1459,9 @@
           <li class="md-nav__item">
   <a href="#added_6" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -1419,13 +1471,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#0110---2024-02-27" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#0110-2024-02-27" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.11.0] - 2024-02-27
-      
+      </span>
     </span>
   </a>
   
@@ -1435,9 +1487,9 @@
           <li class="md-nav__item">
   <a href="#added_7" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -1446,9 +1498,9 @@
           <li class="md-nav__item">
   <a href="#removed" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Removed
-      
+      </span>
     </span>
   </a>
   
@@ -1458,13 +1510,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#0120---2025-12-18" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#0120-2025-12-18" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.12.0] - 2025-12-18
-      
+      </span>
     </span>
   </a>
   
@@ -1474,9 +1526,9 @@
           <li class="md-nav__item">
   <a href="#added_8" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -1485,9 +1537,9 @@
           <li class="md-nav__item">
   <a href="#changed_2" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Changed
-      
+      </span>
     </span>
   </a>
   
@@ -1496,9 +1548,9 @@
           <li class="md-nav__item">
   <a href="#fixed_5" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -1508,13 +1560,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#0130---2025-12-19" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#0130-2025-12-19" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.13.0] - 2025-12-19
-      
+      </span>
     </span>
   </a>
   
@@ -1524,9 +1576,9 @@
           <li class="md-nav__item">
   <a href="#added_9" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Added
-      
+      </span>
     </span>
   </a>
   
@@ -1535,9 +1587,9 @@
           <li class="md-nav__item">
   <a href="#fixed_6" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -1547,13 +1599,13 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#0131---2025-12-31" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#0131-2025-12-31" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         [0.13.1] - 2025-12-31
-      
+      </span>
     </span>
   </a>
   
@@ -1563,9 +1615,9 @@
           <li class="md-nav__item">
   <a href="#fixed_7" class="md-nav__link">
     <span class="md-ellipsis">
-      
+      <span class="md-typeset">
         Fixed
-      
+      </span>
     </span>
   </a>
   
@@ -1575,9 +1627,54 @@
     </nav>
   
 </li>
+      
+        <li class="md-nav__item">
+  <a href="#0132-2026-06-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        [0.13.2] - 2026-06-03
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.13.2] - 2026-06-03">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Changed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fixed
+      </span>
+    </span>
+  </a>
+  
+</li>
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        [Unreleased]
+      </span>
+    </span>
+  </a>
   
 </li>
       
@@ -1595,136 +1692,144 @@
               <article class="md-content__inner md-typeset">
                 
                   
-
-
   
   
 
 
-  <h1>Changelog</h1>
-
-<h2 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h2>
-<h3 id="010---2022-01-28">[0.1.0] - 2022-01-28<a class="headerlink" href="#010---2022-01-28" title="Permanent link">&para;</a></h3>
-<h4 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h4>
+<h1 id="changelog">Changelog</h1>
+<h2 id="010-2022-01-28">[0.1.0] - 2022-01-28</h2>
+<h3 id="added">Added</h3>
 <ul>
 <li>First release on PyPI.</li>
 </ul>
-<h3 id="020---2022-01-29">[0.2.0] - 2022-01-29<a class="headerlink" href="#020---2022-01-29" title="Permanent link">&para;</a></h3>
-<h4 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h4>
+<h2 id="020-2022-01-29">[0.2.0] - 2022-01-29</h2>
+<h3 id="added_1">Added</h3>
 <ul>
 <li>Added the actual functionality.</li>
 <li>updated dependencies.</li>
 </ul>
-<h3 id="030---2022-02-04">[0.3.0] - 2022-02-04<a class="headerlink" href="#030---2022-02-04" title="Permanent link">&para;</a></h3>
-<h4 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h4>
+<h2 id="030-2022-02-04">[0.3.0] - 2022-02-04</h2>
+<h3 id="changed">Changed</h3>
 <ul>
 <li>fixed a bug that caused the checks to not work. Package is functional now.</li>
 </ul>
-<h3 id="031---2022-02-07">[0.3.1] - 2022-02-07<a class="headerlink" href="#031---2022-02-07" title="Permanent link">&para;</a></h3>
-<h4 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h4>
+<h2 id="031-2022-02-07">[0.3.1] - 2022-02-07</h2>
+<h3 id="fixed">Fixed</h3>
 <ul>
 <li>fixed a dependency issue that caused the <code>mkdocs-material-extensions</code> to install as a runtime dependency.</li>
 </ul>
-<h3 id="040---2022-02-07">[0.4.0] - 2022-02-07<a class="headerlink" href="#040---2022-02-07" title="Permanent link">&para;</a></h3>
-<h4 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h4>
+<h2 id="040-2022-02-07">[0.4.0] - 2022-02-07</h2>
+<h3 id="changed_1">Changed</h3>
 <ul>
 <li>Now, <code>django_urlconfchecks</code> is a Django app. This means that it can be installed as a Django app. For more
   information, see <a href="https://alisayyah.github.io/django-urlconfchecks/usage/">the documentation</a>.</li>
 </ul>
-<h3 id="050---2022-02-21">[0.5.0] - 2022-02-21<a class="headerlink" href="#050---2022-02-21" title="Permanent link">&para;</a></h3>
-<h4 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h4>
+<h2 id="050-2022-02-21">[0.5.0] - 2022-02-21</h2>
+<h3 id="added_2">Added</h3>
 <ul>
 <li>Added two more ways to use the package: a <code>CLI tool</code> and a <code>pre-commit hook</code>. For more information, see
   the <a href="https://alisayyah.github.io/django-urlconfchecks/usage/">usage documentation</a>.</li>
 </ul>
-<h3 id="060---2022-04-01">[0.6.0] - 2022-04-01<a class="headerlink" href="#060---2022-04-01" title="Permanent link">&para;</a></h3>
-<h4 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h4>
+<h2 id="060-2022-04-01">[0.6.0] - 2022-04-01</h2>
+<h3 id="fixed_1">Fixed</h3>
 <ul>
 <li>Fixed a bug that caused <code>urlconfchecks</code> to show warnings for Django's <code>admin</code> app. Now, <code>admin</code> app will be ignored.
   Courtesy @nightboard.</li>
 </ul>
-<h3 id="070---2022-08-11">[0.7.0] - 2022-08-11<a class="headerlink" href="#070---2022-08-11" title="Permanent link">&para;</a></h3>
-<h4 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h4>
+<h2 id="070-2022-08-11">[0.7.0] - 2022-08-11</h2>
+<h3 id="added_3">Added</h3>
 <ul>
 <li>Added fine-grained method for silencing errors. Courtesy @spookylukey</li>
 </ul>
-<h3 id="071---2022-08-11">[0.7.1] - 2022-08-11<a class="headerlink" href="#071---2022-08-11" title="Permanent link">&para;</a></h3>
-<h4 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h4>
+<h2 id="071-2022-08-11">[0.7.1] - 2022-08-11</h2>
+<h3 id="added_4">Added</h3>
 <ul>
 <li>Support subclasses of builtin converters.</li>
 <li>More tests.</li>
 <li>Cleanup output text to be more clear and informative.</li>
 </ul>
-<h3 id="072---2022-08-12">[0.7.2] - 2022-08-12<a class="headerlink" href="#072---2022-08-12" title="Permanent link">&para;</a></h3>
-<h4 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h4>
+<h2 id="072-2022-08-12">[0.7.2] - 2022-08-12</h2>
+<h3 id="added_5">Added</h3>
 <ul>
 <li>Handle default arguments passed via path(kwargs). Courtesy @spookylukey</li>
 </ul>
-<h3 id="073---2022-08-25">[0.7.3] - 2022-08-25<a class="headerlink" href="#073---2022-08-25" title="Permanent link">&para;</a></h3>
-<h4 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h4>
+<h2 id="073-2022-08-25">[0.7.3] - 2022-08-25</h2>
+<h3 id="fixed_2">Fixed</h3>
 <ul>
 <li>Fixed an issue where default CBV silencing only worked for django 4</li>
 </ul>
-<h3 id="080---2022-09-16">[0.8.0] - 2022-09-16<a class="headerlink" href="#080---2022-09-16" title="Permanent link">&para;</a></h3>
-<h4 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h4>
+<h2 id="080-2022-09-16">[0.8.0] - 2022-09-16</h2>
+<h3 id="fixed_3">Fixed</h3>
 <ul>
 <li>Made error reporting of view reprs consistent with silencer.</li>
 <li>Correctly handle views with Optional arguments.</li>
 </ul>
-<h3 id="090---2023-02-10">[0.9.0] - 2023-02-10<a class="headerlink" href="#090---2023-02-10" title="Permanent link">&para;</a></h3>
-<h4 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h4>
+<h2 id="090-2023-02-10">[0.9.0] - 2023-02-10</h2>
+<h3 id="fixed_4">Fixed</h3>
 <ul>
 <li>Fixed crasher when urlconf has optional types. Courtesy @spookylukey</li>
 <li>added python 3.11 support</li>
 </ul>
-<h3 id="0100---2023-08-15">[0.10.0] - 2023-08-15<a class="headerlink" href="#0100---2023-08-15" title="Permanent link">&para;</a></h3>
-<h4 id="added_6">Added<a class="headerlink" href="#added_6" title="Permanent link">&para;</a></h4>
+<h2 id="0100-2023-08-15">[0.10.0] - 2023-08-15</h2>
+<h3 id="added_6">Added</h3>
 <ul>
 <li>Handle cases involving <code>path</code> and <code>include</code>. Courtesy @spookylukey</li>
 </ul>
-<h3 id="0110---2024-02-27">[0.11.0] - 2024-02-27<a class="headerlink" href="#0110---2024-02-27" title="Permanent link">&para;</a></h3>
-<h4 id="added_7">Added<a class="headerlink" href="#added_7" title="Permanent link">&para;</a></h4>
+<h2 id="0110-2024-02-27">[0.11.0] - 2024-02-27</h2>
+<h3 id="added_7">Added</h3>
 <ul>
 <li>Python 3.12 support</li>
 <li>Django 5 support</li>
 </ul>
-<h4 id="removed">Removed<a class="headerlink" href="#removed" title="Permanent link">&para;</a></h4>
+<h3 id="removed">Removed</h3>
 <ul>
 <li>Python 3.7 support</li>
 </ul>
-<h3 id="0120---2025-12-18">[0.12.0] - 2025-12-18<a class="headerlink" href="#0120---2025-12-18" title="Permanent link">&para;</a></h3>
-<h4 id="added_8">Added<a class="headerlink" href="#added_8" title="Permanent link">&para;</a></h4>
+<h2 id="0120-2025-12-18">[0.12.0] - 2025-12-18</h2>
+<h3 id="added_8">Added</h3>
 <ul>
 <li>Added python 3.13 and 3.14 support.</li>
 <li>CLI now supports <code>--format json</code> to emit structured results with per-type counts and totals.</li>
 <li>CLI gains <code>--quiet / -q</code> to suppress normal output while preserving exit codes and summaries.</li>
 </ul>
-<h4 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h4>
+<h3 id="changed_2">Changed</h3>
 <ul>
 <li>Dropped python 3.9 support</li>
 <li>Project tooling now uses uv for syncing/building and Ruff for linting/formatting (pre-commit and CI).</li>
 <li>Raised the minimum supported Django version to 4.2 (with targeted upper bounds per Python release).</li>
 <li>Improved type compatibility checks for <code>typing.Annotated</code>, <code>Optional</code>, and <code>Union</code>, and cache URL converter lookups for faster runs.</li>
 </ul>
-<h4 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h4>
+<h3 id="fixed_5">Fixed</h3>
 <ul>
 <li>Custom boolean path converters are recognized and validated alongside the built-ins.</li>
 </ul>
-<h3 id="0130---2025-12-19">[0.13.0] - 2025-12-19<a class="headerlink" href="#0130---2025-12-19" title="Permanent link">&para;</a></h3>
-<h4 id="added_9">Added<a class="headerlink" href="#added_9" title="Permanent link">&para;</a></h4>
+<h2 id="0130-2025-12-19">[0.13.0] - 2025-12-19</h2>
+<h3 id="added_9">Added</h3>
 <ul>
 <li>Parameterized generics validation: lists, tuples (fixed/variadic), dicts, sets, and optional containers are now type-checked against URL converters and default kwargs.</li>
 <li>Pyproject configuration: <code>[tool.urlconfchecks]</code> supports defaults for <code>quiet</code>, <code>format</code>, and <code>silenced_views</code>, with <code>URLCONFCHECKS_PYPROJECT</code> override; custom silencers merge with built-ins.</li>
 </ul>
-<h4 id="fixed_6">Fixed<a class="headerlink" href="#fixed_6" title="Permanent link">&para;</a></h4>
+<h3 id="fixed_6">Fixed</h3>
 <ul>
 <li>Container type checking now reports mismatches instead of silently passing parameterized generics.</li>
 </ul>
-<h3 id="0131---2025-12-31">[0.13.1] - 2025-12-31<a class="headerlink" href="#0131---2025-12-31" title="Permanent link">&para;</a></h3>
-<h4 id="fixed_7">Fixed<a class="headerlink" href="#fixed_7" title="Permanent link">&para;</a></h4>
+<h2 id="0131-2025-12-31">[0.13.1] - 2025-12-31</h2>
+<h3 id="fixed_7">Fixed</h3>
 <ul>
 <li>Handle functools.partial callbacks in _make_callback_repr for Django Ninja or similar frameworks. thanks @joseanoxp</li>
 </ul>
+<h2 id="0132-2026-06-03">[0.13.2] - 2026-06-03</h2>
+<h3 id="changed_3">Changed</h3>
+<ul>
+<li>Updated the supported version matrix to Python 3.10-3.14 with Django 5.2 and 6.0.</li>
+</ul>
+<h3 id="fixed_8">Fixed</h3>
+<ul>
+<li>Resolved false URL signature type mismatches when views or custom converters use <code>from __future__ import annotations</code>.</li>
+</ul>
+<h2 id="unreleased">[Unreleased]</h2>
+
+
 
 
 
@@ -1745,9 +1850,39 @@
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
       </main>
       
         <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="./contributing.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Contributing">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Contributing
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1755,29 +1890,8 @@
   
   
     Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
-    </a>
-  
-</div>
-      
-        
-<div class="md-social">
-  
-    
-    
-    
-    
-    <a href="https://github.com/AliSayyah/django-urlconfchecks" target="_blank" rel="noopener" title="Github" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
-    </a>
-  
-    
-    
-    
-    
-    <a href="mailto:ali.sayyah2@gmail.com" target="_blank" rel="noopener" title="" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m20 8-8 5-8-5V6l8 5 8-5m0-2H4c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2"/></svg>
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
     </a>
   
 </div>
@@ -1795,10 +1909,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.indexes", "navigation.instant", "navigation.tabs.sticky", "navigation.tracking"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["content.code.copy","navigation.footer","navigation.top","search.highlight"],"search":"./assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="./assets/javascripts/bundle.6e5f0216.min.js"></script>
       
     
   </body>
