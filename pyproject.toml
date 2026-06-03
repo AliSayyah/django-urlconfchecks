@@ -146,6 +146,8 @@ env_list = [
 
 [tool.tox.env_run_base]
 description = "Run tests under {base_python}"
+runner = "uv-venv-runner"
+uv_python_preference = "managed"
 allowlist_externals = ["pytest"]
 extras = ["test"]
 pass_env = ["*"]

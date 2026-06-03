@@ -74,8 +74,11 @@ Ready to contribute? Here's how to set up `django-urlconfchecks` for local devel
    tests, including testing other Python versions, with tox:
 
     ```
-    $ uv run tox
+    $ uv run --extra dev tox
     ```
+
+   Tox uses `tox-uv` and uv-managed Python interpreters, so uv can install
+   missing Python versions needed by the local tox matrix.
 
 7. Commit your changes and push your branch to GitHub:
 
