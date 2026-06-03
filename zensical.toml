@@ -12,6 +12,14 @@ nav = [
   { "Changelog" = "changelog.md" },
 ]
 
+[project.theme]
+features = [
+  "content.code.copy",
+  "navigation.footer",
+  "navigation.top",
+  "search.highlight",
+]
+
 [[project.theme.palette]]
 media = "(prefers-color-scheme)"
 toggle.icon = "lucide/sun-moon"
