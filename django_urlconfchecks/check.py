@@ -79,12 +79,50 @@ def _make_callback_repr(callback):
     return f"{module}.{qualname}"
 
 
+def _get_signature(callable_obj):
+    """Return a signature, resolving deferred annotations when possible."""
+    try:
+        return signature(callable_obj, eval_str=True)
+    except Exception:
+        sig = signature(callable_obj)
+        return _resolve_signature_annotations(sig, callable_obj)
+
+
+def _resolve_signature_annotations(sig, callable_obj):
+    globalns = _get_callable_globals(callable_obj)
+    parameters = [
+        parameter.replace(annotation=_resolve_annotation(parameter.annotation, globalns))
+        for parameter in sig.parameters.values()
+    ]
+    return sig.replace(
+        parameters=parameters,
+        return_annotation=_resolve_annotation(sig.return_annotation, globalns),
+    )
+
+
+def _get_callable_globals(callable_obj):
+    if isinstance(callable_obj, functools.partial):
+        callable_obj = callable_obj.func
+    if hasattr(callable_obj, "__func__"):
+        callable_obj = callable_obj.__func__
+    return getattr(callable_obj, "__globals__", {})
+
+
+def _resolve_annotation(annotation, globalns):
+    if not isinstance(annotation, str):
+        return annotation
+    try:
+        return eval(annotation, globalns)
+    except Exception:
+        return Parameter.empty
+
+
 def check_url_args_match(url_pattern: URLPattern, parent_converters: dict) -> t.List[Problem]:
     """Check that all callbacks in the main urlconf have the correct signature."""
     callback = url_pattern.callback
     callback_repr = _make_callback_repr(callback)
     errors = []
-    sig = signature(callback)
+    sig = _get_signature(callback)
     parameters = sig.parameters
 
     # We need to match everything defined in route definition, plus the kwargs
@@ -168,7 +206,7 @@ def check_url_args_match(url_pattern: URLPattern, parent_converters: dict) -> t.
                         id='urlchecker.W003',
                     )
                 )
-            elif not _type_is_compatible(urlconf_type, sig_type):  # type: ignore
+            elif not _type_is_compatible(urlconf_type, sig_type):
                 errors.append(
                     checks.Error(
                         f'View {callback_repr} for parameter `{name}`,'  # type: ignore[union-attr]
@@ -395,7 +433,7 @@ def _converter_output_type_for_class(converter_cls) -> ConverterOutputType:
             return CONVERTER_TYPES[cls]
 
         if hasattr(cls, "to_python"):
-            sig = signature(cls.to_python)
+            sig = _get_signature(cls.to_python)
             if sig.return_annotation != Parameter.empty:
                 return t.cast(ConverterOutputType, sig.return_annotation)
 
