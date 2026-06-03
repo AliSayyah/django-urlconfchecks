@@ -18,8 +18,12 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/django-urlconfchecks
     permissions:
       contents: write
+      id-token: write
 
     strategy:
       matrix:
@@ -85,9 +89,4 @@ jobs:
       - name: publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
           skip-existing: true
-          # API-token publishing cannot upload PEP 740 attestations. Remove
-          # this once PyPI Trusted Publishing is configured for this workflow.
-          attestations: false
