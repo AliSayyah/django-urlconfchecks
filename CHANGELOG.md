@@ -139,8 +139,14 @@
 
 - Handle functools.partial callbacks in _make_callback_repr for Django Ninja or similar frameworks. thanks @joseanoxp
 
-## [Unreleased]
+## [0.13.2] - 2026-06-03
 
 ### Changed
 
 - Updated the supported version matrix to Python 3.10-3.14 with Django 5.2 and 6.0.
+
+### Fixed
+
+- Resolved false URL signature type mismatches when views or custom converters use `from __future__ import annotations`.
+
+## [Unreleased]
