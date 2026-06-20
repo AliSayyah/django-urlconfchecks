@@ -53,7 +53,7 @@ jobs:
       - name: test with tox
         run: uv run tox -e ${{ matrix.tox-envs }}
 
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v7
         with:
           fail_ci_if_error: false
           files: coverage.xml
