@@ -114,6 +114,7 @@ urlpatterns = [
 ```python
 # views.py
 
+
 def year_archive(request, year: int):
     pass
 
