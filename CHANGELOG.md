@@ -1,22 +1,5 @@
 # Changelog
 
-## [Unreleased]
-
-### Fixed
-
-- Model `include()` kwargs, regex parent captures, and path defaults that override captured values with Django's argument precedence.
-
-### Added
-
-- Check Django and DRF class-based view handlers, including inherited handlers and DRF ViewSet actions.
-- Check `re_path()` views, including positional regex captures.
-- Add `urlchecker.E007` for too many positional URL arguments and `urlchecker.W004` for optional regex captures without a view default.
-- Continue checking named parameters and required leftovers on views with `*args` or `**kwargs`; this can report additional true positives alongside `W001`.
-
-### Changed
-
-- Do not emit `urlchecker.W001` for class-based view handlers. Their explicit parameters are still checked, and star arguments accept the corresponding URL arguments.
-
 ## [0.1.0] - 2022-01-28
 
 ### Added
@@ -183,18 +166,27 @@
 
 - Python 3.10 support (end-of-life since 2026-10-01), and the `tomli` dependency it required.
 
-## [Unreleased]
+## [0.15.0] - 2026-10-29
 
 ### Added
 
+- Class-based views are checked: each Django/DRF handler (`get`, `post`, …, an overridden `dispatch`, an explicit `head`) and DRF ViewSet action is checked against the URL's arguments, including handlers inherited from user mixins. Silence them as `module.View.get`, `module.View.*` or `module.View`.
+- `re_path()` views are checked: named groups as `str` keyword arguments, unnamed groups as positional arguments.
+- `urlchecker.E007` for URLs that pass more positional arguments than the view accepts, and `urlchecker.W004` for parameters fed by an optional regex group without a default.
 - VS Code usage documentation, including a ready-to-copy task (#186).
 
 ### Changed
 
+- Views with `*args` or `**kwargs` still have their named parameters checked (types, and required parameters without a URL source); this can report additional true positives alongside `W001`.
+- `urlchecker.W001` is no longer emitted for class-based view handlers, where `*args`/`**kwargs` are idiomatic.
 - Replaced `bump2version` with `bump-my-version` in the development tooling.
 
 ### Fixed
 
-- Emit at most one W002 warning per untyped converter class during a URL check.
 - CLI flags (`--format`, `--quiet`, …) silently failed with exit code 1 in projects detected via `manage.py`, because they were passed on to Django's own command line.
 - `--urlconf` could not import modules from the current directory when run via the installed `urlconfchecks` command.
+- `include()` extra kwargs are passed to child views, and named groups captured by a regex parent reach `path()` children (both were false `E004` errors).
+- A `path()` default that overrides a captured value is checked as that default only (previously a false `E006`).
+- `W002` is emitted at most once per untyped converter class.
+
+## [Unreleased]
