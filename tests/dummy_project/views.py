@@ -86,8 +86,7 @@ def parameterized_generic_view(request, val: List[int]): ...
 
 try:
 
-    def parameterized_generic_view_2(request, val: list[int]):
-        ...
+    def parameterized_generic_view_2(request, val: list[int]): ...
 
 except TypeError:
     parameterized_generic_view_2 = None
