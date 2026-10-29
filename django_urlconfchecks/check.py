@@ -396,13 +396,7 @@ def _get_cbv_handlers(callback):
 
 def _has_cbv_attributes(callback) -> bool:
     """Return whether a callback advertises CBV metadata, even if it is malformed."""
-    for name in ("view_class", "cls", "actions"):
-        try:
-            if inspect.getattr_static(callback, name, None) is not None:
-                return True
-        except Exception:
-            continue
-    return False
+    return any(inspect.getattr_static(callback, name, None) is not None for name in ("view_class", "cls", "actions"))
 
 
 def _class_repr(view_class) -> str:
