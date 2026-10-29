@@ -189,7 +189,7 @@
 - A `path()` default that overrides a captured value is checked as that default only (previously a false `E006`).
 - `W002` is emitted at most once per untyped converter class.
 
-## [Unreleased]
+## [0.16.0] - 2026-10-29
 
 ### Added
 
@@ -212,3 +212,5 @@ Found by differential fuzzing against Django's resolver and by running the check
 - Named groups inside a negative lookahead/lookbehind are not treated as captured.
 - The CLI now runs `manage.py` the way `python manage.py` does when looking for the settings module. Projects whose `manage.py` sets `DJANGO_SETTINGS_MODULE` only under `if __name__ == "__main__":` without a `main()` function (healthchecks, netbox, paperless-ngx and many others) failed with `ImproperlyConfigured`.
 - When the settings module can't be found, the CLI prints a short message suggesting `DJANGO_SETTINGS_MODULE` or `--urlconf` instead of a traceback.
+
+## [Unreleased]
