@@ -213,7 +213,7 @@ Found by differential fuzzing against Django's resolver and by running the check
 - The CLI now runs `manage.py` the way `python manage.py` does when looking for the settings module. Projects whose `manage.py` sets `DJANGO_SETTINGS_MODULE` only under `if __name__ == "__main__":` without a `main()` function (healthchecks, netbox, paperless-ngx and many others) failed with `ImproperlyConfigured`.
 - When the settings module can't be found, the CLI prints a short message suggesting `DJANGO_SETTINGS_MODULE` or `--urlconf` instead of a traceback.
 
-## [Unreleased]
+## [0.17.0] - 2026-10-30
 
 ### Added
 
@@ -223,3 +223,5 @@ Found by differential fuzzing against Django's resolver and by running the check
 ### Fixed
 
 - `urlchecker.W004` is no longer reported for an optional regex group whose name a parent `include()` kwarg also supplies: when the group doesn't match, Django passes the include's value.
+
+## [Unreleased]
