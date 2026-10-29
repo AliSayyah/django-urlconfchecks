@@ -82,7 +82,10 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           body: ${{ steps.changelog_reader.outputs.changes }}
-          files: dist/*
+          # Not dist/*: uv build also writes dist/.gitignore.
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
           draft: false
           prerelease: false
 
