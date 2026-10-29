@@ -1,14 +1,16 @@
 """Utils for cli."""
 
-import importlib
 import os
+import runpy
 import sys
-from contextlib import contextmanager, redirect_stderr, redirect_stdout
+from contextlib import contextmanager, redirect_stderr, redirect_stdout, suppress
 from os import devnull
+from pathlib import Path
 
 import django
 import typer
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
 
 @contextmanager
@@ -37,33 +39,41 @@ def setup_django(urlconf: str | None):
         else:
             get_manage()
 
-        django.setup()
+        try:
+            django.setup()
+        except ImproperlyConfigured as exc:
+            typer.secho(
+                f"Could not set up Django: {exc}\n"
+                "Set DJANGO_SETTINGS_MODULE, or specify your main urlconf module path with -u or --urlconf.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(1) from None
     if urlconf:
         settings.ROOT_URLCONF = urlconf
 
 
 def get_manage():
-    """Get the path to manage.py and import it with `importlib.import_module`."""
-    try:
-        manage = importlib.import_module("manage", ".")
-    except ImportError:
+    """Run ./manage.py the way `python manage.py` does, so it sets `DJANGO_SETTINGS_MODULE`.
+
+    manage.py usually sets the settings module (and sometimes sys.path) only under
+    `if __name__ == "__main__":`, so it has to be run as a script rather than imported.
+    """
+    manage_path = Path.cwd() / "manage.py"
+    if not manage_path.is_file():
         typer.secho(
             "Could not find manage.py in current directory or subdirectories.\n"
             "Make sure you are in the project root directory where manage.py exists."
             "Or you can specify your main urlconf module path with -u or --urlconf option.",
             fg=typer.colors.RED,
         )
-        raise typer.Exit(1) from None
-    else:
-        main = getattr(manage, 'main', None)
-        if main:
-            # main() sets DJANGO_SETTINGS_MODULE, then runs Django's command line on sys.argv.
-            # Hide our own CLI flags from it, or Django treats them as an unknown command and exits.
-            argv = sys.argv
-            sys.argv = ["manage.py"]
-            try:
-                with suppress_std():
-                    main()
-            finally:
-                sys.argv = argv
-            return
+        raise typer.Exit(1)
+
+    # manage.py then runs Django's command line on sys.argv. Hide our own CLI flags from it,
+    # or Django treats them as an unknown command and exits; with no command it prints help.
+    argv = sys.argv
+    sys.argv = [str(manage_path)]
+    try:
+        with suppress_std(), suppress(SystemExit):
+            runpy.run_path(str(manage_path), run_name="__main__")
+    finally:
+        sys.argv = argv
