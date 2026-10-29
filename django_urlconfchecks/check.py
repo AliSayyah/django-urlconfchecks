@@ -6,15 +6,35 @@ import functools
 import types
 import typing as t
 import uuid
+from dataclasses import dataclass
 from inspect import Parameter, _empty, signature
 from typing import Any, get_args, get_origin
 
 from django.conf import settings
 from django.core import checks
 from django.urls import URLPattern, URLResolver, converters, get_resolver
-from django.urls.resolvers import RoutePattern
+from django.urls.resolvers import RegexPattern, RoutePattern
 
 Problem = checks.Error | checks.Warning
+
+
+@dataclass(frozen=True)
+class _RouteArgument:
+    """Describe one argument that Django can pass to a URL callback."""
+
+    kind: str
+    value: Any = Parameter.empty
+    optional: bool = False
+
+
+@dataclass(frozen=True)
+class _RouteInfo:
+    """A URL pattern and the arguments accumulated on the way to it."""
+
+    pattern: URLPattern
+    kwargs: dict[str, _RouteArgument]
+    positional: tuple[_RouteArgument, ...]
+
 
 # Update docs about default value if you change this:
 _DEFAULT_SILENCED_VIEWS = {
@@ -45,8 +65,8 @@ def check_url_signatures(app_configs, **kwargs) -> list[Problem]:
     errors = []
     silencers = _build_view_silencers(getattr(settings, "URLCONFCHECKS_SILENCED_VIEWS", _DEFAULT_SILENCED_VIEWS))
     unknown_converters = set()
-    for route, parent_converters in get_all_routes(resolver, {}):
-        errors.extend(check_url_args_match(route, parent_converters, unknown_converters))
+    for route in _walk_routes(resolver):
+        errors.extend(_check_route_info(route, unknown_converters))
     return _filter_errors(errors, silencers)
 
 
@@ -58,13 +78,155 @@ def get_all_routes(resolver: URLResolver, parent_converters: dict) -> cabc.Itera
                 # This handles cases involving `include` where the parent `path`
                 # may have captured some parameters in its first argument. Those
                 # parameters will also need to be passed down.
-                new_parent_converters = {**parent_converters, **pattern.pattern.converters}
+                new_parent_converters = {**parent_converters, **getattr(pattern.pattern, "converters", {})}
             else:
                 new_parent_converters = parent_converters
             yield from get_all_routes(pattern, new_parent_converters)
         else:
             if isinstance(pattern.pattern, RoutePattern):
                 yield pattern, parent_converters
+
+
+def _walk_routes(resolver: URLResolver) -> cabc.Iterable[_RouteInfo]:
+    """Yield leaf URL patterns with the arguments Django passes to them.
+
+    ``URLResolver.resolve()`` merges arguments from an include before it
+    returns the child match.  This walker follows the same precedence rules:
+    captures are overridden by include kwargs, and child captures/defaults
+    override everything inherited from a parent resolver.  Positional captures
+    are prepended only while the merged kwargs dictionary is empty.
+    """
+    for pattern in resolver.url_patterns:
+        if isinstance(pattern, URLResolver):
+            resolver_kwargs, resolver_args = _pattern_arguments(pattern.pattern)
+            resolver_kwargs.update(
+                {
+                    name: _RouteArgument("include_extra", value, optional=False)
+                    for name, value in getattr(pattern, "default_kwargs", {}).items()
+                }
+            )
+            for child in _walk_routes(pattern):
+                kwargs = {**resolver_kwargs, **child.kwargs}
+                positional = child.positional
+                if not kwargs:
+                    positional = resolver_args + positional
+                yield _RouteInfo(child.pattern, kwargs, positional)
+            continue
+
+        if not isinstance(pattern, URLPattern):
+            continue
+        kwargs, positional = _pattern_arguments(pattern.pattern)
+        kwargs.update(
+            {name: _RouteArgument("extra", value, optional=False) for name, value in pattern.default_args.items()}
+        )
+        yield _RouteInfo(pattern, kwargs, positional)
+
+
+def _pattern_arguments(pattern) -> tuple[dict[str, _RouteArgument], tuple[_RouteArgument, ...]]:
+    """Return the captures produced by a Django URL pattern."""
+    if isinstance(pattern, RoutePattern):
+        return (
+            {name: _RouteArgument("converter", converter) for name, converter in pattern.converters.items()},
+            (),
+        )
+
+    if isinstance(pattern, RegexPattern):
+        regex = pattern.regex
+        if regex.groupindex:
+            optional_groups = _optional_regex_groups(regex)
+            return (
+                {
+                    name: _RouteArgument("regex", str, group_number in optional_groups)
+                    for name, group_number in regex.groupindex.items()
+                },
+                (),
+            )
+        return {}, tuple(_RouteArgument("regex", str) for _ in range(regex.groups))
+
+    # LocalePrefixPattern and other non-capturing resolver patterns expose no
+    # captures.  Do not inspect their ``regex`` property: it is a language
+    # prefix, not a RegexPattern match with view arguments.
+    return {}, ()
+
+
+def _optional_regex_groups(regex) -> set[int]:
+    """Return capturing group numbers that can be absent from a match.
+
+    The parser is an internal ``re`` API, so parsing failures simply disable
+    W004.  The common optional forms and groups inside optional alternations
+    are handled without attempting to reason about general regex semantics.
+    """
+    try:
+        import re
+
+        parser = getattr(re, "_parser", None)
+        if parser is None:
+            return set()
+        parsed = parser.parse(regex.pattern, regex.flags)
+    except Exception:
+        return set()
+
+    optional: set[int] = set()
+    repeat_ops = {parser.MAX_REPEAT, parser.MIN_REPEAT}
+    if hasattr(parser, "POSSESSIVE_REPEAT"):
+        repeat_ops.add(parser.POSSESSIVE_REPEAT)
+
+    _mark_optional_regex_groups(parsed, parser, repeat_ops, optional)
+    return optional
+
+
+def _regex_group_numbers(tokens, parser, repeat_ops) -> set[int]:
+    """Return capture group numbers found in parsed regex tokens."""
+    groups: set[int] = set()
+    for operation, argument in tokens:
+        if operation is parser.SUBPATTERN:
+            group_number, _, _, nested = argument
+            if group_number:
+                groups.add(group_number)
+            groups.update(_regex_group_numbers(nested, parser, repeat_ops))
+        elif operation in repeat_ops:
+            groups.update(_regex_group_numbers(argument[2], parser, repeat_ops))
+        elif operation is parser.BRANCH:
+            for branch in argument[1]:
+                groups.update(_regex_group_numbers(branch, parser, repeat_ops))
+    return groups
+
+
+def _mark_optional_regex_groups(tokens, parser, repeat_ops, optional: set[int], inherited_optional=False):
+    """Mark parsed regex groups that can be absent from a match."""
+    for operation, argument in tokens:
+        if operation is parser.SUBPATTERN:
+            _mark_optional_subpattern(argument, parser, repeat_ops, optional, inherited_optional)
+        elif operation in repeat_ops:
+            _mark_optional_repeat(argument, parser, repeat_ops, optional, inherited_optional)
+        elif operation is parser.BRANCH:
+            _mark_optional_branch(argument, parser, repeat_ops, optional, inherited_optional)
+
+
+def _mark_optional_subpattern(argument, parser, repeat_ops, optional, inherited_optional):
+    """Mark a subpattern group and inspect its nested tokens."""
+    group_number, _, _, nested = argument
+    if group_number and inherited_optional:
+        optional.add(group_number)
+    _mark_optional_regex_groups(nested, parser, repeat_ops, optional, inherited_optional)
+
+
+def _mark_optional_repeat(argument, parser, repeat_ops, optional, inherited_optional):
+    """Inspect a repeated token and propagate its optionality."""
+    minimum, _, nested = argument
+    _mark_optional_regex_groups(nested, parser, repeat_ops, optional, inherited_optional or minimum == 0)
+
+
+def _mark_optional_branch(argument, parser, repeat_ops, optional, inherited_optional):
+    """Mark groups that are absent from at least one alternation branch."""
+    branches = argument[1]
+    branch_groups = [_regex_group_numbers(branch, parser, repeat_ops) for branch in branches]
+    for branch in branches:
+        _mark_optional_regex_groups(branch, parser, repeat_ops, optional, inherited_optional)
+    all_groups = set().union(*branch_groups) if branch_groups else set()
+    for group_number in all_groups:
+        if any(group_number not in groups for groups in branch_groups):
+            optional.add(group_number)
 
 
 def _make_callback_repr(callback):
@@ -121,170 +283,279 @@ def _resolve_annotation(annotation, globalns):
 def check_url_args_match(
     url_pattern: URLPattern, parent_converters: dict, unknown_converters: set[type] | None = None
 ) -> list[Problem]:
-    """Check that all callbacks in the main urlconf have the correct signature."""
+    """Check one URL pattern using the legacy converter-only route interface."""
     if unknown_converters is None:
         unknown_converters = set()
-    callback = url_pattern.callback
-    callback_repr = _make_callback_repr(callback)
-    errors = []
-    sig = _get_signature(callback)
+    kwargs, positional = _pattern_arguments(url_pattern.pattern)
+    kwargs = {
+        **{name: _RouteArgument("converter", converter) for name, converter in parent_converters.items()},
+        **kwargs,
+    }
+    kwargs.update(
+        {name: _RouteArgument("extra", value, optional=False) for name, value in url_pattern.default_args.items()}
+    )
+    return _check_route_info(_RouteInfo(url_pattern, kwargs, positional), unknown_converters)
+
+
+def _check_route_info(route: _RouteInfo, unknown_converters: set[type]) -> list[Problem]:
+    """Check one leaf route against the arguments Django passes."""
+    url_pattern = route.pattern
+    callback_repr = _make_callback_repr(url_pattern.callback)
+    sig = _get_signature(url_pattern.callback)
     parameters = sig.parameters
+    has_varargs, has_varkw = _star_argument_flags(parameters)
+    errors: list[Problem] = []
 
-    # We need to match everything defined in route definition, plus the kwargs
-    # passed to path if any, against the signature of the view function.
+    _append_star_args_warning(errors, url_pattern, callback_repr, has_varargs or has_varkw)
+    used_from_sig = _check_request_parameter(errors, url_pattern, callback_repr, sig, has_varargs or has_varkw)
+    _check_route_kwargs(
+        errors,
+        route,
+        url_pattern,
+        callback_repr,
+        parameters,
+        has_varkw,
+        used_from_sig,
+        unknown_converters,
+    )
+    _check_positional_arguments(errors, route, url_pattern, callback_repr, parameters, has_varargs, used_from_sig)
+    _check_leftover_required_parameters(errors, url_pattern, callback_repr, parameters, used_from_sig)
+    return errors
 
-    # Overall strategy:
 
-    # 1. For all arguments captured by the RoutePattern, check they are in the
-    #    view sig and that the type matches.
+def _star_argument_flags(parameters) -> tuple[bool, bool]:
+    """Return whether a signature has ``*args`` or ``**kwargs``."""
+    has_varargs = any(parameter.kind is Parameter.VAR_POSITIONAL for parameter in parameters.values())
+    has_varkw = any(parameter.kind is Parameter.VAR_KEYWORD for parameter in parameters.values())
+    return has_varargs, has_varkw
 
-    # 2. For any parameter left in the view sig we didn't see yet,
-    #    check that it either has a default arg in the sig,
-    #    or that we can get it from the default_args in the URLPattern (and the type matches)
 
-    # 3. For anything left over in URLPattern.default_arguments, complain.
-
-    has_star_args = False
-    if any(p.kind in [Parameter.VAR_KEYWORD, Parameter.VAR_POSITIONAL] for p in parameters.values()):
+def _append_star_args_warning(errors, url_pattern, callback_repr, has_star_args):
+    """Append W001 when a view uses variable positional or keyword arguments."""
+    if has_star_args:
         errors.append(
             checks.Warning(
-                f'View {callback_repr} signature contains *args or **kwarg syntax, can\'t properly check args',
+                f"View {callback_repr} signature contains *args or **kwarg syntax, can't properly check args",
                 obj=url_pattern,
-                id='urlchecker.W001',
+                id="urlchecker.W001",
             )
         )
-        has_star_args = True
 
-    used_from_sig = []
+
+def _check_request_parameter(errors, url_pattern, callback_repr, sig, has_star_args) -> list[str]:
+    """Check the request parameter and return parameters already supplied."""
+    used_from_sig: list[str] = []
     parameter_list = list(sig.parameters)
-    if parameter_list and parameter_list[0] == 'self':
+    if parameter_list and parameter_list[0] == "self":
         # HACK: we need to find some nice way to detect closures/bound methods,
         # while also getting the final signature.
         parameter_list.pop(0)
-        used_from_sig.append('self')
+        used_from_sig.append("self")
 
-    if not parameter_list or parameter_list[0] != 'request':
+    if not parameter_list or parameter_list[0] != "request":
         if not has_star_args:
             if parameter_list:
                 message = (
-                    f'View {callback_repr} signature does not start with `request` parameter, '
-                    f'found `{parameter_list[0]}`.'
+                    f"View {callback_repr} signature does not start with `request` parameter, "
+                    f"found `{parameter_list[0]}`."
                 )
             else:
-                message = f'View {callback_repr} signature does not have `request` parameter.'
-            errors.append(
-                checks.Error(
-                    message,
-                    obj=url_pattern,
-                    id='urlchecker.E001',
-                )
-            )
+                message = f"View {callback_repr} signature does not have `request` parameter."
+            errors.append(checks.Error(message, obj=url_pattern, id="urlchecker.E001"))
     else:
-        used_from_sig.append('request')
+        used_from_sig.append("request")
+    return used_from_sig
 
-    combined_converters = {**parent_converters, **url_pattern.pattern.converters}
-    # Everything in RoutePattern must be in signature
-    for name, converter in combined_converters.items():
-        if has_star_args:
-            used_from_sig.append(name)
-        elif name in sig.parameters:
-            used_from_sig.append(name)
-            urlconf_type = get_converter_output_type(converter)
-            sig_type = sig.parameters[name].annotation
-            if urlconf_type == Parameter.empty:
-                obj = converter.__class__
-                if obj not in unknown_converters:
-                    unknown_converters.add(obj)
-                    errors.append(
-                        checks.Warning(
-                            f"Don't know output type for converter {obj.__module__}.{obj.__name__},"
-                            " can't verify URL signatures.",
-                            obj=obj,
-                            id=f'urlchecker.W002.{obj.__module__}.{obj.__name__}',
-                        )
-                    )
-            elif sig_type == Parameter.empty:
-                errors.append(
-                    # This should be synced with W003 below.
-                    checks.Warning(
-                        f'View {callback_repr} missing type annotation for parameter `{name}`, can\'t check type.',
-                        obj=url_pattern,
-                        id='urlchecker.W003',
-                    )
-                )
-            elif not _type_is_compatible(urlconf_type, sig_type):
-                errors.append(
-                    checks.Error(
-                        f'View {callback_repr} for parameter `{name}`,'  # type: ignore[union-attr]
-                        f' annotated type {_name_type(sig_type)} does not match'  # type: ignore[union-attr]
-                        f' expected `{_name_type(urlconf_type)}` from urlconf',  # type: ignore[union-attr]
-                        obj=url_pattern,
-                        id='urlchecker.E002',
-                    )
-                )
+
+def _check_route_kwargs(
+    errors,
+    route,
+    url_pattern,
+    callback_repr,
+    parameters,
+    has_varkw,
+    used_from_sig,
+    unknown_converters,
+):
+    """Check keyword arguments captured or supplied by a route."""
+    for name, argument in route.kwargs.items():
+        parameter = parameters.get(name)
+        if parameter is None:
+            if has_varkw:
+                continue
+            _report_unaccepted_route_argument(errors, url_pattern, callback_repr, name, argument)
+            continue
+
+        used_from_sig.append(name)
+        _check_route_kwarg_value(
+            errors,
+            url_pattern,
+            callback_repr,
+            name,
+            argument,
+            parameter,
+            unknown_converters,
+        )
+
+
+def _report_unaccepted_route_argument(errors, url_pattern, callback_repr, name, argument):
+    """Report a route keyword with no matching named view parameter."""
+    if argument.kind in {"extra", "include_extra"}:
+        if argument.kind == "include_extra":
+            message = (
+                f"View {callback_repr} is being passed additional unexpected parameter `{name}` from include() kwargs"
+            )
         else:
-            errors.append(
-                checks.Error(
-                    f'View {callback_repr} signature does not contain `{name}` parameter',
-                    obj=url_pattern,
-                    id='urlchecker.E003',
-                )
+            message = (
+                f"View {callback_repr} is being passed additional unexpected "
+                f"parameter `{name}` from default arguments in urlconf"
             )
-
-    # Anything left over must have a default argument, either from signature, or from url_pattern.default_args
-    used_from_default_args = []
-    for name, param in sig.parameters.items():
-        if name in used_from_sig:
-            continue
-        if name in url_pattern.default_args:
-            used_from_default_args.append(name)
-            sig_type = param.annotation
-            default_arg = url_pattern.default_args[name]
-            if sig_type == Parameter.empty:
-                errors.append(
-                    checks.Warning(
-                        f'View {callback_repr} missing type annotation for parameter `{name}`, can\'t check type.',
-                        obj=url_pattern,
-                        id='urlchecker.W003',
-                    )
-                )
-            elif not _instance_is_compatible(default_arg, sig_type):
-                errors.append(
-                    checks.Error(
-                        f'View {callback_repr}: for parameter `{name}`,'
-                        f' default argument {repr(default_arg)} in urlconf, type {_name_type(type(default_arg))},'
-                        f' does not match annotated type {_name_type(sig_type)} from view signature',
-                        obj=url_pattern,
-                        id='urlchecker.E005',
-                    )
-                )
-            continue
-        if param.kind in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD):
-            # *args and **kwargs
-            continue
-        if param.default == Parameter.empty:
-            errors.append(
-                checks.Error(
-                    f'View {callback_repr} signature contains `{name}` parameter without default or URLconf parameter',
-                    obj=url_pattern,
-                    id='urlchecker.E004',
-                )
-            )
-
-    # Anything left over in default_args is also an error
-    for name in url_pattern.default_args:
-        if name in used_from_default_args:
-            continue
+        errors.append(checks.Error(message, obj=url_pattern, id="urlchecker.E006"))
+    else:
         errors.append(
             checks.Error(
-                f'View {callback_repr} is being passed additional unexpected '
-                f'parameter `{name}` from default arguments in urlconf',
+                f"View {callback_repr} signature does not contain `{name}` parameter",
                 obj=url_pattern,
-                id='urlchecker.E006',
+                id="urlchecker.E003",
             )
         )
 
-    return errors
+
+def _check_route_kwarg_value(errors, url_pattern, callback_repr, name, argument, parameter, unknown_converters):
+    """Check one route keyword against its named view parameter."""
+    if argument.kind == "converter":
+        _check_converter_argument(
+            errors, url_pattern, callback_repr, name, argument.value, parameter, unknown_converters
+        )
+    elif argument.kind == "regex":
+        _check_regex_argument(errors, url_pattern, callback_repr, name, argument, parameter)
+    else:
+        _check_extra_argument(errors, url_pattern, callback_repr, name, argument, parameter.annotation)
+
+
+def _check_converter_argument(errors, url_pattern, callback_repr, name, converter, parameter, unknown_converters):
+    """Check a converter capture against a named view parameter."""
+    urlconf_type = get_converter_output_type(converter)
+    if urlconf_type is Parameter.empty:
+        obj = converter.__class__
+        if obj not in unknown_converters:
+            unknown_converters.add(obj)
+            errors.append(
+                checks.Warning(
+                    f"Don't know output type for converter {obj.__module__}.{obj.__name__},"
+                    " can't verify URL signatures.",
+                    obj=obj,
+                    id=f"urlchecker.W002.{obj.__module__}.{obj.__name__}",
+                )
+            )
+    else:
+        _check_typed_argument(errors, url_pattern, callback_repr, name, urlconf_type, parameter.annotation)
+
+
+def _check_regex_argument(errors, url_pattern, callback_repr, name, argument, parameter):
+    """Check a regex capture against a named view parameter."""
+    _check_typed_argument(errors, url_pattern, callback_repr, name, str, parameter.annotation)
+    if argument.optional and parameter.default is Parameter.empty:
+        errors.append(
+            checks.Warning(
+                f"View {callback_repr} parameter `{name}` is captured by an optional regex group but has no default",
+                obj=url_pattern,
+                id="urlchecker.W004",
+            )
+        )
+
+
+def _positional_parameters(parameters):
+    """Return named parameters that can receive positional URL arguments."""
+    return [
+        (name, parameter)
+        for name, parameter in parameters.items()
+        if name not in {"self", "request"}
+        and parameter.kind in (Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD)
+    ]
+
+
+def _check_positional_arguments(errors, route, url_pattern, callback_repr, parameters, has_varargs, used_from_sig):
+    """Map positional URL arguments to named view parameters and check types."""
+    positional_parameters = _positional_parameters(parameters)
+    if len(route.positional) > len(positional_parameters) and not has_varargs:
+        errors.append(
+            checks.Error(
+                f"View {callback_repr} receives {len(route.positional)} positional argument(s) from the URL pattern "
+                f"but its signature only accepts {len(positional_parameters)}",
+                obj=url_pattern,
+                id="urlchecker.E007",
+            )
+        )
+
+    for _argument, (name, parameter) in zip(route.positional, positional_parameters, strict=False):
+        used_from_sig.append(name)
+        _check_typed_argument(errors, url_pattern, callback_repr, name, str, parameter.annotation)
+
+
+def _check_leftover_required_parameters(errors, url_pattern, callback_repr, parameters, used_from_sig):
+    """Report required view parameters with no URL source or default."""
+    for name, parameter in parameters.items():
+        if name in used_from_sig:
+            continue
+        if parameter.kind in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD):
+            continue
+        if parameter.default == Parameter.empty:
+            errors.append(
+                checks.Error(
+                    f"View {callback_repr} signature contains `{name}` parameter without default or URLconf parameter",
+                    obj=url_pattern,
+                    id="urlchecker.E004",
+                )
+            )
+
+
+def _check_typed_argument(errors, url_pattern, callback_repr, name, urlconf_type, sig_type):
+    """Check a converter or regex capture against a view annotation."""
+    if sig_type == Parameter.empty:
+        errors.append(
+            checks.Warning(
+                f"View {callback_repr} missing type annotation for parameter `{name}`, can't check type.",
+                obj=url_pattern,
+                id="urlchecker.W003",
+            )
+        )
+    elif not _type_is_compatible(urlconf_type, sig_type):
+        errors.append(
+            checks.Error(
+                f"View {callback_repr} for parameter `{name}`,"
+                f" annotated type {_name_type(sig_type)} does not match"
+                f" expected `{_name_type(urlconf_type)}` from urlconf",
+                obj=url_pattern,
+                id="urlchecker.E002",
+            )
+        )
+
+
+def _check_extra_argument(errors, url_pattern, callback_repr, name, argument, sig_type):
+    """Check a path(), re_path(), or include() extra keyword argument."""
+    if sig_type == Parameter.empty:
+        errors.append(
+            checks.Warning(
+                f"View {callback_repr} missing type annotation for parameter `{name}`, can't check type.",
+                obj=url_pattern,
+                id="urlchecker.W003",
+            )
+        )
+    elif not _instance_is_compatible(argument.value, sig_type):
+        if argument.kind == "include_extra":
+            source = "include() kwargs"
+        else:
+            source = "urlconf"
+        errors.append(
+            checks.Error(
+                f"View {callback_repr}: for parameter `{name}`,"
+                f" default argument {repr(argument.value)} in {source}, type {_name_type(type(argument.value))},"
+                f" does not match annotated type {_name_type(sig_type)} from view signature",
+                obj=url_pattern,
+                id="urlchecker.E005",
+            )
+        )
 
 
 def _type_is_compatible(passed_type, accepted_type) -> bool:
