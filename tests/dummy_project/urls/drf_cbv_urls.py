@@ -9,12 +9,12 @@ from rest_framework.views import APIView
 
 class ArticleAPIView(APIView):
     def get(self, request, pk: int):
-        return Response({"pk": pk})
+        return Response({})
 
 
 class BadAPIView(APIView):
     def get(self, request, pk: str):
-        return Response({"pk": pk})
+        return Response({})
 
 
 class ArticleViewSet(viewsets.ViewSet):
@@ -22,16 +22,16 @@ class ArticleViewSet(viewsets.ViewSet):
         return Response([])
 
     def retrieve(self, request, pk: str | None = None):
-        return Response({"pk": pk})
+        return Response({})
 
     @action(detail=True, methods=["get"])
     def custom(self, request, pk: str):
-        return Response({"pk": pk})
+        return Response({})
 
 
 class BadViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk: int):
-        return Response({"pk": pk})
+        return Response({})
 
     @action(detail=True, methods=["get"])
     def broken(self, request):

@@ -15,34 +15,78 @@ def _errors_by_route(errors):
     return grouped
 
 
-@override_settings(
-    ROOT_URLCONF="tests.dummy_project.urls.cbv_handler_urls",
-    URLCONFCHECKS_SILENCED_VIEWS={},
-)
-def test_django_cbv_handlers_use_the_route_checker():
-    grouped = _errors_by_route(check_url_signatures(None))
+_P = "tests.dummy_project.cbv_views."
 
-    assert "clean/<int:pk>/" not in grouped
-    assert "include/<int:pk>/" not in grouped
-    assert [error.id for error in grouped["bad/<int:pk>/"]] == ["urlchecker.E002", "urlchecker.E003"]
-    assert all("BadView." in error.msg for error in grouped["bad/<int:pk>/"])
-    assert [error.id for error in grouped["no-request/<int:pk>/"]] == ["urlchecker.E001"]
-    assert [error.id for error in grouped["required/<int:pk>/"]] == ["urlchecker.E004"]
-    assert [error.id for error in grouped["star/<int:pk>/"]] == ["urlchecker.E002"]
-    assert [error.id for error in grouped["dispatch/<int:pk>/"]] == ["urlchecker.E002"]
-    assert [error.id for error in grouped["head/<int:pk>/"]] == ["urlchecker.E002"]
-    assert ".head" in grouped["head/<int:pk>/"][0].msg
-    assert [error.id for error in grouped["async/<int:pk>/"]] == ["urlchecker.E002"]
-    inherited = grouped["inherited-bad/<int:pk>/"]
-    assert [error.id for error in inherited] == ["urlchecker.E003"]
-    assert "View tests.dummy_project.cbv_views.InheritedBadView.get signature" in inherited[0].msg
-    assert [error.id for error in grouped["extra/"]] == ["urlchecker.E005"]
-    assert [error.id for error in grouped["^regex/(?P<pk>\\d+)/$"]] == [
-        "urlchecker.E002",
-        "urlchecker.E002",
-    ]
-    assert not any("BadView.head" in error.msg for error in grouped["bad/<int:pk>/"])
-    assert not any(error.id == "urlchecker.W001" for errors in grouped.values() for error in errors)
+# (leaf route as str(pattern), expected problem ids in order, message fragments)
+CBV_HANDLER_CASES = [
+    pytest.param("clean/<int:pk>/", [], [], id="clean-get-inherited-and-post"),
+    pytest.param("<int:pk>/", [], [], id="include-kwargs-reach-handler"),
+    pytest.param(
+        "bad/<int:pk>/",
+        ["urlchecker.E002", "urlchecker.E003"],
+        [f"{_P}BadView.get for parameter `pk`", f"{_P}BadView.post signature does not contain `pk`"],
+        id="faulty-get-and-post-reported-separately",
+    ),
+    pytest.param("no-request/<int:pk>/", ["urlchecker.E001"], [f"{_P}NoRequestView.get signature"], id="no-request"),
+    pytest.param(
+        "required/<int:pk>/", ["urlchecker.E004"], ["`required` parameter without default"], id="extra-required"
+    ),
+    pytest.param("star/<int:pk>/", ["urlchecker.E002"], [f"{_P}StarView.get"], id="star-args-named-param-checked"),
+    pytest.param("dispatch/<int:pk>/", ["urlchecker.E002"], [f"{_P}DispatchView.dispatch"], id="explicit-dispatch"),
+    pytest.param("head/<int:pk>/", ["urlchecker.E002"], [f"{_P}ExplicitHeadView.head"], id="explicit-head"),
+    pytest.param("async/<int:pk>/", ["urlchecker.E002"], [f"{_P}AsyncView.post"], id="async-handlers"),
+    pytest.param(
+        "inherited-bad/<int:pk>/",
+        ["urlchecker.E003"],
+        [f"View {_P}InheritedBadView.get signature does not contain `pk`"],
+        id="inherited-handler-reported-under-url-class",
+    ),
+    pytest.param("extra/", ["urlchecker.E005"], [f"{_P}ExtraView.get: for parameter `flag`"], id="path-kwargs"),
+    pytest.param(
+        r"^regex/(?P<pk>\d+)/$",
+        ["urlchecker.E002", "urlchecker.E002"],
+        [f"{_P}CleanView.get", f"{_P}CleanView.post"],
+        id="re-path-captures-are-str",
+    ),
+]
+
+
+@pytest.fixture
+def cbv_handler_problems():
+    with override_settings(
+        ROOT_URLCONF="tests.dummy_project.urls.cbv_handler_urls",
+        URLCONFCHECKS_SILENCED_VIEWS={},
+    ):
+        return _errors_by_route(check_url_signatures(None))
+
+
+@pytest.mark.parametrize("route, expected_ids, fragments", CBV_HANDLER_CASES)
+def test_cbv_handler_case(cbv_handler_problems, route, expected_ids, fragments):
+    problems = cbv_handler_problems.get(route, [])
+    assert [problem.id for problem in problems] == expected_ids
+    for problem, fragment in zip(problems, fragments, strict=True):
+        assert fragment in problem.msg
+
+
+def test_cbv_handler_cases_cover_every_fixture_route():
+    from tests.dummy_project.urls import cbv_handler_urls
+
+    def leaf_routes(patterns):
+        for pattern in patterns:
+            if hasattr(pattern, "url_patterns"):
+                yield from leaf_routes(pattern.url_patterns)
+            else:
+                yield str(pattern.pattern)
+
+    assert sorted(leaf_routes(cbv_handler_urls.urlpatterns)) == sorted(
+        str(case.values[0]) for case in CBV_HANDLER_CASES
+    )
+
+
+def test_cbv_handlers_never_get_w001_or_implicit_head(cbv_handler_problems):
+    problems = [problem for problems in cbv_handler_problems.values() for problem in problems]
+    assert not any(problem.id == "urlchecker.W001" for problem in problems)
+    assert not any(f"{_P}BadView.head" in problem.msg for problem in problems)
 
 
 @override_settings(
