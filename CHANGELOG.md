@@ -191,7 +191,20 @@
 
 ## [Unreleased]
 
+### Added
+
+- `urlchecker.W005` when a view's signature can't be inspected; the check no longer crashes on such callbacks.
+
 ### Fixed
 
+Found by differential fuzzing against Django's resolver and by running the checker on large open-source projects:
+
+- The check could crash on callbacks with a broken `__signature__`, `__module__` or `__qualname__`, and on converters whose `to_python` isn't a callable.
+- URL keyword arguments are no longer matched to positional-only parameters (`def view(request, pk, /)`), which Django can't fill by keyword.
+- `request` must be receivable positionally: `def view(*, request)` and `def view(**kwargs)` now get `E001`.
+- A first parameter not named `request` (`def view(req, **kwargs)`) was reported as missing a value (`E004`), and positional regex values were mapped onto it.
+- Class-based views: an overridden `setup()` is checked like `dispatch()`; `staticmethod`/`classmethod` handlers are checked instead of skipped; callable objects used as handlers keep their first parameter.
+- `Literal`, `NewType` and `TypeVar` annotations are compared by their underlying types instead of always mismatching.
+- Named groups inside a negative lookahead/lookbehind are not treated as captured.
 - The CLI now runs `manage.py` the way `python manage.py` does when looking for the settings module. Projects whose `manage.py` sets `DJANGO_SETTINGS_MODULE` only under `if __name__ == "__main__":` without a `main()` function (healthchecks, netbox, paperless-ngx and many others) failed with `ImproperlyConfigured`.
 - When the settings module can't be found, the CLI prints a short message suggesting `DJANGO_SETTINGS_MODULE` or `--urlconf` instead of a traceback.

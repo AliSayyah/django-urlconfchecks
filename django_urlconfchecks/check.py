@@ -4,6 +4,7 @@ import collections.abc as cabc
 import fnmatch
 import functools
 import inspect
+import re
 import types
 import typing as t
 import uuid
@@ -135,10 +136,12 @@ def _pattern_arguments(pattern) -> tuple[dict[str, _RouteArgument], tuple[_Route
         regex = pattern.regex
         if regex.groupindex:
             optional_groups = _optional_regex_groups(regex)
+            negative_groups = _negative_regex_groups(regex)
             return (
                 {
                     name: _RouteArgument("regex", str, group_number in optional_groups)
                     for name, group_number in regex.groupindex.items()
+                    if group_number not in negative_groups
                 },
                 (),
             )
@@ -157,23 +160,41 @@ def _optional_regex_groups(regex) -> set[int]:
     W004.  The common optional forms and groups inside optional alternations
     are handled without attempting to reason about general regex semantics.
     """
-    try:
-        import re
-
-        parser = getattr(re, "_parser", None)
-        if parser is None:
-            return set()
-        parsed = parser.parse(regex.pattern, regex.flags)
-    except Exception:
+    parsed = _parse_regex(regex)
+    if parsed is None:
         return set()
-
+    tokens, parser, repeat_ops = parsed
     optional: set[int] = set()
+    _mark_optional_regex_groups(tokens, parser, repeat_ops, optional)
+    return optional
+
+
+def _negative_regex_groups(regex) -> set[int]:
+    """Return groups nested in negative lookarounds.
+
+    A successful negative lookaround never contributes its captures to the
+    match dictionary that Django passes to a view.
+    """
+    parsed = _parse_regex(regex)
+    if parsed is None:
+        return set()
+    tokens, parser, repeat_ops = parsed
+    return _negative_regex_groups_from_tokens(tokens, parser, repeat_ops)
+
+
+def _parse_regex(regex):
+    """Parse a compiled regex with ``re``'s internal parser; ``None`` if that isn't possible."""
+    parser = getattr(re, "_parser", None)
+    if parser is None:
+        return None
+    try:
+        tokens = parser.parse(regex.pattern, regex.flags)
+    except Exception:
+        return None
     repeat_ops = {parser.MAX_REPEAT, parser.MIN_REPEAT}
     if hasattr(parser, "POSSESSIVE_REPEAT"):
         repeat_ops.add(parser.POSSESSIVE_REPEAT)
-
-    _mark_optional_regex_groups(parsed, parser, repeat_ops, optional)
-    return optional
+    return tokens, parser, repeat_ops
 
 
 def _regex_group_numbers(tokens, parser, repeat_ops) -> set[int]:
@@ -190,6 +211,27 @@ def _regex_group_numbers(tokens, parser, repeat_ops) -> set[int]:
         elif operation is parser.BRANCH:
             for branch in argument[1]:
                 groups.update(_regex_group_numbers(branch, parser, repeat_ops))
+        elif operation in (parser.ASSERT, parser.ASSERT_NOT):
+            groups.update(_regex_group_numbers(argument[1], parser, repeat_ops))
+    return groups
+
+
+def _negative_regex_groups_from_tokens(tokens, parser, repeat_ops) -> set[int]:
+    """Collect all capture groups contained in negative lookarounds."""
+    groups: set[int] = set()
+    for operation, argument in tokens:
+        if operation is parser.ASSERT_NOT:
+            groups.update(_regex_group_numbers(argument[1], parser, repeat_ops))
+            continue
+        if operation is parser.SUBPATTERN:
+            groups.update(_negative_regex_groups_from_tokens(argument[3], parser, repeat_ops))
+        elif operation in (parser.ASSERT,):
+            groups.update(_negative_regex_groups_from_tokens(argument[1], parser, repeat_ops))
+        elif operation in repeat_ops:
+            groups.update(_negative_regex_groups_from_tokens(argument[2], parser, repeat_ops))
+        elif operation is parser.BRANCH:
+            for branch in argument[1]:
+                groups.update(_negative_regex_groups_from_tokens(branch, parser, repeat_ops))
     return groups
 
 
@@ -202,6 +244,8 @@ def _mark_optional_regex_groups(tokens, parser, repeat_ops, optional: set[int], 
             _mark_optional_repeat(argument, parser, repeat_ops, optional, inherited_optional)
         elif operation is parser.BRANCH:
             _mark_optional_branch(argument, parser, repeat_ops, optional, inherited_optional)
+        elif operation in (parser.ASSERT, parser.ASSERT_NOT):
+            _mark_optional_regex_groups(argument[1], parser, repeat_ops, optional, inherited_optional)
 
 
 def _mark_optional_subpattern(argument, parser, repeat_ops, optional, inherited_optional):
@@ -231,16 +275,27 @@ def _mark_optional_branch(argument, parser, repeat_ops, optional, inherited_opti
 
 
 def _make_callback_repr(callback):
-    view_class = getattr(callback, "view_class", None)
-    if view_class is not None and hasattr(view_class, "as_view"):
+    view_class = _safe_metadata(callback, "view_class", None)
+    if view_class is not None and _safe_metadata(view_class, "as_view", None) is not None:
         target = view_class.as_view
     elif isinstance(callback, functools.partial):
         target = callback.func
     else:
         target = callback
-    qualname = getattr(target, "__qualname__", type(target).__qualname__)
-    module = getattr(target, "__module__", type(target).__module__)
+    module = _safe_metadata(target, "__module__", None)
+    qualname = _safe_metadata(target, "__qualname__", None)
+    if not isinstance(module, str) or not isinstance(qualname, str):
+        # Callable instances and objects with broken metadata: name them by their type.
+        module, qualname = type(target).__module__, type(target).__qualname__
     return f"{module}.{qualname}"
+
+
+def _safe_metadata(obj, name, fallback):
+    """Read callback metadata without allowing hostile objects to escape."""
+    try:
+        return getattr(obj, name)
+    except Exception:
+        return fallback
 
 
 def _get_signature(callable_obj):
@@ -305,7 +360,7 @@ def _check_route_info(route: _RouteInfo, unknown_converters: set[type]) -> list[
     cbv_handlers = _get_cbv_handlers(callback)
     if cbv_handlers is not None:
         errors: list[Problem] = []
-        for handler, callback_repr, class_repr in cbv_handlers:
+        for handler, callback_repr, class_repr, drop_handler_self in cbv_handlers:
             errors.extend(
                 _check_callable_route(
                     route,
@@ -314,6 +369,7 @@ def _check_route_info(route: _RouteInfo, unknown_converters: set[type]) -> list[
                     unknown_converters,
                     is_cbv_handler=True,
                     class_repr=class_repr,
+                    drop_handler_self=drop_handler_self,
                 )
             )
         return errors
@@ -334,11 +390,17 @@ def _check_callable_route(
     *,
     is_cbv_handler: bool = False,
     class_repr: str | None = None,
+    drop_handler_self: bool = False,
 ) -> list[Problem]:
     """Check one callable using the arguments accumulated for a URL route."""
     url_pattern = route.pattern
-    sig = _get_signature(callback)
-    if is_cbv_handler:
+    try:
+        sig = _get_signature(callback)
+    except Exception as exc:
+        errors = [_signature_warning(url_pattern, callback_repr, exc)]
+        _attach_error_view_names(errors, url_pattern, callback_repr, class_repr)
+        return errors
+    if drop_handler_self:
         sig = _drop_handler_self(sig)
     parameters = sig.parameters
     has_varargs, has_varkw = _star_argument_flags(parameters)
@@ -346,6 +408,7 @@ def _check_callable_route(
 
     _append_star_args_warning(errors, url_pattern, callback_repr, has_varargs or has_varkw, is_cbv_handler)
     used_from_sig = _check_request_parameter(errors, url_pattern, callback_repr, sig, has_varargs or has_varkw)
+    request_params = frozenset(used_from_sig)
     _check_route_kwargs(
         errors,
         route,
@@ -356,15 +419,34 @@ def _check_callable_route(
         used_from_sig,
         unknown_converters,
     )
-    _check_positional_arguments(errors, route, url_pattern, callback_repr, parameters, has_varargs, used_from_sig)
+    positional_parameters = _positional_parameters(parameters, request_params)
+    _check_positional_arguments(
+        errors, route, url_pattern, callback_repr, positional_parameters, has_varargs, used_from_sig
+    )
     _check_leftover_required_parameters(errors, url_pattern, callback_repr, parameters, used_from_sig)
     # Record which view (and CBV class) each problem is about, for ViewSilencer.
+    _attach_error_view_names(errors, url_pattern, callback_repr, class_repr)
+    return errors
+
+
+def _signature_warning(url_pattern, callback_repr, exc):
+    try:
+        detail = str(exc)
+    except Exception:
+        detail = "unable to describe exception"
+    return checks.Warning(
+        f"View {callback_repr} signature could not be inspected ({type(exc).__name__}: {detail}), can't check args",
+        obj=url_pattern,
+        id="urlchecker.W005",
+    )
+
+
+def _attach_error_view_names(errors, url_pattern, callback_repr, class_repr):
     for error in errors:
         if error.obj is url_pattern:
             setattr(error, _VIEW_NAME_ATTR, callback_repr)
             if class_repr is not None:
                 setattr(error, _VIEW_CLASS_NAME_ATTR, class_repr)
-    return errors
 
 
 _VIEW_NAME_ATTR = "_urlchecker_view_name"
@@ -373,6 +455,12 @@ _VIEW_CLASS_NAME_ATTR = "_urlchecker_view_class_name"
 _HANDLER_MISSING = object()
 _HANDLER_SKIP = object()
 _HANDLER_INVALID = object()
+
+
+@dataclass(frozen=True)
+class _ResolvedHandler:
+    handler: Any
+    drop_self: bool
 
 
 def _get_cbv_handlers(callback):
@@ -401,7 +489,9 @@ def _has_cbv_attributes(callback) -> bool:
 
 def _class_repr(view_class) -> str:
     """Return the stable dotted name used for CBV handlers and silencing."""
-    return f"{view_class.__module__}.{view_class.__qualname__}"
+    module = _safe_metadata(view_class, "__module__", _safe_metadata(type(view_class), "__module__", "builtins"))
+    qualname = _safe_metadata(view_class, "__qualname__", _safe_metadata(type(view_class), "__qualname__", "type"))
+    return f"{module}.{qualname}"
 
 
 def _get_django_handlers(view_class):
@@ -420,13 +510,18 @@ def _get_django_handlers(view_class):
             continue
         if handler is _HANDLER_INVALID:
             return None
-        handlers.append((handler, f"{class_repr}.{name}", class_repr))
+        handlers.append((handler.handler, f"{class_repr}.{name}", class_repr, handler.drop_self))
 
     dispatch = _resolve_explicit_dispatch(view_class)
     if dispatch is _HANDLER_INVALID:
         return None
     if dispatch not in (_HANDLER_MISSING, _HANDLER_SKIP):
-        handlers.append((dispatch, f"{class_repr}.dispatch", class_repr))
+        handlers.append((dispatch.handler, f"{class_repr}.dispatch", class_repr, dispatch.drop_self))
+    setup = _resolve_explicit_setup(view_class)
+    if setup is _HANDLER_INVALID:
+        return None
+    if setup not in (_HANDLER_MISSING, _HANDLER_SKIP):
+        handlers.append((setup.handler, f"{class_repr}.setup", class_repr, setup.drop_self))
     return handlers
 
 
@@ -446,7 +541,8 @@ def _resolve_explicit_dispatch(view_class):
     dispatch = _resolve_class_handler(view_class, "dispatch")
     if dispatch in (_HANDLER_MISSING, _HANDLER_SKIP, _HANDLER_INVALID):
         return dispatch
-    if _dispatch_has_explicit_parameters(dispatch):
+    explicit = _handler_has_explicit_parameters(dispatch)
+    if explicit is None or explicit:
         return dispatch
     return _HANDLER_MISSING
 
@@ -467,31 +563,25 @@ def _get_viewset_handlers(view_class, actions):
             return None
         if handler is _HANDLER_SKIP:
             continue
-        handlers.append((handler, f"{class_repr}.{name}", class_repr))
+        handlers.append((handler.handler, f"{class_repr}.{name}", class_repr, handler.drop_self))
     return handlers
 
 
 def _resolve_class_handler(view_class, name):
-    """Resolve a normal function handler while rejecting descriptors that cannot be handlers."""
+    """Resolve a class handler and record whether its instance parameter is implicit."""
     try:
         raw_handler = inspect.getattr_static(view_class, name)
     except AttributeError:
         return _HANDLER_MISSING
     except Exception:
         return _HANDLER_INVALID
-    if isinstance(raw_handler, (staticmethod, classmethod)):
-        return _HANDLER_SKIP
     try:
         handler = getattr(view_class, name)
     except Exception:
         return _HANDLER_INVALID
     if not callable(handler):
         return _HANDLER_INVALID
-    try:
-        _get_signature(handler)
-    except Exception:
-        return _HANDLER_INVALID
-    return handler
+    return _ResolvedHandler(handler, inspect.isfunction(raw_handler))
 
 
 def _has_explicit_head(view_class) -> bool:
@@ -500,7 +590,7 @@ def _has_explicit_head(view_class) -> bool:
     if head in (_HANDLER_MISSING, _HANDLER_SKIP, _HANDLER_INVALID):
         return False
     get = _resolve_class_handler(view_class, "get")
-    if get not in (_HANDLER_MISSING, _HANDLER_SKIP, _HANDLER_INVALID) and head is get:
+    if get not in (_HANDLER_MISSING, _HANDLER_SKIP, _HANDLER_INVALID) and head.handler is get.handler:
         return False
     return True
 
@@ -513,12 +603,25 @@ def _drop_handler_self(sig):
     return sig.replace(parameters=parameters)
 
 
-def _dispatch_has_explicit_parameters(dispatch) -> bool:
-    """Return whether an overridden dispatch has parameters worth checking."""
+def _resolve_explicit_setup(view_class):
+    """Return an overridden setup handler when it has parameters to inspect."""
+    setup = _resolve_class_handler(view_class, "setup")
+    if setup in (_HANDLER_MISSING, _HANDLER_SKIP, _HANDLER_INVALID):
+        return setup
+    explicit = _handler_has_explicit_parameters(setup)
+    if explicit is None or explicit:
+        return setup
+    return _HANDLER_MISSING
+
+
+def _handler_has_explicit_parameters(dispatch) -> bool | None:
+    """Return whether an overridden dispatch/setup has parameters worth checking (None if uninspectable)."""
     try:
-        sig = _drop_handler_self(_get_signature(dispatch))
+        sig = _get_signature(dispatch.handler)
+        if dispatch.drop_self:
+            sig = _drop_handler_self(sig)
     except Exception:
-        return False
+        return None
     parameters = tuple(sig.parameters.values())
     if any(
         parameter.name != "request" and parameter.kind not in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD)
@@ -550,25 +653,37 @@ def _append_star_args_warning(errors, url_pattern, callback_repr, has_star_args,
 def _check_request_parameter(errors, url_pattern, callback_repr, sig, has_star_args) -> list[str]:
     """Check the request parameter and return parameters already supplied."""
     used_from_sig: list[str] = []
-    parameter_list = list(sig.parameters)
-    if parameter_list and parameter_list[0] == "self":
+    parameters = list(sig.parameters.values())
+    if parameters and parameters[0].name == "self":
         # HACK: we need to find some nice way to detect closures/bound methods,
         # while also getting the final signature.
-        parameter_list.pop(0)
+        parameters.pop(0)
         used_from_sig.append("self")
 
-    if not parameter_list or parameter_list[0] != "request":
-        if not has_star_args:
-            if parameter_list:
-                message = (
-                    f"View {callback_repr} signature does not start with `request` parameter, "
-                    f"found `{parameter_list[0]}`."
-                )
-            else:
-                message = f"View {callback_repr} signature does not have `request` parameter."
+    positional = next(
+        (
+            parameter
+            for parameter in parameters
+            if parameter.kind in (Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD, Parameter.VAR_POSITIONAL)
+        ),
+        None,
+    )
+    if positional is None:
+        errors.append(
+            checks.Error(
+                f"View {callback_repr} signature does not have a positional `request` parameter.",
+                obj=url_pattern,
+                id="urlchecker.E001",
+            )
+        )
+    elif positional.kind is not Parameter.VAR_POSITIONAL:
+        # Django passes the request to this parameter whatever its name.
+        used_from_sig.append(positional.name)
+        if positional.name != "request" and not has_star_args:
+            message = (
+                f"View {callback_repr} signature does not start with `request` parameter, found `{positional.name}`."
+            )
             errors.append(checks.Error(message, obj=url_pattern, id="urlchecker.E001"))
-    else:
-        used_from_sig.append("request")
     return used_from_sig
 
 
@@ -585,6 +700,11 @@ def _check_route_kwargs(
     """Check keyword arguments captured or supplied by a route."""
     for name, argument in route.kwargs.items():
         parameter = parameters.get(name)
+        if parameter is not None and parameter.kind is Parameter.POSITIONAL_ONLY:
+            if has_varkw:
+                continue
+            _report_unaccepted_route_argument(errors, url_pattern, callback_repr, name, argument)
+            continue
         if parameter is None:
             if has_varkw:
                 continue
@@ -670,19 +790,19 @@ def _check_regex_argument(errors, url_pattern, callback_repr, name, argument, pa
         )
 
 
-def _positional_parameters(parameters):
-    """Return named parameters that can receive positional URL arguments."""
+def _positional_parameters(parameters, request_params):
+    """Return named parameters, after self/request, that can receive positional URL arguments."""
     return [
         (name, parameter)
         for name, parameter in parameters.items()
-        if name not in {"self", "request"}
-        and parameter.kind in (Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD)
+        if name not in request_params and parameter.kind in (Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD)
     ]
 
 
-def _check_positional_arguments(errors, route, url_pattern, callback_repr, parameters, has_varargs, used_from_sig):
+def _check_positional_arguments(
+    errors, route, url_pattern, callback_repr, positional_parameters, has_varargs, used_from_sig
+):
     """Map positional URL arguments to named view parameters and check types."""
-    positional_parameters = _positional_parameters(parameters)
     if len(route.positional) > len(positional_parameters) and not has_varargs:
         errors.append(
             checks.Error(
@@ -782,7 +902,11 @@ def _type_candidate_matches(passed_type, candidate) -> bool:
     if candidate in (Any, object):
         return True
 
-    # Unions are handled by the caller (_iter_type_candidates splits them)
+    if get_origin(candidate) is t.Literal:
+        return any(_literal_value_matches_type(value, passed_type) for value in get_args(candidate))
+
+    # Unions and special typing wrappers are handled by the caller
+    # (_iter_type_candidates splits or unwraps them).
     origin_candidate = get_origin(candidate)
 
     origin_passed = get_origin(passed_type)
@@ -800,6 +924,14 @@ def _type_candidate_matches(passed_type, candidate) -> bool:
         return False
 
 
+def _literal_value_matches_type(value, passed_type) -> bool:
+    """Return whether a literal value could be produced by a passed type."""
+    try:
+        return isinstance(value, get_origin(passed_type) or passed_type)
+    except TypeError:
+        return False
+
+
 def _instance_is_compatible(instance, accepted_type) -> bool:
     return any(
         _instance_candidate_matches(instance, candidate)
@@ -810,6 +942,9 @@ def _instance_is_compatible(instance, accepted_type) -> bool:
 def _instance_candidate_matches(instance, candidate) -> bool:
     if candidate in (Any, object):
         return True
+
+    if get_origin(candidate) is t.Literal:
+        return any(instance == value for value in get_args(candidate))
 
     # None handling
     if instance is None:
@@ -861,20 +996,36 @@ def _iter_type_candidates(annotation, include_none: bool) -> tuple[t.Any, ...]:
     if annotation is Parameter.empty:
         return ()
 
-    annotation = _unwrap_annotated(annotation)
-    origin = get_origin(annotation)
-    args = get_args(annotation)
-
-    # PEP 604 unions (X | Y) and typing.Union
-    if origin in (t.Union, types.UnionType):
-        candidates = args
-    else:
-        candidates = (annotation,)
+    candidates = _flatten_type_candidates(annotation)
 
     if not include_none:
         candidates = tuple(c for c in candidates if c is not type(None))
 
     return candidates
+
+
+def _flatten_type_candidates(annotation) -> tuple[t.Any, ...]:
+    """Unwrap Annotated, unions, NewType, and TypeVar annotations."""
+    annotation = _unwrap_annotated(annotation)
+    if isinstance(annotation, t.TypeVar):
+        if annotation.__bound__ is not None:
+            return _flatten_type_candidates(annotation.__bound__)
+        if annotation.__constraints__:
+            return tuple(
+                candidate
+                for constraint in annotation.__constraints__
+                for candidate in _flatten_type_candidates(constraint)
+            )
+        return (Any,)
+
+    supertype = getattr(annotation, "__supertype__", None)
+    if supertype is not None:
+        return _flatten_type_candidates(supertype)
+
+    origin = get_origin(annotation)
+    if origin in (t.Union, types.UnionType):
+        return tuple(candidate for arg in get_args(annotation) for candidate in _flatten_type_candidates(arg))
+    return (annotation,)
 
 
 def _unwrap_annotated(annotation):
@@ -900,6 +1051,7 @@ CONVERTER_TYPES: dict[type, ConverterOutputType] = {
     converters.SlugConverter: str,
     converters.PathConverter: str,
 }
+_CONVERTER_METHOD_MISSING = object()
 
 
 def get_converter_output_type(converter) -> ConverterOutputType:
@@ -914,12 +1066,36 @@ def _converter_output_type_for_class(converter_cls) -> ConverterOutputType:
         if cls in CONVERTER_TYPES:
             return CONVERTER_TYPES[cls]
 
-        if hasattr(cls, "to_python"):
-            sig = _get_signature(cls.to_python)
-            if sig.return_annotation != Parameter.empty:
-                return t.cast(ConverterOutputType, sig.return_annotation)
+        to_python = _converter_to_python(cls)
+        if to_python is _CONVERTER_METHOD_MISSING:
+            continue
+        if to_python is None or not callable(to_python):
+            return Parameter.empty
+        sig = _converter_signature(to_python)
+        if sig is None:
+            return Parameter.empty
+        if sig.return_annotation != Parameter.empty:
+            return t.cast(ConverterOutputType, sig.return_annotation)
 
     return Parameter.empty
+
+
+def _converter_to_python(converter_cls):
+    """Read a converter method without exposing hostile descriptors."""
+    try:
+        return converter_cls.to_python
+    except AttributeError:
+        return _CONVERTER_METHOD_MISSING
+    except Exception:
+        return None
+
+
+def _converter_signature(to_python):
+    """Inspect a converter method, returning None when inspection fails."""
+    try:
+        return _get_signature(to_python)
+    except Exception:
+        return None
 
 
 class ViewSilencer:
