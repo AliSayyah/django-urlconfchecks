@@ -223,21 +223,69 @@ def test_cli_urlconf_from_project_directory(django_project):
 
 
 def test_get_manage_hides_and_restores_argv(django_project, monkeypatch):
+    seen = django_project / "seen_argv.json"
     (django_project / "manage.py").write_text(
-        "import os\nimport sys\n\nSEEN = []\n\n\ndef main():\n"
+        "import json\nimport os\nimport sys\n\n"
+        'if __name__ == "__main__":\n'
         '    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "proj.settings")\n'
-        "    SEEN.append(list(sys.argv))\n"
+        f"    open({str(seen)!r}, 'w').write(json.dumps(sys.argv))\n"
     )
     monkeypatch.chdir(django_project)
-    monkeypatch.syspath_prepend(str(django_project))
-    monkeypatch.delitem(sys.modules, "manage", raising=False)
     monkeypatch.delenv("DJANGO_SETTINGS_MODULE", raising=False)
     monkeypatch.setattr(sys, "argv", ["urlconfchecks", "-f", "json"])
 
     get_manage()
 
-    seen_argv = sys.modules["manage"].SEEN
-    monkeypatch.delitem(sys.modules, "manage")
-    assert seen_argv == [["manage.py"]]
+    assert json.loads(seen.read_text()) == [str(django_project / "manage.py")]
     assert sys.argv == ["urlconfchecks", "-f", "json"]
     assert os.environ["DJANGO_SETTINGS_MODULE"] == "proj.settings"
+
+
+# Real-world manage.py layouts. healthchecks, babybuddy, netbox, paperless-ngx and others set
+# DJANGO_SETTINGS_MODULE only under `if __name__ == "__main__":`, without a main() function.
+MAIN_GUARD_ONLY = """
+import os
+import sys
+
+if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "proj.settings")
+    from django.core.management import execute_from_command_line
+
+    execute_from_command_line(sys.argv)
+"""
+
+EXITS_AFTERWARDS = MAIN_GUARD_ONLY + "    sys.exit(0)\n"
+
+
+@pytest.mark.parametrize("manage_py", [MAIN_GUARD_ONLY, EXITS_AFTERWARDS], ids=["main-guard-only", "sys-exit"])
+def test_cli_manage_py_layouts(django_project, manage_py):
+    (django_project / "manage.py").write_text(manage_py)
+    result = _run_cli(django_project, "-f", "json")
+    assert result.returncode == 1, result.stderr
+    assert json.loads(result.stdout)["total_errors"] == 1
+
+
+def test_cli_manage_py_that_extends_sys_path(django_project):
+    """Settings living in a directory that manage.py adds to sys.path (e.g. `src/`)."""
+    src = django_project / "src"
+    src.mkdir()
+    (django_project / "proj").rename(src / "proj")
+    (django_project / "manage.py").write_text(
+        "import os\nimport sys\n\n"
+        'if __name__ == "__main__":\n'
+        '    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))\n'
+        '    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "proj.settings")\n'
+    )
+    result = _run_cli(django_project, "-f", "json")
+    assert result.returncode == 1, result.stderr
+    assert json.loads(result.stdout)["total_errors"] == 1
+
+
+def test_cli_manage_py_without_settings_module(django_project):
+    """manage.py that relies on the environment (e.g. a .env file) gets a clear message, not a traceback."""
+    (django_project / "manage.py").write_text('import sys\n\nif __name__ == "__main__":\n    pass\n')
+    result = _run_cli(django_project)
+    assert result.returncode == 1
+    assert "Could not set up Django:" in result.stdout
+    assert "Set DJANGO_SETTINGS_MODULE" in result.stdout
+    assert "Traceback" not in result.stdout + result.stderr
