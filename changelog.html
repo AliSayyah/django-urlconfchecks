@@ -1172,6 +1172,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#0170-2026-10-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        [0.17.0] - 2026-10-30
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.17.0] - 2026-10-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Added
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fixed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#unreleased" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1968,6 +2007,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#0170-2026-10-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        [0.17.0] - 2026-10-30
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.17.0] - 2026-10-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Added
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fixed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#unreleased" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2188,6 +2266,16 @@
 <li>Named groups inside a negative lookahead/lookbehind are not treated as captured.</li>
 <li>The CLI now runs <code>manage.py</code> the way <code>python manage.py</code> does when looking for the settings module. Projects whose <code>manage.py</code> sets <code>DJANGO_SETTINGS_MODULE</code> only under <code>if __name__ == "__main__":</code> without a <code>main()</code> function (healthchecks, netbox, paperless-ngx and many others) failed with <code>ImproperlyConfigured</code>.</li>
 <li>When the settings module can't be found, the CLI prints a short message suggesting <code>DJANGO_SETTINGS_MODULE</code> or <code>--urlconf</code> instead of a traceback.</li>
+</ul>
+<h2 id="0170-2026-10-30">[0.17.0] - 2026-10-30</h2>
+<h3 id="added_13">Added</h3>
+<ul>
+<li>Maintained differential, robustness, and stress fuzzing tools in <code>tests/fuzz</code>, with a weekly workflow and a <code>tox -e fuzz</code> entry point.</li>
+<li><code>urlchecker.E008</code> when a parameter would receive both a positional value from the URL pattern (an unnamed <code>re_path()</code> group) and a keyword argument (a parent capture or extra kwarg) — Django raises "got multiple values for argument".</li>
+</ul>
+<h3 id="fixed_11">Fixed</h3>
+<ul>
+<li><code>urlchecker.W004</code> is no longer reported for an optional regex group whose name a parent <code>include()</code> kwarg also supplies: when the group doesn't match, Django passes the include's value.</li>
 </ul>
 <h2 id="unreleased">[Unreleased]</h2>
 

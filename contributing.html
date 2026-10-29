@@ -516,6 +516,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#fuzzing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fuzzing
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#deploying" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -706,6 +717,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#fuzzing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fuzzing
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#deploying" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -827,6 +849,32 @@ $ git push origin name-of-your-bugfix-or-feature
 <div class="highlight"><pre><span></span><code>$ uv run pytest tests
 </code></pre></div>
 <p>To run a subset of tests.</p>
+<h2 id="fuzzing">Fuzzing</h2>
+<p>The maintained fuzzer in <code>tests/fuzz</code> compares URL signature checks with Django's
+resolver and Python argument binding. It also runs a hostile callback and
+converter corpus and measures flat and deeply nested URLconfs. The generator is
+shared with <code>tests/test_differential.py</code>, so a seed and a Hypothesis example use
+the same case shapes.</p>
+<p>Run a seeded differential job and replay it later with the printed seed:</p>
+<div class="highlight"><pre><span></span><code>python -m tests.fuzz differential --seed 123 --cases 2000 --report fuzz.md
+python -m tests.fuzz robustness
+python -m tests.fuzz stress
+tox -e fuzz
+</code></pre></div>
+<p>Omit <code>--seed</code> to choose a random seed; the tool prints it before any case runs.
+The differential command exits with status 1 for a checker crash or a mismatch.
+The robustness command exits with status 1 for any exception. The stress command
+reports timing, peak RSS, and deep-include comparison with Django. It flags a
+more-than-twofold increase in time per route.</p>
+<p>The oracle excludes the name-only part of E001 for generated keyword-only or
+absent request forms. W001, W002, W003, and W005 are diagnostic warnings. W004
+is a route flag because an optional capture can make a required parameter fail.
+DRF cases run when <code>rest_framework</code> is installed. A real mismatch must become a
+focused regression test in <code>tests/test_fuzz_regressions.py</code> before the fuzzer is
+changed.</p>
+<p>GitHub Actions runs the differential, robustness, and stress modes every week.
+Use the workflow dispatch inputs to provide a seed or a different case count;
+the Markdown report is uploaded when it exists.</p>
 <h2 id="deploying">Deploying</h2>
 <p>A reminder for the maintainers on how to deploy.
 Make sure all your changes are committed (including an entry in CHANGELOG.md).

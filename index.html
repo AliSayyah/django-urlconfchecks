@@ -799,7 +799,7 @@ releases install without waiting for a package update.</p>
 <h3 id="as-a-pre-commit-hook">As a pre-commit hook</h3>
 <p>Add the following to your <code>.pre-commit-config.yaml</code> file:</p>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/AliSayyah/django-urlconfchecks</span>
-<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.16.0</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.17.0</span>
 <span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">django-urlconfchecks</span>
 </code></pre></div>
@@ -849,7 +849,7 @@ releases install without waiting for a package update.</p>
 <span class="w">  </span><span class="nt">"total_warnings"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>The checks include type mismatches (<code>E002</code> and <code>E005</code>), missing or unexpected view arguments (<code>E003</code>, <code>E004</code>, and <code>E006</code>), too many positional regex arguments (<code>E007</code>), and warnings for star arguments (<code>W001</code> on function views), unknown converter output types (<code>W002</code>), missing annotations (<code>W003</code>), and optional regex groups without a view default (<code>W004</code>).</p>
+<p>The checks include type mismatches (<code>E002</code> and <code>E005</code>), missing or unexpected view arguments (<code>E003</code>, <code>E004</code>, and <code>E006</code>), too many positional regex arguments (<code>E007</code>), a parameter receiving both a positional URL value and a keyword argument (<code>E008</code>), and warnings for star arguments (<code>W001</code> on function views), unknown converter output types (<code>W002</code>), missing annotations (<code>W003</code>), and optional regex groups without a view default (<code>W004</code>).</p>
 <p>Use <code>URLCONFCHECKS_SILENCED_VIEWS</code> for fine-grained silencing. Class-based view handler errors use names such as <code>my_project.views.ArticleView.get</code>; <code>my_project.views.ArticleView.*</code> matches all handlers, and <code>my_project.views.ArticleView</code> matches the whole class. Function-view names keep the existing behavior.</p>
 <h2 id="credits">Credits</h2>
 <ul>
