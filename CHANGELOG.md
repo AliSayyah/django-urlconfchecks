@@ -195,6 +195,10 @@
 
 - `urlchecker.W005` when a view's signature can't be inspected; the check no longer crashes on such callbacks.
 
+### Changed
+
+- `urlchecker.W001` (view takes `*args`/`**kwargs`) is reported once per view instead of once per route, with the number of routes using it, and a hint to use `functools.wraps` in decorators or silence third-party wrappers. On real projects this cut W001 from 321 to 14 warnings (pretix), 243 to 7 (django-allauth) and 103 to 8 (wagtail bakerydemo).
+
 ### Fixed
 
 Found by differential fuzzing against Django's resolver and by running the checker on large open-source projects:

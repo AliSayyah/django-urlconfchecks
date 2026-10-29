@@ -1,5 +1,6 @@
 """Quick and dirty URL checker."""
 
+import collections
 import collections.abc as cabc
 import fnmatch
 import functools
@@ -69,7 +70,32 @@ def check_url_signatures(app_configs, **kwargs) -> list[Problem]:
     unknown_converters = set()
     for route in _walk_routes(resolver):
         errors.extend(_check_route_info(route, unknown_converters))
-    return _filter_errors(errors, silencers)
+    return _collapse_star_args_warnings(_filter_errors(errors, silencers))
+
+
+def _collapse_star_args_warnings(problems: list[Problem]) -> list[Problem]:
+    """Report W001 once per view, with how many routes use it.
+
+    Decorators and framework wrappers (e.g. a permission decorator without functools.wraps) are
+    often shared by hundreds of routes; one warning per route buries everything else.
+    """
+    route_counts = collections.Counter(_problem_view_name(p) for p in problems if p.id == "urlchecker.W001")
+    collapsed: list[Problem] = []
+    reported: set[str] = set()
+    for problem in problems:
+        if problem.id == "urlchecker.W001":
+            view_name = _problem_view_name(problem)
+            if view_name in reported:
+                continue
+            reported.add(view_name)
+            if route_counts[view_name] > 1:
+                problem.msg += f" (used by {route_counts[view_name]} routes)"
+        collapsed.append(problem)
+    return collapsed
+
+
+def _problem_view_name(problem: Problem) -> str:
+    return getattr(problem, _VIEW_NAME_ATTR, None) or _make_callback_repr(getattr(problem.obj, "callback", None))
 
 
 def get_all_routes(resolver: URLResolver, parent_converters: dict) -> cabc.Iterable[tuple[URLPattern, dict]]:
@@ -641,9 +667,15 @@ def _star_argument_flags(parameters) -> tuple[bool, bool]:
 def _append_star_args_warning(errors, url_pattern, callback_repr, has_star_args, is_cbv_handler=False):
     """Append W001 when a view uses variable positional or keyword arguments."""
     if has_star_args and not is_cbv_handler:
+        package = callback_repr.split(".", 1)[0]
         errors.append(
             checks.Warning(
                 f"View {callback_repr} signature contains *args or **kwarg syntax, can't properly check args",
+                hint=(
+                    "If this is a decorator, apply functools.wraps to its wrapper so the view's real signature "
+                    "can be checked. To silence a third-party wrapper, add it to URLCONFCHECKS_SILENCED_VIEWS, "
+                    f'e.g. {{"{package}.*": "W001"}}.'
+                ),
                 obj=url_pattern,
                 id="urlchecker.W001",
             )
