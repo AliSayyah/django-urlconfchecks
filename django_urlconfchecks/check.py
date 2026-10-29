@@ -9,7 +9,7 @@ import re
 import types
 import typing as t
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from inspect import Parameter, _empty, signature
 from typing import Any, get_args, get_origin
 
@@ -134,7 +134,7 @@ def _walk_routes(resolver: URLResolver) -> cabc.Iterable[_RouteInfo]:
                 }
             )
             for child in _walk_routes(pattern):
-                kwargs = {**resolver_kwargs, **child.kwargs}
+                kwargs = {**resolver_kwargs, **_present_when_inherited(child.kwargs, resolver_kwargs)}
                 positional = child.positional
                 if not kwargs:
                     positional = resolver_args + positional
@@ -148,6 +148,17 @@ def _walk_routes(resolver: URLResolver) -> cabc.Iterable[_RouteInfo]:
             {name: _RouteArgument("extra", value, optional=False) for name, value in pattern.default_args.items()}
         )
         yield _RouteInfo(pattern, kwargs, positional)
+
+
+def _present_when_inherited(kwargs, inherited):
+    """Optional regex captures that an outer resolver also supplies are always present.
+
+    When the group doesn't match, Django keeps the outer value (e.g. an include() kwarg).
+    """
+    return {
+        name: replace(argument, optional=False) if argument.optional and name in inherited else argument
+        for name, argument in kwargs.items()
+    }
 
 
 def _pattern_arguments(pattern) -> tuple[dict[str, _RouteArgument], tuple[_RouteArgument, ...]]:
@@ -846,6 +857,15 @@ def _check_positional_arguments(
         )
 
     for _argument, (name, parameter) in zip(route.positional, positional_parameters, strict=False):
+        if name in route.kwargs and parameter.kind is Parameter.POSITIONAL_OR_KEYWORD:
+            errors.append(
+                checks.Error(
+                    f"View {callback_repr} receives `{name}` both as a positional argument from the URL pattern "
+                    "and as a keyword argument",
+                    obj=url_pattern,
+                    id="urlchecker.E008",
+                )
+            )
         used_from_sig.append(name)
         _check_typed_argument(errors, url_pattern, callback_repr, name, str, parameter.annotation)
 

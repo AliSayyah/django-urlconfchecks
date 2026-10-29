@@ -161,7 +161,7 @@ JSON (`--format json`):
 }
 ```
 
-The checks include type mismatches (`E002` and `E005`), missing or unexpected view arguments (`E003`, `E004`, and `E006`), too many positional regex arguments (`E007`), and warnings for star arguments (`W001` on function views), unknown converter output types (`W002`), missing annotations (`W003`), and optional regex groups without a view default (`W004`).
+The checks include type mismatches (`E002` and `E005`), missing or unexpected view arguments (`E003`, `E004`, and `E006`), too many positional regex arguments (`E007`), a parameter receiving both a positional URL value and a keyword argument (`E008`), and warnings for star arguments (`W001` on function views), unknown converter output types (`W002`), missing annotations (`W003`), and optional regex groups without a view default (`W004`).
 
 Use `URLCONFCHECKS_SILENCED_VIEWS` for fine-grained silencing. Class-based view handler errors use names such as `my_project.views.ArticleView.get`; `my_project.views.ArticleView.*` matches all handlers, and `my_project.views.ArticleView` matches the whole class. Function-view names keep the existing behavior.
 

@@ -214,3 +214,12 @@ Found by differential fuzzing against Django's resolver and by running the check
 - When the settings module can't be found, the CLI prints a short message suggesting `DJANGO_SETTINGS_MODULE` or `--urlconf` instead of a traceback.
 
 ## [Unreleased]
+
+### Added
+
+- Maintained differential, robustness, and stress fuzzing tools in `tests/fuzz`, with a weekly workflow and a `tox -e fuzz` entry point.
+- `urlchecker.E008` when a parameter would receive both a positional value from the URL pattern (an unnamed `re_path()` group) and a keyword argument (a parent capture or extra kwarg) — Django raises "got multiple values for argument".
+
+### Fixed
+
+- `urlchecker.W004` is no longer reported for an optional regex group whose name a parent `include()` kwarg also supplies: when the group doesn't match, Django passes the include's value.

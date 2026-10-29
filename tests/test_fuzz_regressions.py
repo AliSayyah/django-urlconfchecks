@@ -357,3 +357,34 @@ def test_positional_url_values_skip_the_request_parameter_whatever_its_name():
     # Only the (name-based) E001; `a` receives the positional value, nothing is unsourced.
     assert _ids(errors) == ["urlchecker.E001"]
     assert "found `req`" in errors[0].msg
+
+
+def test_positional_url_value_and_keyword_for_the_same_parameter():
+    """Found by the fuzz tool: Django raises "got multiple values for argument"."""
+
+    def view(request, parent):
+        return HttpResponse()
+
+    errors = _checked_urlconf([path("<int:parent>/", include([re_path(r"^f/([a-z]+)/$", view)]))])
+    assert "urlchecker.E008" in _ids(errors)
+    assert "receives `parent` both as a positional argument" in next(e for e in errors if e.id == "urlchecker.E008").msg
+
+
+def test_positional_only_parameter_and_keyword_of_the_same_name_do_not_collide():
+    def view(request, parent, /, **kwargs):
+        return HttpResponse()
+
+    errors = _checked_urlconf([path("<int:parent>/", include([re_path(r"^f/([a-z]+)/$", view)]))])
+    assert "urlchecker.E008" not in _ids(errors)
+
+
+def test_optional_group_supplied_by_an_include_kwarg_is_always_present():
+    """Found by the fuzz tool: when the group doesn't match, Django keeps the include() kwarg."""
+
+    def view(request, p0: str | int):
+        return HttpResponse()
+
+    with_fallback = _checked_urlconf([path("x/", include([re_path(r"^f/(?P<p0>[a-z]+)?/$", view)]), {"p0": 3})])
+    without_fallback = _checked_urlconf([path("x/", include([re_path(r"^f/(?P<p0>[a-z]+)?/$", view)]))])
+    assert "urlchecker.W004" not in _ids(with_fallback)
+    assert "urlchecker.W004" in _ids(without_fallback)
