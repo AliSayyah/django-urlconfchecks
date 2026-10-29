@@ -1,6 +1,6 @@
 [project]
 name = "django-urlconfchecks"
-version = "0.16.0"
+version = "0.17.0"
 description = "a python package for type checking the urls and associated views."
 authors = [{ name = "ali sayyah", email = "ali.sayyah2@gmail.com" }]
 requires-python = ">=3.11"
@@ -54,7 +54,7 @@ doc = [
 Homepage = "https://github.com/AliSayyah/django-urlconfchecks"
 
 [tool.bumpversion]
-current_version = "0.16.0"
+current_version = "0.17.0"
 commit = true
 tag = true
 tag_name = "v{new_version}"
