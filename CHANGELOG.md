@@ -167,3 +167,17 @@
 - Python 3.10 support (end-of-life since 2026-10-01), and the `tomli` dependency it required.
 
 ## [Unreleased]
+
+### Added
+
+- VS Code usage documentation, including a ready-to-copy task (#186).
+
+### Changed
+
+- Replaced `bump2version` with `bump-my-version` in the development tooling.
+
+### Fixed
+
+- Emit at most one W002 warning per untyped converter class during a URL check.
+- CLI flags (`--format`, `--quiet`, …) silently failed with exit code 1 in projects detected via `manage.py`, because they were passed on to Django's own command line.
+- `--urlconf` could not import modules from the current directory when run via the installed `urlconfchecks` command.

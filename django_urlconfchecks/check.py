@@ -14,7 +14,7 @@ from django.core import checks
 from django.urls import URLPattern, URLResolver, converters, get_resolver
 from django.urls.resolvers import RoutePattern
 
-Problem = t.Union[checks.Error, checks.Warning]
+Problem = checks.Error | checks.Warning
 
 # Update docs about default value if you change this:
 _DEFAULT_SILENCED_VIEWS = {
@@ -28,7 +28,7 @@ _DEFAULT_SILENCED_VIEWS = {
 
 
 @checks.register(checks.Tags.urls)
-def check_url_signatures(app_configs, **kwargs) -> t.List[Problem]:
+def check_url_signatures(app_configs, **kwargs) -> list[Problem]:
     """Check that all callbacks in the main urlconf have the correct signature.
 
     Args:
@@ -44,12 +44,13 @@ def check_url_signatures(app_configs, **kwargs) -> t.List[Problem]:
     resolver = get_resolver()
     errors = []
     silencers = _build_view_silencers(getattr(settings, "URLCONFCHECKS_SILENCED_VIEWS", _DEFAULT_SILENCED_VIEWS))
+    unknown_converters = set()
     for route, parent_converters in get_all_routes(resolver, {}):
-        errors.extend(check_url_args_match(route, parent_converters))
+        errors.extend(check_url_args_match(route, parent_converters, unknown_converters))
     return _filter_errors(errors, silencers)
 
 
-def get_all_routes(resolver: URLResolver, parent_converters: dict) -> t.Iterable[t.Tuple[URLPattern, dict]]:
+def get_all_routes(resolver: URLResolver, parent_converters: dict) -> cabc.Iterable[tuple[URLPattern, dict]]:
     """Recursively get all routes from the resolver."""
     for pattern in resolver.url_patterns:
         if isinstance(pattern, URLResolver):
@@ -117,8 +118,12 @@ def _resolve_annotation(annotation, globalns):
         return Parameter.empty
 
 
-def check_url_args_match(url_pattern: URLPattern, parent_converters: dict) -> t.List[Problem]:
+def check_url_args_match(
+    url_pattern: URLPattern, parent_converters: dict, unknown_converters: set[type] | None = None
+) -> list[Problem]:
     """Check that all callbacks in the main urlconf have the correct signature."""
+    if unknown_converters is None:
+        unknown_converters = set()
     callback = url_pattern.callback
     callback_repr = _make_callback_repr(callback)
     errors = []
@@ -187,16 +192,17 @@ def check_url_args_match(url_pattern: URLPattern, parent_converters: dict) -> t.
             urlconf_type = get_converter_output_type(converter)
             sig_type = sig.parameters[name].annotation
             if urlconf_type == Parameter.empty:
-                # TODO - only output this warning once per converter
                 obj = converter.__class__
-                errors.append(
-                    checks.Warning(
-                        f"Don't know output type for converter {obj.__module__}.{obj.__name__},"
-                        " can't verify URL signatures.",
-                        obj=obj,
-                        id=f'urlchecker.W002.{obj.__module__}.{obj.__name__}',
+                if obj not in unknown_converters:
+                    unknown_converters.add(obj)
+                    errors.append(
+                        checks.Warning(
+                            f"Don't know output type for converter {obj.__module__}.{obj.__name__},"
+                            " can't verify URL signatures.",
+                            obj=obj,
+                            id=f'urlchecker.W002.{obj.__module__}.{obj.__name__}',
+                        )
                     )
-                )
             elif sig_type == Parameter.empty:
                 errors.append(
                     # This should be synced with W003 below.
@@ -374,7 +380,7 @@ def _instance_candidate_matches(instance, candidate) -> bool:
         return False
 
 
-def _iter_type_candidates(annotation, include_none: bool) -> t.Tuple[t.Any, ...]:
+def _iter_type_candidates(annotation, include_none: bool) -> tuple[t.Any, ...]:
     """Return a tuple of acceptable types for compatibility checks."""
     if annotation is Parameter.empty:
         return ()
@@ -409,7 +415,7 @@ def _name_type(type_hint):
     return type_hint.__name__ if (hasattr(type_hint, "__name__") and isinstance(type_hint, type)) else repr(type_hint)
 
 
-ConverterOutputType: t.TypeAlias = t.Union[type[int], type[str], type[uuid.UUID], t.Type[_empty]]
+ConverterOutputType: t.TypeAlias = type[int] | type[str] | type[uuid.UUID] | type[_empty]
 
 CONVERTER_TYPES: dict[type, ConverterOutputType] = {
     converters.IntConverter: int,
@@ -425,7 +431,7 @@ def get_converter_output_type(converter) -> ConverterOutputType:
     return _converter_output_type_for_class(converter.__class__)
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def _converter_output_type_for_class(converter_cls) -> ConverterOutputType:
     """Cached resolution of converter output type by class."""
     for cls in converter_cls.__mro__:
@@ -443,7 +449,7 @@ def _converter_output_type_for_class(converter_cls) -> ConverterOutputType:
 class ViewSilencer:
     """Utility that checks whether errors for a view or set of views should be ignored."""
 
-    def __init__(self, view_glob: str, errors: t.Iterable[str]):
+    def __init__(self, view_glob: str, errors: cabc.Iterable[str]):
         self.view_glob = view_glob
         self.errors = set(errors)
 
@@ -462,12 +468,12 @@ class ViewSilencer:
         return False
 
 
-def _build_view_silencers(silenced_views: t.Dict[str, str]) -> t.List[ViewSilencer]:
+def _build_view_silencers(silenced_views: dict[str, str]) -> list[ViewSilencer]:
     return [
         ViewSilencer(view_glob=view_glob, errors=[f"urlchecker.{error}" for error in error_list.split(",")])
         for view_glob, error_list in silenced_views.items()
     ]
 
 
-def _filter_errors(errors: t.List[Problem], silencers: t.List[ViewSilencer]) -> t.List[Problem]:
+def _filter_errors(errors: list[Problem], silencers: list[ViewSilencer]) -> list[Problem]:
     return [error for error in errors if not any(silencer.matches(error) for silencer in silencers)]

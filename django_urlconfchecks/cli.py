@@ -1,16 +1,14 @@
 """CLI module for django_urlconfchecks."""
 
-from typing import Literal, Optional
-
-from django.core.checks import Error
+from typing import Literal
 
 from django_urlconfchecks import __version__
 from django_urlconfchecks.cli_utils import setup_django
 from django_urlconfchecks.config import load_config
 
 try:
-    import django
     from django.conf import settings as django_settings
+    from django.core.checks import Error
 except ImportError:
     raise ImportError('django_urlconfchecks requires django. Install it with `pip install django`.') from None
 
@@ -29,18 +27,14 @@ def version_callback(value: bool):
 # noinspection PyUnusedLocal
 @app.command()
 def run(
-    version: Optional[bool] = typer.Option(None, "--version", callback=version_callback),
-    urlconf: Optional[str] = typer.Option(None, "-u", "--urlconf", help="Specify the URLconf to check."),
-    quiet: Optional[bool] = typer.Option(
+    version: bool | None = typer.Option(None, "--version", callback=version_callback),
+    urlconf: str | None = typer.Option(None, "-u", "--urlconf", help="Specify the URLconf to check."),
+    quiet: bool | None = typer.Option(
         None, "--quiet", "-q", help="Suppress human-friendly output; exit codes still set."
     ),
-    format: Optional[Literal["json"]] = typer.Option(None, "--format", "-f", help="Output format. Supported: json."),
+    format: Literal["json"] | None = typer.Option(None, "--format", "-f", help="Output format. Supported: json."),
 ) -> None:
     """Check all URLConfs for errors."""
-    if django.VERSION[0:2] < (4, 2):
-        typer.secho("Django version 4.2 or higher is required.", fg=typer.colors.RED)
-        raise typer.Exit(1)
-
     config = load_config()
 
     setup_django(urlconf=urlconf)

@@ -1,7 +1,5 @@
 """util functions for tests."""
 
-import typing
-
 from django.core import checks
 from django.urls import URLPattern
 from django.urls.resolvers import RoutePattern
@@ -42,9 +40,7 @@ def url_pattern_eql(urlpatterns: URLPattern, expected_urlpatterns: URLPattern) -
     )
 
 
-def error_eql(
-    error: typing.Union[checks.Error, checks.Warning], expected_error: typing.Union[checks.Error, checks.Warning]
-) -> bool:
+def error_eql(error: checks.Error | checks.Warning, expected_error: checks.Error | checks.Warning) -> bool:
     """Compare two Error objects.
 
     Args:

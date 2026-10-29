@@ -43,8 +43,7 @@ dev = [
     "pre-commit>=4.7.0,<5",
     "virtualenv>=21.15.1,<22",
     "twine>=7.0.0,<8",
-    "toml~=0.10.2",
-    "bump2version~=1.0.1",
+    "bump-my-version>=1.6.7,<2",
 ]
 doc = [
     "zensical>=0.0.73,<0.1",
@@ -52,6 +51,37 @@ doc = [
 
 [project.urls]
 Homepage = "https://github.com/AliSayyah/django-urlconfchecks"
+
+[tool.bumpversion]
+current_version = "0.14.0"
+commit = true
+tag = true
+tag_name = "v{new_version}"
+allow_dirty = false
+message = "Bump version: {current_version} → {new_version}"
+tag_message = "Bump version: {current_version} → {new_version}"
+pre_commit_hooks = ["uv lock", "git add uv.lock"]
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = '(^\[project\]\n(?:(?!^\[).)*?^version = )"{current_version}"'
+replace = '\g<1>"{new_version}"'
+regex = true
+
+[[tool.bumpversion.files]]
+filename = "django_urlconfchecks/__init__.py"
+search = "__version__ = '{current_version}'"
+replace = "__version__ = '{new_version}'"
+
+[[tool.bumpversion.files]]
+filename = "README.md"
+search = "rev: v{current_version}"
+replace = "rev: v{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "docs/usage.md"
+search = "rev: v{current_version}"
+replace = "rev: v{new_version}"
 
 [project.scripts]
 urlconfchecks = "django_urlconfchecks.cli:app"
@@ -93,9 +123,9 @@ skip-magic-trailing-comma = false
 line-ending = "lf"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "D", "W", "C90"]
+select = ["E", "F", "I", "B", "D", "W", "C90", "UP"]
 ignore = ["E203", "E266", "D107", "C901"]
-per-file-ignores = { "__init__.py" = ["F401"], "tests/*" = ["D101", "D102", "D103"] }
+per-file-ignores = { "__init__.py" = ["F401"], "tests/*" = ["D101", "D102", "D103"], "tests/dummy_project/*" = ["UP"] }
 
 [tool.ruff.lint.mccabe]
 max-complexity = 18

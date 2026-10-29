@@ -66,6 +66,31 @@ Then, add the following to your `.pre-commit-config.yaml` file:
 
 Run `pre-commit run` to check all URLConfs for errors.
 
+### In VS Code
+
+The checks run as part of `python manage.py check`, so you can run that command
+from a VS Code task or terminal. You can also run the standalone `urlconfchecks`
+command. For example, save this as `.vscode/tasks.json`:
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Check URLConfs",
+      "type": "shell",
+      "command": "urlconfchecks",
+      "problemMatcher": [],
+      "group": "test"
+    }
+  ]
+}
+```
+
+The task leaves output in the terminal because the human-readable CLI output
+does not use a stable `file:line:message` format. The pre-commit hook above is
+also available for checks before each commit.
+
 ## Configuration defaults
 
 You can set defaults in `pyproject.toml` so teams don’t repeat flags:
