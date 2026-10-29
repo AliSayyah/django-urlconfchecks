@@ -3,6 +3,7 @@
 import collections.abc as cabc
 import fnmatch
 import functools
+import inspect
 import types
 import typing as t
 import uuid
@@ -230,15 +231,15 @@ def _mark_optional_branch(argument, parser, repeat_ops, optional, inherited_opti
 
 
 def _make_callback_repr(callback):
-    if hasattr(callback, "view_class"):
-        qualname = callback.view_class.as_view.__qualname__
-        module = callback.view_class.as_view.__module__
+    view_class = getattr(callback, "view_class", None)
+    if view_class is not None and hasattr(view_class, "as_view"):
+        target = view_class.as_view
     elif isinstance(callback, functools.partial):
-        qualname = callback.func.__qualname__
-        module = callback.func.__module__
+        target = callback.func
     else:
-        qualname = callback.__qualname__
-        module = callback.__module__
+        target = callback
+    qualname = getattr(target, "__qualname__", type(target).__qualname__)
+    module = getattr(target, "__module__", type(target).__module__)
     return f"{module}.{qualname}"
 
 
@@ -300,13 +301,50 @@ def check_url_args_match(
 def _check_route_info(route: _RouteInfo, unknown_converters: set[type]) -> list[Problem]:
     """Check one leaf route against the arguments Django passes."""
     url_pattern = route.pattern
-    callback_repr = _make_callback_repr(url_pattern.callback)
-    sig = _get_signature(url_pattern.callback)
+    callback = url_pattern.callback
+    cbv_handlers = _get_cbv_handlers(callback)
+    if cbv_handlers is not None:
+        errors: list[Problem] = []
+        for handler, callback_repr, class_repr in cbv_handlers:
+            errors.extend(
+                _check_callable_route(
+                    route,
+                    handler,
+                    callback_repr,
+                    unknown_converters,
+                    is_cbv_handler=True,
+                    class_repr=class_repr,
+                )
+            )
+        return errors
+
+    try:
+        return _check_callable_route(route, callback, _make_callback_repr(callback), unknown_converters)
+    except (TypeError, ValueError):
+        if _has_cbv_attributes(callback):
+            return []
+        raise
+
+
+def _check_callable_route(
+    route: _RouteInfo,
+    callback,
+    callback_repr: str,
+    unknown_converters: set[type],
+    *,
+    is_cbv_handler: bool = False,
+    class_repr: str | None = None,
+) -> list[Problem]:
+    """Check one callable using the arguments accumulated for a URL route."""
+    url_pattern = route.pattern
+    sig = _get_signature(callback)
+    if is_cbv_handler:
+        sig = _drop_handler_self(sig)
     parameters = sig.parameters
     has_varargs, has_varkw = _star_argument_flags(parameters)
     errors: list[Problem] = []
 
-    _append_star_args_warning(errors, url_pattern, callback_repr, has_varargs or has_varkw)
+    _append_star_args_warning(errors, url_pattern, callback_repr, has_varargs or has_varkw, is_cbv_handler)
     used_from_sig = _check_request_parameter(errors, url_pattern, callback_repr, sig, has_varargs or has_varkw)
     _check_route_kwargs(
         errors,
@@ -320,7 +358,174 @@ def _check_route_info(route: _RouteInfo, unknown_converters: set[type]) -> list[
     )
     _check_positional_arguments(errors, route, url_pattern, callback_repr, parameters, has_varargs, used_from_sig)
     _check_leftover_required_parameters(errors, url_pattern, callback_repr, parameters, used_from_sig)
+    # Record which view (and CBV class) each problem is about, for ViewSilencer.
+    for error in errors:
+        if error.obj is url_pattern:
+            setattr(error, _VIEW_NAME_ATTR, callback_repr)
+            if class_repr is not None:
+                setattr(error, _VIEW_CLASS_NAME_ATTR, class_repr)
     return errors
+
+
+_VIEW_NAME_ATTR = "_urlchecker_view_name"
+_VIEW_CLASS_NAME_ATTR = "_urlchecker_view_class_name"
+
+_HANDLER_MISSING = object()
+_HANDLER_SKIP = object()
+_HANDLER_INVALID = object()
+
+
+def _get_cbv_handlers(callback):
+    """Return resolved CBV handlers, or ``None`` for an ordinary callback."""
+    try:
+        view_class = getattr(callback, "view_class", None)
+    except Exception:
+        view_class = None
+    if isinstance(view_class, type):
+        return _get_django_handlers(view_class)
+
+    try:
+        view_class = getattr(callback, "cls", None)
+        actions = getattr(callback, "actions", None)
+    except Exception:
+        return None
+    if isinstance(view_class, type) and isinstance(actions, cabc.Mapping):
+        return _get_viewset_handlers(view_class, actions)
+    return None
+
+
+def _has_cbv_attributes(callback) -> bool:
+    """Return whether a callback advertises CBV metadata, even if it is malformed."""
+    return any(inspect.getattr_static(callback, name, None) is not None for name in ("view_class", "cls", "actions"))
+
+
+def _class_repr(view_class) -> str:
+    """Return the stable dotted name used for CBV handlers and silencing."""
+    return f"{view_class.__module__}.{view_class.__qualname__}"
+
+
+def _get_django_handlers(view_class):
+    """Resolve Django/APIView methods exposed by a class-based view."""
+    method_names = _django_handler_names(view_class)
+    if method_names is None:
+        return None
+
+    class_repr = _class_repr(view_class)
+    handlers = []
+    for name in method_names:
+        handler = _resolve_class_handler(view_class, name)
+        if handler is _HANDLER_MISSING:
+            continue
+        if handler is _HANDLER_SKIP:
+            continue
+        if handler is _HANDLER_INVALID:
+            return None
+        handlers.append((handler, f"{class_repr}.{name}", class_repr))
+
+    dispatch = _resolve_explicit_dispatch(view_class)
+    if dispatch is _HANDLER_INVALID:
+        return None
+    if dispatch not in (_HANDLER_MISSING, _HANDLER_SKIP):
+        handlers.append((dispatch, f"{class_repr}.dispatch", class_repr))
+    return handlers
+
+
+def _django_handler_names(view_class):
+    """Return the HTTP handler names that should be inspected."""
+    try:
+        method_names = tuple(view_class.http_method_names)
+    except Exception:
+        return None
+    return tuple(
+        name for name in method_names if isinstance(name, str) and (name != "head" or _has_explicit_head(view_class))
+    )
+
+
+def _resolve_explicit_dispatch(view_class):
+    """Return an explicit dispatch handler, or a sentinel when there is none."""
+    dispatch = _resolve_class_handler(view_class, "dispatch")
+    if dispatch in (_HANDLER_MISSING, _HANDLER_SKIP, _HANDLER_INVALID):
+        return dispatch
+    if _dispatch_has_explicit_parameters(dispatch):
+        return dispatch
+    return _HANDLER_MISSING
+
+
+def _get_viewset_handlers(view_class, actions):
+    """Resolve the action methods selected by a DRF ViewSet callback."""
+    class_repr = _class_repr(view_class)
+    handlers = []
+    try:
+        action_names = tuple(dict.fromkeys(actions.values()))
+    except Exception:
+        return None
+    for name in action_names:
+        if not isinstance(name, str):
+            return None
+        handler = _resolve_class_handler(view_class, name)
+        if handler is _HANDLER_MISSING or handler is _HANDLER_INVALID:
+            return None
+        if handler is _HANDLER_SKIP:
+            continue
+        handlers.append((handler, f"{class_repr}.{name}", class_repr))
+    return handlers
+
+
+def _resolve_class_handler(view_class, name):
+    """Resolve a normal function handler while rejecting descriptors that cannot be handlers."""
+    try:
+        raw_handler = inspect.getattr_static(view_class, name)
+    except AttributeError:
+        return _HANDLER_MISSING
+    except Exception:
+        return _HANDLER_INVALID
+    if isinstance(raw_handler, (staticmethod, classmethod)):
+        return _HANDLER_SKIP
+    try:
+        handler = getattr(view_class, name)
+    except Exception:
+        return _HANDLER_INVALID
+    if not callable(handler):
+        return _HANDLER_INVALID
+    try:
+        _get_signature(handler)
+    except Exception:
+        return _HANDLER_INVALID
+    return handler
+
+
+def _has_explicit_head(view_class) -> bool:
+    """Return whether ``head`` is defined independently of ``get`` in the MRO."""
+    head = _resolve_class_handler(view_class, "head")
+    if head in (_HANDLER_MISSING, _HANDLER_SKIP, _HANDLER_INVALID):
+        return False
+    get = _resolve_class_handler(view_class, "get")
+    if get not in (_HANDLER_MISSING, _HANDLER_SKIP, _HANDLER_INVALID) and head is get:
+        return False
+    return True
+
+
+def _drop_handler_self(sig):
+    """Remove the unbound handler's instance parameter before checking it."""
+    parameters = list(sig.parameters.values())
+    if parameters:
+        parameters.pop(0)
+    return sig.replace(parameters=parameters)
+
+
+def _dispatch_has_explicit_parameters(dispatch) -> bool:
+    """Return whether an overridden dispatch has parameters worth checking."""
+    try:
+        sig = _drop_handler_self(_get_signature(dispatch))
+    except Exception:
+        return False
+    parameters = tuple(sig.parameters.values())
+    if any(
+        parameter.name != "request" and parameter.kind not in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD)
+        for parameter in parameters
+    ):
+        return True
+    return not any(parameter.kind in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD) for parameter in parameters)
 
 
 def _star_argument_flags(parameters) -> tuple[bool, bool]:
@@ -330,9 +535,9 @@ def _star_argument_flags(parameters) -> tuple[bool, bool]:
     return has_varargs, has_varkw
 
 
-def _append_star_args_warning(errors, url_pattern, callback_repr, has_star_args):
+def _append_star_args_warning(errors, url_pattern, callback_repr, has_star_args, is_cbv_handler=False):
     """Append W001 when a view uses variable positional or keyword arguments."""
-    if has_star_args:
+    if has_star_args and not is_cbv_handler:
         errors.append(
             checks.Warning(
                 f"View {callback_repr} signature contains *args or **kwarg syntax, can't properly check args",
@@ -733,10 +938,11 @@ class ViewSilencer:
         if error.id not in self.errors:
             return False
 
-        view_name = _make_callback_repr(url_pattern.callback)
+        view_name = getattr(error, _VIEW_NAME_ATTR, None) or _make_callback_repr(url_pattern.callback)
         if fnmatch.fnmatch(view_name, self.view_glob):
             return True
-        return False
+        class_name = getattr(error, _VIEW_CLASS_NAME_ATTR, None)
+        return class_name is not None and fnmatch.fnmatch(class_name, self.view_glob)
 
 
 def _build_view_silencers(silenced_views: dict[str, str]) -> list[ViewSilencer]:
