@@ -16,7 +16,9 @@ Add `django_urlconfchecks` to your `INSTALLED_APPS` list in your `settings.py` f
 Now, if there is any error, you can check it when you run `python manage.py check` or when your django server runs or
 reloads with `python manage.py runserver`.
 
-The checker follows Django's resolver argument passing for `path()`, `re_path()`, nested `include()` calls, converter and regex captures, positional regex groups, and URL pattern keyword arguments. `urlchecker.E007` reports too many positional regex arguments, and `urlchecker.W004` warns when an optional regex capture has no default in the view signature.
+The checker follows Django's resolver argument passing for `path()`, `re_path()`, nested `include()` calls, converter and regex captures, positional regex groups, and URL pattern keyword arguments. It also checks Django and DRF class-based view handlers, including inherited handlers and DRF ViewSet actions. `urlchecker.E007` reports too many positional regex arguments, and `urlchecker.W004` warns when an optional regex capture has no default in the view signature. `urlchecker.W001` is reported for function views with star arguments; Django and DRF handlers use star arguments without that warning.
+
+The error codes are `E001` (missing request parameter), `E002` (converter type mismatch), `E003` (missing URL parameter), `E004` (required parameter without a URL source), `E005` (extra argument type mismatch), `E006` (unexpected extra argument), and `E007` (too many positional URL arguments). Warnings are `W001` (star arguments on function views), `W002` (unknown converter output), `W003` (missing annotation), and `W004` (optional regex capture without a default).
 
 ### As a command line tool
 
@@ -131,7 +133,9 @@ silencing. The value must be a dictionary:
 
 - whose keys are fully qualified dotted paths to view functions or callables,
   with globbing syntax allowed, e.g. `"my_project.views.my_view"` or
-  `"other_project.*"`
+  `"other_project.*"`. For a class-based view, use a handler name such as
+  `"my_project.views.ArticleView.get"`, `"my_project.views.ArticleView.*"`
+  for all handlers, or `"my_project.views.ArticleView"` for the whole class.
 
 - whose values are comma separated lists of warning or error IDs (without the
   `urlchecker` prefix), e.g. `"E001,W003”`
@@ -143,7 +147,7 @@ more items:
 
 ```python
 URLCONFCHECKS_SILENCED_VIEWS = {
-    "*.View.as_view": "W001",  # CBVs
+    "*.View.as_view": "W001",  # legacy/unresolved CBV callbacks
     "django.views.generic.base.RedirectView": "W001",
     "django.contrib.*": "W003",  # admin etc.
 }

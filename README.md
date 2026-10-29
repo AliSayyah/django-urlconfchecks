@@ -12,6 +12,8 @@ Static checker that keeps your URL patterns and view annotations in sync, using 
 
 The checker follows Django's resolver argument passing for `path()`, `re_path()`, nested `include()` calls, converter and regex captures, positional regex groups, and URL pattern keyword arguments.
 
+For class-based views, it checks the methods selected by `as_view()` and DRF ViewSet actions, including handlers inherited from user base classes. It uses the same route arguments for each handler. The `W001` star-argument warning is not emitted for class-based view handlers because `*args` and `**kwargs` are normal in Django generic views.
+
 * [Documentation](https://AliSayyah.github.io/django-urlconfchecks)
 * [GitHub](https://github.com/AliSayyah/django-urlconfchecks)
 * [PyPI](https://pypi.org/project/django-urlconfchecks/)
@@ -159,7 +161,9 @@ JSON (`--format json`):
 }
 ```
 
-The checks include type mismatches (`E002` and `E005`), missing or unexpected view arguments (`E003`, `E004`, and `E006`), too many positional regex arguments (`E007`), and warnings for unknown converter output types (`W002`), missing annotations (`W003`), and optional regex groups without a view default (`W004`).
+The checks include type mismatches (`E002` and `E005`), missing or unexpected view arguments (`E003`, `E004`, and `E006`), too many positional regex arguments (`E007`), and warnings for star arguments (`W001` on function views), unknown converter output types (`W002`), missing annotations (`W003`), and optional regex groups without a view default (`W004`).
+
+Use `URLCONFCHECKS_SILENCED_VIEWS` for fine-grained silencing. Class-based view handler errors use names such as `my_project.views.ArticleView.get`; `my_project.views.ArticleView.*` matches all handlers, and `my_project.views.ArticleView` matches the whole class. Function-view names keep the existing behavior.
 
 ## Credits
 

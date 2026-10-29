@@ -8,9 +8,14 @@
 
 ### Added
 
+- Check Django and DRF class-based view handlers, including inherited handlers and DRF ViewSet actions.
 - Check `re_path()` views, including positional regex captures.
 - Add `urlchecker.E007` for too many positional URL arguments and `urlchecker.W004` for optional regex captures without a view default.
 - Continue checking named parameters and required leftovers on views with `*args` or `**kwargs`; this can report additional true positives alongside `W001`.
+
+### Changed
+
+- Do not emit `urlchecker.W001` for class-based view handlers. Their explicit parameters are still checked, and star arguments accept the corresponding URL arguments.
 
 ## [0.1.0] - 2022-01-28
 
