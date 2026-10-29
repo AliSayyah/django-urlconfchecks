@@ -1,6 +1,6 @@
 [project]
 name = "django-urlconfchecks"
-version = "0.13.2"
+version = "0.14.0"
 description = "a python package for type checking the urls and associated views."
 authors = [{ name = "ali sayyah", email = "ali.sayyah2@gmail.com" }]
 requires-python = ">=3.11"

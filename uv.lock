@@ -537,7 +537,7 @@ wheels = [
 
 [[package]]
 name = "django-urlconfchecks"
-version = "0.13.2"
+version = "0.14.0"
 source = { editable = "." }
 dependencies = [
     { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
