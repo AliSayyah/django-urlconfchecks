@@ -171,42 +171,62 @@ def _optional_regex_groups(regex) -> set[int]:
     if hasattr(parser, "POSSESSIVE_REPEAT"):
         repeat_ops.add(parser.POSSESSIVE_REPEAT)
 
-    def group_numbers(tokens):
-        found = set()
-        for operation, argument in tokens:
-            if operation is parser.SUBPATTERN:
-                group_number, _, _, nested = argument
-                if group_number:
-                    found.add(group_number)
-                found.update(group_numbers(nested))
-            elif operation in repeat_ops:
-                found.update(group_numbers(argument[2]))
-            elif operation is parser.BRANCH:
-                found.update(*(group_numbers(branch) for branch in argument[1]))
-        return found
-
-    def visit(tokens, inherited_optional=False):
-        for operation, argument in tokens:
-            if operation is parser.SUBPATTERN:
-                group_number, _, _, nested = argument
-                if group_number and inherited_optional:
-                    optional.add(group_number)
-                visit(nested, inherited_optional)
-            elif operation in repeat_ops:
-                minimum, _, nested = argument
-                visit(nested, inherited_optional or minimum == 0)
-            elif operation is parser.BRANCH:
-                branches = argument[1]
-                branch_groups = [group_numbers(branch) for branch in branches]
-                for branch in branches:
-                    visit(branch, inherited_optional)
-                all_groups = set().union(*branch_groups) if branch_groups else set()
-                for group_number in all_groups:
-                    if any(group_number not in groups for groups in branch_groups):
-                        optional.add(group_number)
-
-    visit(parsed)
+    _mark_optional_regex_groups(parsed, parser, repeat_ops, optional)
     return optional
+
+
+def _regex_group_numbers(tokens, parser, repeat_ops) -> set[int]:
+    """Return capture group numbers found in parsed regex tokens."""
+    groups: set[int] = set()
+    for operation, argument in tokens:
+        if operation is parser.SUBPATTERN:
+            group_number, _, _, nested = argument
+            if group_number:
+                groups.add(group_number)
+            groups.update(_regex_group_numbers(nested, parser, repeat_ops))
+        elif operation in repeat_ops:
+            groups.update(_regex_group_numbers(argument[2], parser, repeat_ops))
+        elif operation is parser.BRANCH:
+            for branch in argument[1]:
+                groups.update(_regex_group_numbers(branch, parser, repeat_ops))
+    return groups
+
+
+def _mark_optional_regex_groups(tokens, parser, repeat_ops, optional: set[int], inherited_optional=False):
+    """Mark parsed regex groups that can be absent from a match."""
+    for operation, argument in tokens:
+        if operation is parser.SUBPATTERN:
+            _mark_optional_subpattern(argument, parser, repeat_ops, optional, inherited_optional)
+        elif operation in repeat_ops:
+            _mark_optional_repeat(argument, parser, repeat_ops, optional, inherited_optional)
+        elif operation is parser.BRANCH:
+            _mark_optional_branch(argument, parser, repeat_ops, optional, inherited_optional)
+
+
+def _mark_optional_subpattern(argument, parser, repeat_ops, optional, inherited_optional):
+    """Mark a subpattern group and inspect its nested tokens."""
+    group_number, _, _, nested = argument
+    if group_number and inherited_optional:
+        optional.add(group_number)
+    _mark_optional_regex_groups(nested, parser, repeat_ops, optional, inherited_optional)
+
+
+def _mark_optional_repeat(argument, parser, repeat_ops, optional, inherited_optional):
+    """Inspect a repeated token and propagate its optionality."""
+    minimum, _, nested = argument
+    _mark_optional_regex_groups(nested, parser, repeat_ops, optional, inherited_optional or minimum == 0)
+
+
+def _mark_optional_branch(argument, parser, repeat_ops, optional, inherited_optional):
+    """Mark groups that are absent from at least one alternation branch."""
+    branches = argument[1]
+    branch_groups = [_regex_group_numbers(branch, parser, repeat_ops) for branch in branches]
+    for branch in branches:
+        _mark_optional_regex_groups(branch, parser, repeat_ops, optional, inherited_optional)
+    all_groups = set().union(*branch_groups) if branch_groups else set()
+    for group_number in all_groups:
+        if any(group_number not in groups for groups in branch_groups):
+            optional.add(group_number)
 
 
 def _make_callback_repr(callback):
@@ -278,17 +298,40 @@ def check_url_args_match(
 
 
 def _check_route_info(route: _RouteInfo, unknown_converters: set[type]) -> list[Problem]:
-    """Check one leaf route against the arguments Django will pass."""
+    """Check one leaf route against the arguments Django passes."""
     url_pattern = route.pattern
-    callback = url_pattern.callback
-    callback_repr = _make_callback_repr(callback)
-    errors: list[Problem] = []
-    sig = _get_signature(callback)
+    callback_repr = _make_callback_repr(url_pattern.callback)
+    sig = _get_signature(url_pattern.callback)
     parameters = sig.parameters
+    has_varargs, has_varkw = _star_argument_flags(parameters)
+    errors: list[Problem] = []
 
+    _append_star_args_warning(errors, url_pattern, callback_repr, has_varargs or has_varkw)
+    used_from_sig = _check_request_parameter(errors, url_pattern, callback_repr, sig, has_varargs or has_varkw)
+    _check_route_kwargs(
+        errors,
+        route,
+        url_pattern,
+        callback_repr,
+        parameters,
+        has_varkw,
+        used_from_sig,
+        unknown_converters,
+    )
+    _check_positional_arguments(errors, route, url_pattern, callback_repr, parameters, has_varargs, used_from_sig)
+    _check_leftover_required_parameters(errors, url_pattern, callback_repr, parameters, used_from_sig)
+    return errors
+
+
+def _star_argument_flags(parameters) -> tuple[bool, bool]:
+    """Return whether a signature has ``*args`` or ``**kwargs``."""
     has_varargs = any(parameter.kind is Parameter.VAR_POSITIONAL for parameter in parameters.values())
     has_varkw = any(parameter.kind is Parameter.VAR_KEYWORD for parameter in parameters.values())
-    has_star_args = has_varargs or has_varkw
+    return has_varargs, has_varkw
+
+
+def _append_star_args_warning(errors, url_pattern, callback_repr, has_star_args):
+    """Append W001 when a view uses variable positional or keyword arguments."""
     if has_star_args:
         errors.append(
             checks.Warning(
@@ -298,6 +341,9 @@ def _check_route_info(route: _RouteInfo, unknown_converters: set[type]) -> list[
             )
         )
 
+
+def _check_request_parameter(errors, url_pattern, callback_repr, sig, has_star_args) -> list[str]:
+    """Check the request parameter and return parameters already supplied."""
     used_from_sig: list[str] = []
     parameter_list = list(sig.parameters)
     if parameter_list and parameter_list[0] == "self":
@@ -318,72 +364,120 @@ def _check_route_info(route: _RouteInfo, unknown_converters: set[type]) -> list[
             errors.append(checks.Error(message, obj=url_pattern, id="urlchecker.E001"))
     else:
         used_from_sig.append("request")
+    return used_from_sig
 
+
+def _check_route_kwargs(
+    errors,
+    route,
+    url_pattern,
+    callback_repr,
+    parameters,
+    has_varkw,
+    used_from_sig,
+    unknown_converters,
+):
+    """Check keyword arguments captured or supplied by a route."""
     for name, argument in route.kwargs.items():
         parameter = parameters.get(name)
         if parameter is None:
             if has_varkw:
                 continue
-            if argument.kind in {"extra", "include_extra"}:
-                if argument.kind == "include_extra":
-                    message = (
-                        f"View {callback_repr} is being passed additional unexpected parameter `{name}` "
-                        "from include() kwargs"
-                    )
-                else:
-                    message = (
-                        f"View {callback_repr} is being passed additional unexpected "
-                        f"parameter `{name}` from default arguments in urlconf"
-                    )
-                errors.append(checks.Error(message, obj=url_pattern, id="urlchecker.E006"))
-            else:
-                errors.append(
-                    checks.Error(
-                        f"View {callback_repr} signature does not contain `{name}` parameter",
-                        obj=url_pattern,
-                        id="urlchecker.E003",
-                    )
-                )
+            _report_unaccepted_route_argument(errors, url_pattern, callback_repr, name, argument)
             continue
 
         used_from_sig.append(name)
-        if argument.kind == "converter":
-            urlconf_type = get_converter_output_type(argument.value)
-            if urlconf_type is Parameter.empty:
-                converter = argument.value
-                obj = converter.__class__
-                if obj not in unknown_converters:
-                    unknown_converters.add(obj)
-                    errors.append(
-                        checks.Warning(
-                            f"Don't know output type for converter {obj.__module__}.{obj.__name__},"
-                            " can't verify URL signatures.",
-                            obj=obj,
-                            id=f"urlchecker.W002.{obj.__module__}.{obj.__name__}",
-                        )
-                    )
-            else:
-                _check_typed_argument(errors, url_pattern, callback_repr, name, urlconf_type, parameter.annotation)
-        elif argument.kind == "regex":
-            _check_typed_argument(errors, url_pattern, callback_repr, name, str, parameter.annotation)
-            if argument.optional and parameter.default is Parameter.empty:
-                errors.append(
-                    checks.Warning(
-                        f"View {callback_repr} parameter `{name}` is captured by an optional regex group "
-                        "but has no default",
-                        obj=url_pattern,
-                        id="urlchecker.W004",
-                    )
-                )
-        else:
-            _check_extra_argument(errors, url_pattern, callback_repr, name, argument, parameter.annotation)
+        _check_route_kwarg_value(
+            errors,
+            url_pattern,
+            callback_repr,
+            name,
+            argument,
+            parameter,
+            unknown_converters,
+        )
 
-    positional_parameters = [
+
+def _report_unaccepted_route_argument(errors, url_pattern, callback_repr, name, argument):
+    """Report a route keyword with no matching named view parameter."""
+    if argument.kind in {"extra", "include_extra"}:
+        if argument.kind == "include_extra":
+            message = (
+                f"View {callback_repr} is being passed additional unexpected parameter `{name}` from include() kwargs"
+            )
+        else:
+            message = (
+                f"View {callback_repr} is being passed additional unexpected "
+                f"parameter `{name}` from default arguments in urlconf"
+            )
+        errors.append(checks.Error(message, obj=url_pattern, id="urlchecker.E006"))
+    else:
+        errors.append(
+            checks.Error(
+                f"View {callback_repr} signature does not contain `{name}` parameter",
+                obj=url_pattern,
+                id="urlchecker.E003",
+            )
+        )
+
+
+def _check_route_kwarg_value(errors, url_pattern, callback_repr, name, argument, parameter, unknown_converters):
+    """Check one route keyword against its named view parameter."""
+    if argument.kind == "converter":
+        _check_converter_argument(
+            errors, url_pattern, callback_repr, name, argument.value, parameter, unknown_converters
+        )
+    elif argument.kind == "regex":
+        _check_regex_argument(errors, url_pattern, callback_repr, name, argument, parameter)
+    else:
+        _check_extra_argument(errors, url_pattern, callback_repr, name, argument, parameter.annotation)
+
+
+def _check_converter_argument(errors, url_pattern, callback_repr, name, converter, parameter, unknown_converters):
+    """Check a converter capture against a named view parameter."""
+    urlconf_type = get_converter_output_type(converter)
+    if urlconf_type is Parameter.empty:
+        obj = converter.__class__
+        if obj not in unknown_converters:
+            unknown_converters.add(obj)
+            errors.append(
+                checks.Warning(
+                    f"Don't know output type for converter {obj.__module__}.{obj.__name__},"
+                    " can't verify URL signatures.",
+                    obj=obj,
+                    id=f"urlchecker.W002.{obj.__module__}.{obj.__name__}",
+                )
+            )
+    else:
+        _check_typed_argument(errors, url_pattern, callback_repr, name, urlconf_type, parameter.annotation)
+
+
+def _check_regex_argument(errors, url_pattern, callback_repr, name, argument, parameter):
+    """Check a regex capture against a named view parameter."""
+    _check_typed_argument(errors, url_pattern, callback_repr, name, str, parameter.annotation)
+    if argument.optional and parameter.default is Parameter.empty:
+        errors.append(
+            checks.Warning(
+                f"View {callback_repr} parameter `{name}` is captured by an optional regex group but has no default",
+                obj=url_pattern,
+                id="urlchecker.W004",
+            )
+        )
+
+
+def _positional_parameters(parameters):
+    """Return named parameters that can receive positional URL arguments."""
+    return [
         (name, parameter)
         for name, parameter in parameters.items()
         if name not in {"self", "request"}
         and parameter.kind in (Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD)
     ]
+
+
+def _check_positional_arguments(errors, route, url_pattern, callback_repr, parameters, has_varargs, used_from_sig):
+    """Map positional URL arguments to named view parameters and check types."""
+    positional_parameters = _positional_parameters(parameters)
     if len(route.positional) > len(positional_parameters) and not has_varargs:
         errors.append(
             checks.Error(
@@ -398,7 +492,9 @@ def _check_route_info(route: _RouteInfo, unknown_converters: set[type]) -> list[
         used_from_sig.append(name)
         _check_typed_argument(errors, url_pattern, callback_repr, name, str, parameter.annotation)
 
-    # Anything left over must have a default argument in the view signature.
+
+def _check_leftover_required_parameters(errors, url_pattern, callback_repr, parameters, used_from_sig):
+    """Report required view parameters with no URL source or default."""
     for name, parameter in parameters.items():
         if name in used_from_sig:
             continue
@@ -412,8 +508,6 @@ def _check_route_info(route: _RouteInfo, unknown_converters: set[type]) -> list[
                     id="urlchecker.E004",
                 )
             )
-
-    return errors
 
 
 def _check_typed_argument(errors, url_pattern, callback_repr, name, urlconf_type, sig_type):
