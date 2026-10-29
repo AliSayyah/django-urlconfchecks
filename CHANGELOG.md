@@ -149,7 +149,7 @@
 
 - Resolved false URL signature type mismatches when views or custom converters use `from __future__ import annotations`.
 
-## [Unreleased]
+## [0.14.0] - 2026-10-29
 
 ### Added
 
@@ -165,3 +165,5 @@
 ### Removed
 
 - Python 3.10 support (end-of-life since 2026-10-01), and the `tomli` dependency it required.
+
+## [Unreleased]
