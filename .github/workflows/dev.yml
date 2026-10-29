@@ -26,11 +26,13 @@ jobs:
           - python-version: "3.11"
             tox-envs: py311-django52
           - python-version: "3.12"
-            tox-envs: py312-django52,py312-django60,lint,build
+            tox-envs: py312-django52,py312-django60,py312-django61,lint,build
           - python-version: "3.13"
-            tox-envs: py313-django52,py313-django60
+            tox-envs: py313-django52,py313-django60,py313-django61
           - python-version: "3.14"
-            tox-envs: py314-django52,py314-django60
+            tox-envs: py314-django52,py314-django60,py314-django61
+          - python-version: "3.15"
+            tox-envs: py315-django52,py315-django60,py315-django61
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job

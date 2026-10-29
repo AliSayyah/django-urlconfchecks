@@ -86,11 +86,10 @@ def parameterized_generic_view(request, val: List[int]): ...
 
 try:
 
-    def parameterized_generic_view_2(request, val: list[int]):  # type: ignore
-        ...
+    def parameterized_generic_view_2(request, val: list[int]): ...
 
 except TypeError:
-    parameterized_generic_view_2 = None  # type: ignore
+    parameterized_generic_view_2 = None
 
 
 def annotated_int_view(request, val: Annotated[int, "year"]): ...
