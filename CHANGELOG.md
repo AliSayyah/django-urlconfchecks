@@ -150,3 +150,18 @@
 - Resolved false URL signature type mismatches when views or custom converters use `from __future__ import annotations`.
 
 ## [Unreleased]
+
+### Added
+
+- Support for Django 6.1 and Python 3.15.
+- Weekly CI job testing against Django's development branch.
+
+### Changed
+
+- Removed upper bounds on Python, Django and typer so new releases install without waiting for a package update.
+- Supported Python versions now follow the Python release cycle; versions are dropped at end-of-life.
+- Bumped development and test dependencies to their latest versions.
+
+### Removed
+
+- Python 3.10 support (end-of-life since 2026-10-01), and the `tomli` dependency it required.
