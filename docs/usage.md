@@ -18,7 +18,7 @@ reloads with `python manage.py runserver`.
 
 The checker follows Django's resolver argument passing for `path()`, `re_path()`, nested `include()` calls, converter and regex captures, positional regex groups, and URL pattern keyword arguments. It also checks Django and DRF class-based view handlers, including inherited handlers and DRF ViewSet actions. `urlchecker.E007` reports too many positional regex arguments, and `urlchecker.W004` warns when an optional regex capture has no default in the view signature. `urlchecker.W001` is reported for function views with star arguments; Django and DRF handlers use star arguments without that warning.
 
-The error codes are `E001` (missing request parameter), `E002` (converter type mismatch), `E003` (missing URL parameter), `E004` (required parameter without a URL source), `E005` (extra argument type mismatch), `E006` (unexpected extra argument), and `E007` (too many positional URL arguments). Warnings are `W001` (star arguments on function views), `W002` (unknown converter output), `W003` (missing annotation), and `W004` (optional regex capture without a default).
+The error codes are `E001` (missing request parameter), `E002` (converter type mismatch), `E003` (missing URL parameter), `E004` (required parameter without a URL source), `E005` (extra argument type mismatch), `E006` (unexpected extra argument), and `E007` (too many positional URL arguments). Warnings are `W001` (star arguments on function views), `W002` (unknown converter output), `W003` (missing annotation), `W004` (optional regex capture without a default), and `W005` (view signature could not be inspected).
 
 ### As a command line tool
 

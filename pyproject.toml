@@ -30,6 +30,7 @@ test = [
     "pytest>=9.2.0,<10",
     "ruff>=0.17.3,<0.18",
     "pytest-cov>=7.1.0,<8",
+    "hypothesis>=6.140.0,<7",
     "pytest-django>=4.14.0,<5",
     "pyupgrade>=3.22.0,<4",
     "coverage[toml]>=7.17.0,<8",
