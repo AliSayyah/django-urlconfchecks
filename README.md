@@ -29,8 +29,12 @@ Compatibility:
 
 | Python | Django |
 | --- | --- |
-| 3.10–3.11 | 5.2.8 – <5.3 |
-| 3.12–3.14 | 5.2.8 – <6.1 |
+| 3.11 | 5.2 |
+| 3.12–3.15 | 5.2, 6.0, 6.1 |
+
+Supported Python versions follow the [Python release cycle](https://devguide.python.org/versions/):
+versions are dropped once they reach end-of-life. Django has no upper bound, so new
+releases install without waiting for a package update.
 
 ## Quick start
 
@@ -113,6 +117,7 @@ urlpatterns = [
 
 ```python
 # views.py
+
 
 def year_archive(request, year: int):
     pass

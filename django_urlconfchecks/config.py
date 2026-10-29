@@ -3,16 +3,10 @@
 from __future__ import annotations
 
 import os
-import sys
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:  # pragma: no cover - Python 3.10 fallback
-    import tomli as tomllib
-
 
 CONFIG_ENV_VAR = "URLCONFCHECKS_PYPROJECT"
 
