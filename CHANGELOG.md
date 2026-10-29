@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Model `include()` kwargs, regex parent captures, and path defaults that override captured values with Django's argument precedence.
+
+### Added
+
+- Check `re_path()` views, including positional regex captures.
+- Add `urlchecker.E007` for too many positional URL arguments and `urlchecker.W004` for optional regex captures without a view default.
+- Continue checking named parameters and required leftovers on views with `*args` or `**kwargs`; this can report additional true positives alongside `W001`.
+
 ## [0.1.0] - 2022-01-28
 
 ### Added

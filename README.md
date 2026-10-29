@@ -10,6 +10,8 @@
 
 Static checker that keeps your URL patterns and view annotations in sync, using Django’s built-in check framework.
 
+The checker follows Django's resolver argument passing for `path()`, `re_path()`, nested `include()` calls, converter and regex captures, positional regex groups, and URL pattern keyword arguments.
+
 * [Documentation](https://AliSayyah.github.io/django-urlconfchecks)
 * [GitHub](https://github.com/AliSayyah/django-urlconfchecks)
 * [PyPI](https://pypi.org/project/django-urlconfchecks/)
@@ -156,6 +158,8 @@ JSON (`--format json`):
   "total_warnings": 0
 }
 ```
+
+The checks include type mismatches (`E002` and `E005`), missing or unexpected view arguments (`E003`, `E004`, and `E006`), too many positional regex arguments (`E007`), and warnings for unknown converter output types (`W002`), missing annotations (`W003`), and optional regex groups without a view default (`W004`).
 
 ## Credits
 

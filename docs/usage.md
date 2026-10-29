@@ -16,6 +16,8 @@ Add `django_urlconfchecks` to your `INSTALLED_APPS` list in your `settings.py` f
 Now, if there is any error, you can check it when you run `python manage.py check` or when your django server runs or
 reloads with `python manage.py runserver`.
 
+The checker follows Django's resolver argument passing for `path()`, `re_path()`, nested `include()` calls, converter and regex captures, positional regex groups, and URL pattern keyword arguments. `urlchecker.E007` reports too many positional regex arguments, and `urlchecker.W004` warns when an optional regex capture has no default in the view signature.
+
 ### As a command line tool
 
 `urlconfchecks` uses the `Typer` module to parse command line arguments.
