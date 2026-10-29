@@ -392,6 +392,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#in-vs-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        In VS Code
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#configuration-defaults" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -573,6 +584,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#in-vs-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        In VS Code
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#configuration-defaults" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -625,6 +647,8 @@
 </code></pre></div>
 <p>Now, if there is any error, you can check it when you run <code>python manage.py check</code> or when your django server runs or
 reloads with <code>python manage.py runserver</code>.</p>
+<p>The checker follows Django's resolver argument passing for <code>path()</code>, <code>re_path()</code>, nested <code>include()</code> calls, converter and regex captures, positional regex groups, and URL pattern keyword arguments. It also checks Django and DRF class-based view handlers, including inherited handlers and DRF ViewSet actions. <code>urlchecker.E007</code> reports too many positional regex arguments, and <code>urlchecker.W004</code> warns when an optional regex capture has no default in the view signature. <code>urlchecker.W001</code> is reported for function views with star arguments; Django and DRF handlers use star arguments without that warning.</p>
+<p>The error codes are <code>E001</code> (missing request parameter), <code>E002</code> (converter type mismatch), <code>E003</code> (missing URL parameter), <code>E004</code> (required parameter without a URL source), <code>E005</code> (extra argument type mismatch), <code>E006</code> (unexpected extra argument), and <code>E007</code> (too many positional URL arguments). Warnings are <code>W001</code> (star arguments on function views), <code>W002</code> (unknown converter output), <code>W003</code> (missing annotation), and <code>W004</code> (optional regex capture without a default).</p>
 <h3 id="as-a-command-line-tool">As a command line tool</h3>
 <p><code>urlconfchecks</code> uses the <code>Typer</code> module to parse command line arguments.</p>
 <p>Run this command from the root of your project, were <code>manage.py</code> is located:</p>
@@ -655,11 +679,31 @@ accessing the main URLConf module.</p>
 <p>Make sure you have <code>pre-commit</code> installed and if not, install it with <code>pip install pre-commit &amp;&amp; pre-commit install</code>.</p>
 <p>Then, add the following to your <code>.pre-commit-config.yaml</code> file:</p>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/AliSayyah/django-urlconfchecks</span>
-<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.14.0</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.15.0</span>
 <span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">django-urlconfchecks</span>
 </code></pre></div>
 <p>Run <code>pre-commit run</code> to check all URLConfs for errors.</p>
+<h3 id="in-vs-code">In VS Code</h3>
+<p>The checks run as part of <code>python manage.py check</code>, so you can run that command
+from a VS Code task or terminal. You can also run the standalone <code>urlconfchecks</code>
+command. For example, save this as <code>.vscode/tasks.json</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.0.0"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"tasks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Check URLConfs"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shell"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"urlconfchecks"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"problemMatcher"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">      </span><span class="nt">"group"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test"</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The task leaves output in the terminal because the human-readable CLI output
+does not use a stable <code>file:line:message</code> format. The pre-commit hook above is
+also available for checks before each commit.</p>
 <h2 id="configuration-defaults">Configuration defaults</h2>
 <p>You can set defaults in <code>pyproject.toml</code> so teams don’t repeat flags:</p>
 <div class="highlight"><pre><span></span><code><span class="k">[tool.urlconfchecks]</span>
@@ -689,7 +733,9 @@ silencing. The value must be a dictionary:</p>
 <li>
 <p>whose keys are fully qualified dotted paths to view functions or callables,
   with globbing syntax allowed, e.g. <code>"my_project.views.my_view"</code> or
-  <code>"other_project.*"</code></p>
+  <code>"other_project.*"</code>. For a class-based view, use a handler name such as
+  <code>"my_project.views.ArticleView.get"</code>, <code>"my_project.views.ArticleView.*"</code>
+  for all handlers, or <code>"my_project.views.ArticleView"</code> for the whole class.</p>
 </li>
 <li>
 <p>whose values are comma separated lists of warning or error IDs (without the
@@ -700,7 +746,7 @@ silencing. The value must be a dictionary:</p>
 in your <code>settings.py</code>, you will probably want to include the following and add
 more items:</p>
 <div class="highlight"><pre><span></span><code><span class="n">URLCONFCHECKS_SILENCED_VIEWS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"*.View.as_view"</span><span class="p">:</span> <span class="s2">"W001"</span><span class="p">,</span>  <span class="c1"># CBVs</span>
+    <span class="s2">"*.View.as_view"</span><span class="p">:</span> <span class="s2">"W001"</span><span class="p">,</span>  <span class="c1"># legacy/unresolved CBV callbacks</span>
     <span class="s2">"django.views.generic.base.RedirectView"</span><span class="p">:</span> <span class="s2">"W001"</span><span class="p">,</span>
     <span class="s2">"django.contrib.*"</span><span class="p">:</span> <span class="s2">"W003"</span><span class="p">,</span>  <span class="c1"># admin etc.</span>
 <span class="p">}</span>

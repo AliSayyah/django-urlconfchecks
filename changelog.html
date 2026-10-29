@@ -1072,6 +1072,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#0150-2026-10-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        [0.15.0] - 2026-10-29
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.15.0] - 2026-10-29">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Added
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Changed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fixed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#unreleased" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1768,6 +1818,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#0150-2026-10-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        [0.15.0] - 2026-10-29
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.15.0] - 2026-10-29">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Added
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Changed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fixed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#unreleased" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1944,6 +2044,28 @@
 <h3 id="removed_1">Removed</h3>
 <ul>
 <li>Python 3.10 support (end-of-life since 2026-10-01), and the <code>tomli</code> dependency it required.</li>
+</ul>
+<h2 id="0150-2026-10-29">[0.15.0] - 2026-10-29</h2>
+<h3 id="added_11">Added</h3>
+<ul>
+<li>Class-based views are checked: each Django/DRF handler (<code>get</code>, <code>post</code>, …, an overridden <code>dispatch</code>, an explicit <code>head</code>) and DRF ViewSet action is checked against the URL's arguments, including handlers inherited from user mixins. Silence them as <code>module.View.get</code>, <code>module.View.*</code> or <code>module.View</code>.</li>
+<li><code>re_path()</code> views are checked: named groups as <code>str</code> keyword arguments, unnamed groups as positional arguments.</li>
+<li><code>urlchecker.E007</code> for URLs that pass more positional arguments than the view accepts, and <code>urlchecker.W004</code> for parameters fed by an optional regex group without a default.</li>
+<li>VS Code usage documentation, including a ready-to-copy task (#186).</li>
+</ul>
+<h3 id="changed_5">Changed</h3>
+<ul>
+<li>Views with <code>*args</code> or <code>**kwargs</code> still have their named parameters checked (types, and required parameters without a URL source); this can report additional true positives alongside <code>W001</code>.</li>
+<li><code>urlchecker.W001</code> is no longer emitted for class-based view handlers, where <code>*args</code>/<code>**kwargs</code> are idiomatic.</li>
+<li>Replaced <code>bump2version</code> with <code>bump-my-version</code> in the development tooling.</li>
+</ul>
+<h3 id="fixed_9">Fixed</h3>
+<ul>
+<li>CLI flags (<code>--format</code>, <code>--quiet</code>, …) silently failed with exit code 1 in projects detected via <code>manage.py</code>, because they were passed on to Django's own command line.</li>
+<li><code>--urlconf</code> could not import modules from the current directory when run via the installed <code>urlconfchecks</code> command.</li>
+<li><code>include()</code> extra kwargs are passed to child views, and named groups captured by a regex parent reach <code>path()</code> children (both were false <code>E004</code> errors).</li>
+<li>A <code>path()</code> default that overrides a captured value is checked as that default only (previously a false <code>E006</code>).</li>
+<li><code>W002</code> is emitted at most once per untyped converter class.</li>
 </ul>
 <h2 id="unreleased">[Unreleased]</h2>
 
