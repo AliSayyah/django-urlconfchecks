@@ -1,0 +1,54 @@
+# Exercise the maintained fuzzer against the supported Django release each week.
+
+name: fuzz workflow
+
+on:
+  schedule:
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: "Optional differential seed"
+        required: false
+        type: string
+      cases:
+        description: "Differential case count"
+        required: false
+        default: "20000"
+        type: string
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+          enable-cache: true
+      - name: Sync dependencies
+        run: uv sync --extra test --extra dev --frozen
+      - name: Differential fuzz
+        env:
+          FUZZ_SEED: ${{ inputs.seed }}
+          FUZZ_CASES: ${{ inputs.cases || '20000' }}
+        run: |
+          if [ -n "$FUZZ_SEED" ]; then
+            uv run python -m tests.fuzz differential --seed "$FUZZ_SEED" --cases "$FUZZ_CASES" --report fuzz-report.md
+          else
+            uv run python -m tests.fuzz differential --cases "$FUZZ_CASES" --report fuzz-report.md
+          fi
+      - name: Robustness fuzz
+        run: uv run python -m tests.fuzz robustness
+      - name: Stress fuzz
+        run: uv run python -m tests.fuzz stress --sizes 1000,5000,10000 --depths 50,100,200
+      - name: Upload differential report
+        if: always() && hashFiles('fuzz-report.md') != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: fuzz-report
+          path: fuzz-report.md

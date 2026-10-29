@@ -110,6 +110,40 @@ $ uv run pytest tests
 
 To run a subset of tests.
 
+## Fuzzing
+
+The maintained fuzzer in `tests/fuzz` compares URL signature checks with Django's
+resolver and Python argument binding. It also runs a hostile callback and
+converter corpus and measures flat and deeply nested URLconfs. The generator is
+shared with `tests/test_differential.py`, so a seed and a Hypothesis example use
+the same case shapes.
+
+Run a seeded differential job and replay it later with the printed seed:
+
+```
+python -m tests.fuzz differential --seed 123 --cases 2000 --report fuzz.md
+python -m tests.fuzz robustness
+python -m tests.fuzz stress
+tox -e fuzz
+```
+
+Omit `--seed` to choose a random seed; the tool prints it before any case runs.
+The differential command exits with status 1 for a checker crash or a mismatch.
+The robustness command exits with status 1 for any exception. The stress command
+reports timing, peak RSS, and deep-include comparison with Django. It flags a
+more-than-twofold increase in time per route.
+
+The oracle excludes the name-only part of E001 for generated keyword-only or
+absent request forms. W001, W002, W003, and W005 are diagnostic warnings. W004
+is a route flag because an optional capture can make a required parameter fail.
+DRF cases run when `rest_framework` is installed. A real mismatch must become a
+focused regression test in `tests/test_fuzz_regressions.py` before the fuzzer is
+changed.
+
+GitHub Actions runs the differential, robustness, and stress modes every week.
+Use the workflow dispatch inputs to provide a seed or a different case count;
+the Markdown report is uploaded when it exists.
+
 
 ## Deploying
 

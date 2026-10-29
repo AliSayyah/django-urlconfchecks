@@ -243,6 +243,11 @@ commands = [
     ["ruff", "check", "--select", "I", "--fix", "django_urlconfchecks", "tests"],
 ]
 
+[tool.tox.env.fuzz]
+description = "Run the maintained differential fuzzer"
+extras = ["test"]
+commands = [["python", "-m", "tests.fuzz", "{posargs:differential}"]]
+
 [tool.tox.env.lint]
 allowlist_externals = ["ruff", "ty"]
 commands = [
