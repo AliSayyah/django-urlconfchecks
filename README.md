@@ -100,6 +100,8 @@ Add the following to your `.pre-commit-config.yaml` file:
 
 For more information, see the [usage documentation](https://alisayyah.github.io/django-urlconfchecks/usage/).
 
+The usage documentation also includes a ready-to-copy VS Code task.
+
 ## What it catches (example)
 
 ```python

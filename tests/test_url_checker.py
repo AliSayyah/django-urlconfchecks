@@ -1,7 +1,5 @@
 """Tests for `django_urlconfchecks` package."""
 
-import sys
-
 from django.core import checks
 from django.test.utils import override_settings
 from django.urls import URLPattern
@@ -198,6 +196,19 @@ def test_converters():
         )
 
 
+def test_untyped_converter_warnings_are_deduplicated_per_class():
+    """Emit one W002 warning for each untyped converter class."""
+    with override_settings(ROOT_URLCONF="tests.dummy_project.urls.w002_dedup"):
+        errors = check_url_signatures(None)
+
+    warning_ids = [error.id for error in errors if error.id.startswith("urlchecker.W002")]
+    assert warning_ids == [
+        "urlchecker.W002.tests.dummy_project.urls.w002_dedup.SharedUntypedConverter",
+        "urlchecker.W002.tests.dummy_project.urls.w002_dedup.FirstUntypedConverter",
+        "urlchecker.W002.tests.dummy_project.urls.w002_dedup.SecondUntypedConverter",
+    ]
+
+
 def test_path_kwargs():
     """Test that kwargs specified in path(kwargs=...) are included in analysis."""
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.path_kwargs_urls'):
@@ -267,8 +278,7 @@ def test_path_kwargs():
 @override_settings(ROOT_URLCONF='tests.dummy_project.urls.optional_args')
 def test_optional_args():
     errors = check_url_signatures(None)
-    if sys.version_info >= (3, 10):
-        assert len(errors) > 0
+    assert len(errors) > 0
     for error in errors:
         assert error.obj.pattern._route.startswith('bad-')
 

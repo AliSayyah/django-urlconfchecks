@@ -82,7 +82,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           body: ${{ steps.changelog_reader.outputs.changes }}
-          files: dist/*.whl
+          files: dist/*
           draft: false
           prerelease: false
 

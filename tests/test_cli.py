@@ -1,6 +1,10 @@
 """Test module for cli."""
 
 import json
+import os
+import subprocess
+import sys
+import textwrap
 
 import pytest
 from django.conf import settings
@@ -9,6 +13,7 @@ from typer.testing import CliRunner
 
 from django_urlconfchecks import __version__
 from django_urlconfchecks.cli import app
+from django_urlconfchecks.cli_utils import get_manage
 
 runner = CliRunner()
 
@@ -117,3 +122,122 @@ silenced_views = { "tests.dummy_project.views.year_archive" = "E002" }
     payload = json.loads(result.output)
     assert payload["total_errors"] == 0
     assert payload["total_warnings"] == 0
+
+
+@pytest.fixture
+def django_project(tmp_path):
+    """A minimal Django project with a standard manage.py, outside the test settings."""
+    (tmp_path / "manage.py").write_text(
+        textwrap.dedent(
+            """
+            import os
+            import sys
+
+
+            def main():
+                os.environ.setdefault("DJANGO_SETTINGS_MODULE", "proj.settings")
+                from django.core.management import execute_from_command_line
+
+                execute_from_command_line(sys.argv)
+
+
+            if __name__ == "__main__":
+                main()
+            """
+        )
+    )
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    (proj / "__init__.py").write_text("")
+    (proj / "settings.py").write_text('SECRET_KEY = "x"\nROOT_URLCONF = "proj.urls"\nINSTALLED_APPS = []\n')
+    (proj / "views.py").write_text("def good(request, pk: int): ...\n\n\ndef bad(request, pk: str): ...\n")
+    (proj / "urls.py").write_text(
+        "from django.urls import path\n\nfrom proj import views\n\n"
+        'urlpatterns = [path("good/<int:pk>/", views.good), path("bad/<int:pk>/", views.bad)]\n'
+    )
+    (proj / "good_urls.py").write_text(
+        'from django.urls import path\n\nfrom proj import views\n\nurlpatterns = [path("<int:pk>/", views.good)]\n'
+    )
+    return tmp_path
+
+
+def _run_cli(cwd, *args):
+    env = {k: v for k, v in os.environ.items() if k not in ("DJANGO_SETTINGS_MODULE", "URLCONFCHECKS_PYPROJECT")}
+    return subprocess.run(
+        # -P: like the installed `urlconfchecks` script, don't put the current directory on sys.path.
+        [sys.executable, "-P", "-c", "from django_urlconfchecks.cli import app; app()", *args],
+        cwd=cwd,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+
+
+def test_cli_manage_py_human_output(django_project):
+    result = _run_cli(django_project)
+    assert result.returncode == 1
+    assert "1 error(s), 0 warning(s) found:" in result.stdout
+    assert "(urlchecker.E002) View proj.views.bad for parameter `pk`" in result.stdout
+
+
+@pytest.mark.parametrize("flag", ["-f", "--format"])
+def test_cli_manage_py_json_output(django_project, flag):
+    """Flags must reach our CLI, not manage.py's command line."""
+    result = _run_cli(django_project, flag, "json")
+    assert result.returncode == 1
+    payload = json.loads(result.stdout)
+    assert payload["total_errors"] == 1
+    assert payload["errors"][0]["id"] == "urlchecker.E002"
+
+
+@pytest.mark.parametrize("flag", ["-q", "--quiet"])
+def test_cli_manage_py_quiet(django_project, flag):
+    result = _run_cli(django_project, flag)
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert result.stderr == ""
+
+    (django_project / "proj" / "urls.py").write_text("from proj.good_urls import urlpatterns  # noqa: F401\n")
+    result = _run_cli(django_project, flag)
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
+def test_cli_manage_py_clean_project(django_project):
+    (django_project / "proj" / "urls.py").write_text("from proj.good_urls import urlpatterns  # noqa: F401\n")
+    result = _run_cli(django_project)
+    assert result.returncode == 0
+    assert result.stdout == "Done. No errors found.\n"
+
+
+def test_cli_urlconf_from_project_directory(django_project):
+    """--urlconf must be able to import modules from the current directory."""
+    result = _run_cli(django_project, "--urlconf", "proj.good_urls")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout == "Done. No errors found.\n"
+
+    result = _run_cli(django_project, "-u", "proj.urls", "-f", "json")
+    assert result.returncode == 1
+    assert json.loads(result.stdout)["total_errors"] == 1
+
+
+def test_get_manage_hides_and_restores_argv(django_project, monkeypatch):
+    (django_project / "manage.py").write_text(
+        "import os\nimport sys\n\nSEEN = []\n\n\ndef main():\n"
+        '    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "proj.settings")\n'
+        "    SEEN.append(list(sys.argv))\n"
+    )
+    monkeypatch.chdir(django_project)
+    monkeypatch.syspath_prepend(str(django_project))
+    monkeypatch.delitem(sys.modules, "manage", raising=False)
+    monkeypatch.delenv("DJANGO_SETTINGS_MODULE", raising=False)
+    monkeypatch.setattr(sys, "argv", ["urlconfchecks", "-f", "json"])
+
+    get_manage()
+
+    seen_argv = sys.modules["manage"].SEEN
+    monkeypatch.delitem(sys.modules, "manage")
+    assert seen_argv == [["manage.py"]]
+    assert sys.argv == ["urlconfchecks", "-f", "json"]
+    assert os.environ["DJANGO_SETTINGS_MODULE"] == "proj.settings"

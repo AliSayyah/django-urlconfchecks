@@ -6,7 +6,7 @@ import os
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 CONFIG_ENV_VAR = "URLCONFCHECKS_PYPROJECT"
 
@@ -21,12 +21,12 @@ class AppConfig:
         silenced_views: Dictionary mapping view names to silence reasons.
     """
 
-    quiet: Optional[bool] = None
-    format: Optional[str] = None
-    silenced_views: Optional[Dict[str, str]] = None
+    quiet: bool | None = None
+    format: str | None = None
+    silenced_views: dict[str, str] | None = None
 
 
-def load_config(pyproject_path: Optional[Path] = None) -> AppConfig:
+def load_config(pyproject_path: Path | None = None) -> AppConfig:
     """Load configuration from pyproject.toml [tool.urlconfchecks]."""
     path = pyproject_path or _find_pyproject()
     if path is None or not path.is_file():
@@ -50,7 +50,7 @@ def load_config(pyproject_path: Optional[Path] = None) -> AppConfig:
     return AppConfig(quiet=quiet, format=fmt, silenced_views=silenced_views)
 
 
-def _find_pyproject() -> Optional[Path]:
+def _find_pyproject() -> Path | None:
     """Locate pyproject.toml, honoring explicit env override first."""
     env_path = os.environ.get(CONFIG_ENV_VAR)
     if env_path:
@@ -66,7 +66,7 @@ def _find_pyproject() -> Optional[Path]:
     return None
 
 
-def _extract_section(data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def _extract_section(data: dict[str, Any]) -> dict[str, Any] | None:
     tool = data.get("tool")
     if not isinstance(tool, dict):
         return None
