@@ -1122,6 +1122,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#0160-2026-10-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        [0.16.0] - 2026-10-29
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.16.0] - 2026-10-29">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Added
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Changed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fixed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#unreleased" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1868,6 +1918,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#0160-2026-10-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        [0.16.0] - 2026-10-29
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.16.0] - 2026-10-29">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Added
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Changed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fixed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#unreleased" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2066,6 +2166,28 @@
 <li><code>include()</code> extra kwargs are passed to child views, and named groups captured by a regex parent reach <code>path()</code> children (both were false <code>E004</code> errors).</li>
 <li>A <code>path()</code> default that overrides a captured value is checked as that default only (previously a false <code>E006</code>).</li>
 <li><code>W002</code> is emitted at most once per untyped converter class.</li>
+</ul>
+<h2 id="0160-2026-10-29">[0.16.0] - 2026-10-29</h2>
+<h3 id="added_12">Added</h3>
+<ul>
+<li><code>urlchecker.W005</code> when a view's signature can't be inspected; the check no longer crashes on such callbacks.</li>
+</ul>
+<h3 id="changed_6">Changed</h3>
+<ul>
+<li><code>urlchecker.W001</code> (view takes <code>*args</code>/<code>**kwargs</code>) is reported once per view instead of once per route, with the number of routes using it, and a hint to use <code>functools.wraps</code> in decorators or silence third-party wrappers. On real projects this cut W001 from 321 to 14 warnings (pretix), 243 to 7 (django-allauth) and 103 to 8 (wagtail bakerydemo).</li>
+</ul>
+<h3 id="fixed_10">Fixed</h3>
+<p>Found by differential fuzzing against Django's resolver and by running the checker on large open-source projects:</p>
+<ul>
+<li>The check could crash on callbacks with a broken <code>__signature__</code>, <code>__module__</code> or <code>__qualname__</code>, and on converters whose <code>to_python</code> isn't a callable.</li>
+<li>URL keyword arguments are no longer matched to positional-only parameters (<code>def view(request, pk, /)</code>), which Django can't fill by keyword.</li>
+<li><code>request</code> must be receivable positionally: <code>def view(*, request)</code> and <code>def view(**kwargs)</code> now get <code>E001</code>.</li>
+<li>A first parameter not named <code>request</code> (<code>def view(req, **kwargs)</code>) was reported as missing a value (<code>E004</code>), and positional regex values were mapped onto it.</li>
+<li>Class-based views: an overridden <code>setup()</code> is checked like <code>dispatch()</code>; <code>staticmethod</code>/<code>classmethod</code> handlers are checked instead of skipped; callable objects used as handlers keep their first parameter.</li>
+<li><code>Literal</code>, <code>NewType</code> and <code>TypeVar</code> annotations are compared by their underlying types instead of always mismatching.</li>
+<li>Named groups inside a negative lookahead/lookbehind are not treated as captured.</li>
+<li>The CLI now runs <code>manage.py</code> the way <code>python manage.py</code> does when looking for the settings module. Projects whose <code>manage.py</code> sets <code>DJANGO_SETTINGS_MODULE</code> only under <code>if __name__ == "__main__":</code> without a <code>main()</code> function (healthchecks, netbox, paperless-ngx and many others) failed with <code>ImproperlyConfigured</code>.</li>
+<li>When the settings module can't be found, the CLI prints a short message suggesting <code>DJANGO_SETTINGS_MODULE</code> or <code>--urlconf</code> instead of a traceback.</li>
 </ul>
 <h2 id="unreleased">[Unreleased]</h2>
 
