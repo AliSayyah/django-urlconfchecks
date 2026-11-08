@@ -152,3 +152,23 @@ URLCONFCHECKS_SILENCED_VIEWS = {
     "django.contrib.*": "W003",  # admin etc.
 }
 ```
+
+Rather than copying these, you can merge the defaults in, so you pick up future changes:
+
+```python
+from django_urlconfchecks.check import DEFAULT_SILENCED_VIEWS
+
+URLCONFCHECKS_SILENCED_VIEWS = {
+    **DEFAULT_SILENCED_VIEWS,
+    "myproj.views.legacy_view": "E002",
+}
+```
+
+## Python API
+
+The public Python API is `django_urlconfchecks.check.check_url_signatures` (the registered system check) and
+`django_urlconfchecks.check.DEFAULT_SILENCED_VIEWS`. Everything else in the package is private and may change in
+any release. The package ships a `py.typed` marker, so type checkers use its annotations.
+
+`check_url_args_match()` and `get_all_routes()` are deprecated since 0.18.0 and will be removed in 1.0. They emit a
+`DeprecationWarning`; run the system check (`python manage.py check`) or the `urlconfchecks` CLI instead.
