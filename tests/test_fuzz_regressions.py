@@ -356,7 +356,7 @@ def test_positional_url_values_skip_the_request_parameter_whatever_its_name():
     errors = _checked_urlconf([re_path(r"^x/(\w+)/$", view)])
     # Only the (name-based) E001; `a` receives the positional value, nothing is unsourced.
     assert _ids(errors) == ["urlchecker.E001"]
-    assert "found `req`" in errors[0].msg
+    assert "first positional parameter is `req`, expected `request`." in errors[0].msg
 
 
 def test_positional_url_value_and_keyword_for_the_same_parameter():
@@ -367,7 +367,10 @@ def test_positional_url_value_and_keyword_for_the_same_parameter():
 
     errors = _checked_urlconf([path("<int:parent>/", include([re_path(r"^f/([a-z]+)/$", view)]))])
     assert "urlchecker.E008" in _ids(errors)
-    assert "receives `parent` both as a positional argument" in next(e for e in errors if e.id == "urlchecker.E008").msg
+    assert (
+        "parameter `parent` gets both a positional value from the URL and a keyword argument."
+        in next(e for e in errors if e.id == "urlchecker.E008").msg
+    )
 
 
 def test_positional_only_parameter_and_keyword_of_the_same_name_do_not_collide():

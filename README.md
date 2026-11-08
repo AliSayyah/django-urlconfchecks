@@ -140,7 +140,8 @@ def article_detail(request, year: int, month: int, slug: str):
 Output:
 
 ```
-(urlchecker.E002) For parameter `year`, annotated type int does not match expected `str` from urlconf
+<URLPattern 'articles/<str:year>/'>: (urlchecker.E002) View myproj.views.year_archive: parameter `year` is annotated as `int`, but the URL passes `str`.
+HINT: Annotate `year` as `str`, or change the URL pattern so it passes the type the view expects.
 ```
 
 JSON (`--format json`):
@@ -150,9 +151,9 @@ JSON (`--format json`):
   "errors": [
     {
       "id": "urlchecker.E002",
-      "message": "View myproj.views.year_archive for parameter `year`, annotated type int does not match expected `str` from urlconf",
+      "message": "View myproj.views.year_archive: parameter `year` is annotated as `int`, but the URL passes `str`.",
       "obj": "<URLPattern 'articles/<str:year>/'>",
-      "hint": null
+      "hint": "Annotate `year` as `str`, or change the URL pattern so it passes the type the view expects."
     }
   ],
   "warnings": [],

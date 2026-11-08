@@ -93,7 +93,7 @@ def _collapse_star_args_warnings(problems: list[_Problem]) -> list[_Problem]:
                 continue
             reported.add(view_name)
             if route_counts[view_name] > 1:
-                problem.msg += f" (used by {route_counts[view_name]} routes)"
+                problem.msg = f"{problem.msg[:-1]} (used by {route_counts[view_name]} routes)."
         collapsed.append(problem)
     return collapsed
 
@@ -490,7 +490,10 @@ def _signature_warning(url_pattern, callback_repr, exc):
     except Exception:
         detail = "unable to describe exception"
     return checks.Warning(
-        f"View {callback_repr} signature could not be inspected ({type(exc).__name__}: {detail}), can't check args",
+        f"View {callback_repr}: signature can't be inspected ({type(exc).__name__}: {detail}), so it can't be checked.",
+        hint=(
+            "If this is a wrapper, use `functools.wraps` or set `__signature__`; otherwise silence W005 for this view."
+        ),
         obj=url_pattern,
         id="urlchecker.W005",
     )
@@ -699,7 +702,7 @@ def _append_star_args_warning(errors, url_pattern, callback_repr, has_star_args,
         package = callback_repr.split(".", 1)[0]
         errors.append(
             checks.Warning(
-                f"View {callback_repr} signature contains *args or **kwarg syntax, can't properly check args",
+                f"View {callback_repr}: signature takes *args or **kwargs, so its arguments can't be fully checked.",
                 hint=(
                     "If this is a decorator, apply functools.wraps to its wrapper so the view's real signature "
                     "can be checked. To silence a third-party wrapper, add it to URLCONFCHECKS_SILENCED_VIEWS, "
@@ -732,7 +735,8 @@ def _check_request_parameter(errors, url_pattern, callback_repr, sig, has_star_a
     if positional is None:
         errors.append(
             checks.Error(
-                f"View {callback_repr} signature does not have a positional `request` parameter.",
+                f"View {callback_repr}: can't receive the request as a positional argument.",
+                hint="Make `request` the first positional parameter, e.g. `def view(request, ...)`.",
                 obj=url_pattern,
                 id="urlchecker.E001",
             )
@@ -741,10 +745,17 @@ def _check_request_parameter(errors, url_pattern, callback_repr, sig, has_star_a
         # Django passes the request to this parameter whatever its name.
         used_from_sig.append(positional.name)
         if positional.name != "request" and not has_star_args:
-            message = (
-                f"View {callback_repr} signature does not start with `request` parameter, found `{positional.name}`."
+            errors.append(
+                checks.Error(
+                    f"View {callback_repr}: first positional parameter is `{positional.name}`, expected `request`.",
+                    hint=(
+                        f"Rename `{positional.name}` to `request`, or silence E001 for this view in "
+                        "URLCONFCHECKS_SILENCED_VIEWS."
+                    ),
+                    obj=url_pattern,
+                    id="urlchecker.E001",
+                )
             )
-            errors.append(checks.Error(message, obj=url_pattern, id="urlchecker.E001"))
     return used_from_sig
 
 
@@ -787,20 +798,20 @@ def _check_route_kwargs(
 def _report_unaccepted_route_argument(errors, url_pattern, callback_repr, name, argument):
     """Report a route keyword with no matching named view parameter."""
     if argument.kind in {"extra", "include_extra"}:
-        if argument.kind == "include_extra":
-            message = (
-                f"View {callback_repr} is being passed additional unexpected parameter `{name}` from include() kwargs"
+        source = "the include() kwargs" if argument.kind == "include_extra" else "the URL pattern's kwargs"
+        errors.append(
+            checks.Error(
+                f"View {callback_repr}: {source} passes `{name}`, but the view has no `{name}` parameter.",
+                hint=f"Accept `{name}` in the view, or remove it from {source}.",
+                obj=url_pattern,
+                id="urlchecker.E006",
             )
-        else:
-            message = (
-                f"View {callback_repr} is being passed additional unexpected "
-                f"parameter `{name}` from default arguments in urlconf"
-            )
-        errors.append(checks.Error(message, obj=url_pattern, id="urlchecker.E006"))
+        )
     else:
         errors.append(
             checks.Error(
-                f"View {callback_repr} signature does not contain `{name}` parameter",
+                f"View {callback_repr}: the URL passes `{name}`, but the view has no `{name}` parameter.",
+                hint=f"Add a `{name}` parameter, or accept `**kwargs`.",
                 obj=url_pattern,
                 id="urlchecker.E003",
             )
@@ -828,8 +839,12 @@ def _check_converter_argument(errors, url_pattern, callback_repr, name, converte
             unknown_converters.add(obj)
             errors.append(
                 checks.Warning(
-                    f"Don't know output type for converter {obj.__module__}.{obj.__name__},"
-                    " can't verify URL signatures.",
+                    f"Converter {obj.__module__}.{obj.__name__}: output type is unknown, so URL arguments using it "
+                    "can't be checked.",
+                    hint=(
+                        "Annotate the return type of the converter's `to_python()`, e.g. "
+                        "`def to_python(self, value: str) -> int`."
+                    ),
                     obj=obj,
                     id=f"urlchecker.W002.{obj.__module__}.{obj.__name__}",
                 )
@@ -844,7 +859,8 @@ def _check_regex_argument(errors, url_pattern, callback_repr, name, argument, pa
     if argument.optional and parameter.default is Parameter.empty:
         errors.append(
             checks.Warning(
-                f"View {callback_repr} parameter `{name}` is captured by an optional regex group but has no default",
+                f"View {callback_repr}: parameter `{name}` is captured by an optional regex group but has no default.",
+                hint=f"Give `{name}` a default, e.g. `{name}=None`, for when the group doesn't match.",
                 obj=url_pattern,
                 id="urlchecker.W004",
             )
@@ -867,8 +883,11 @@ def _check_positional_arguments(
     if len(route.positional) > len(positional_parameters) and not has_varargs:
         errors.append(
             checks.Error(
-                f"View {callback_repr} receives {len(route.positional)} positional argument(s) from the URL pattern "
-                f"but its signature only accepts {len(positional_parameters)}",
+                f"View {callback_repr}: the URL passes {len(route.positional)} positional argument(s), but the view "
+                f"accepts {len(positional_parameters)}.",
+                hint=(
+                    "Add view parameters for the unnamed groups, use named groups `(?P<name>...)`, or accept `*args`."
+                ),
                 obj=url_pattern,
                 id="urlchecker.E007",
             )
@@ -878,8 +897,12 @@ def _check_positional_arguments(
         if name in route.kwargs and parameter.kind is Parameter.POSITIONAL_OR_KEYWORD:
             errors.append(
                 checks.Error(
-                    f"View {callback_repr} receives `{name}` both as a positional argument from the URL pattern "
-                    "and as a keyword argument",
+                    f"View {callback_repr}: parameter `{name}` gets both a positional value from the URL and a "
+                    "keyword argument.",
+                    hint=(
+                        "Turn the unnamed group into a named group, or rename the parent capture or kwarg so they "
+                        "don't collide."
+                    ),
                     obj=url_pattern,
                     id="urlchecker.E008",
                 )
@@ -898,7 +921,11 @@ def _check_leftover_required_parameters(errors, url_pattern, callback_repr, para
         if parameter.default == Parameter.empty:
             errors.append(
                 checks.Error(
-                    f"View {callback_repr} signature contains `{name}` parameter without default or URLconf parameter",
+                    f"View {callback_repr}: required parameter `{name}` gets no value from the URL.",
+                    hint=(
+                        f"Capture `{name}` in the URL pattern, pass it in the URL pattern's kwargs, or give it a "
+                        "default."
+                    ),
                     obj=url_pattern,
                     id="urlchecker.E004",
                 )
@@ -910,7 +937,8 @@ def _check_typed_argument(errors, url_pattern, callback_repr, name, urlconf_type
     if sig_type == Parameter.empty:
         errors.append(
             checks.Warning(
-                f"View {callback_repr} missing type annotation for parameter `{name}`, can't check type.",
+                f"View {callback_repr}: parameter `{name}` has no type annotation, so its type can't be checked.",
+                hint=f"Annotate `{name}` as `{_name_type(urlconf_type)}`.",
                 obj=url_pattern,
                 id="urlchecker.W003",
             )
@@ -918,9 +946,12 @@ def _check_typed_argument(errors, url_pattern, callback_repr, name, urlconf_type
     elif not _type_is_compatible(urlconf_type, sig_type):
         errors.append(
             checks.Error(
-                f"View {callback_repr} for parameter `{name}`,"
-                f" annotated type {_name_type(sig_type)} does not match"
-                f" expected `{_name_type(urlconf_type)}` from urlconf",
+                f"View {callback_repr}: parameter `{name}` is annotated as `{_name_type(sig_type)}`, but the URL "
+                f"passes `{_name_type(urlconf_type)}`.",
+                hint=(
+                    f"Annotate `{name}` as `{_name_type(urlconf_type)}`, or change the URL pattern so it passes the "
+                    "type the view expects."
+                ),
                 obj=url_pattern,
                 id="urlchecker.E002",
             )
@@ -932,21 +963,20 @@ def _check_extra_argument(errors, url_pattern, callback_repr, name, argument, si
     if sig_type == Parameter.empty:
         errors.append(
             checks.Warning(
-                f"View {callback_repr} missing type annotation for parameter `{name}`, can't check type.",
+                f"View {callback_repr}: parameter `{name}` has no type annotation, so its type can't be checked.",
+                hint=f"Annotate `{name}` as `{_name_type(type(argument.value))}`.",
                 obj=url_pattern,
                 id="urlchecker.W003",
             )
         )
     elif not _instance_is_compatible(argument.value, sig_type):
-        if argument.kind == "include_extra":
-            source = "include() kwargs"
-        else:
-            source = "urlconf"
+        source = "the include() kwargs" if argument.kind == "include_extra" else "the URL pattern's kwargs"
+        value_type = _name_type(type(argument.value))
         errors.append(
             checks.Error(
-                f"View {callback_repr}: for parameter `{name}`,"
-                f" default argument {repr(argument.value)} in {source}, type {_name_type(type(argument.value))},"
-                f" does not match annotated type {_name_type(sig_type)} from view signature",
+                f"View {callback_repr}: parameter `{name}` is annotated as `{_name_type(sig_type)}`, but {source} "
+                f"passes {argument.value!r} (`{value_type}`).",
+                hint=f"Change the value in {source}, or annotate `{name}` to accept `{value_type}`.",
                 obj=url_pattern,
                 id="urlchecker.E005",
             )

@@ -38,6 +38,39 @@ def test_correct_urls():
         assert not errors
 
 
+def test_all_problems_have_hints_and_sentence_messages():
+    """Every emitted problem has a concrete hint and a complete sentence."""
+    problems = []
+    for urlconf in (
+        "tests.dummy_project.urls.child_urls",
+        "tests.dummy_project.urls.path_kwargs_urls",
+        "tests.dummy_project.urls.converter_urls",
+        "tests.dummy_project.urls.route_semantics",
+        "tests.dummy_project.urls.regex_optional",
+    ):
+        with override_settings(ROOT_URLCONF=urlconf, URLCONFCHECKS_SILENCED_VIEWS={}):
+            problems.extend(check_url_signatures(None))
+
+    assert problems
+    assert all(problem.hint for problem in problems)
+    assert all(problem.msg.endswith(".") for problem in problems)
+
+    expected_ids = {
+        "urlchecker.E001",
+        "urlchecker.E002",
+        "urlchecker.E003",
+        "urlchecker.E004",
+        "urlchecker.E005",
+        "urlchecker.E006",
+        "urlchecker.E007",
+        "urlchecker.W001",
+        "urlchecker.W002.tests.dummy_project.urls.converter_urls.YearConverterNoTypeHint",
+        "urlchecker.W003",
+        "urlchecker.W004",
+    }
+    assert expected_ids <= {problem.id for problem in problems}
+
+
 def test_future_annotations_are_resolved():
     """Test that deferred annotations are resolved before type compatibility checks."""
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.future_annotations'):
@@ -57,7 +90,7 @@ def test_future_converter_return_annotation_mismatches_are_still_reported():
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.future_converter_annotation_mismatch'):
         errors = check_url_signatures(None)
         assert [error.id for error in errors] == ['urlchecker.E002']
-        assert "annotated type str does not match expected `int`" in errors[0].msg
+        assert "parameter `slug` is annotated as `str`, but the URL passes `int`." in errors[0].msg
 
 
 def test_future_annotation_mismatches_are_still_reported():
@@ -65,7 +98,7 @@ def test_future_annotation_mismatches_are_still_reported():
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.future_annotation_mismatch'):
         errors = check_url_signatures(None)
         assert [error.id for error in errors] == ['urlchecker.E002']
-        assert "annotated type int does not match expected `str`" in errors[0].msg
+        assert "parameter `slug` is annotated as `int`, but the URL passes `str`." in errors[0].msg
 
 
 def test_unresolved_future_annotations_are_treated_as_unknown():
@@ -80,7 +113,10 @@ def test_future_annotations_are_resolved_for_default_args():
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.future_default_args'):
         errors = check_url_signatures(None)
         assert [error.id for error in errors] == ['urlchecker.E005']
-        assert "default argument '2024' in urlconf, type str, does not match annotated type int" in errors[0].msg
+        assert (
+            "parameter `year` is annotated as `int`, but the URL pattern's kwargs passes '2024' (`str`)."
+            in errors[0].msg
+        )
 
 
 def test_incorrect_urls():
@@ -92,9 +128,9 @@ def test_incorrect_urls():
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.incorrect_urls'):
         errors = check_url_signatures(None)
         expected_error = checks.Error(
-            'View tests.dummy_project.views.year_archive for parameter `year`, annotated '
-            'type int does not match expected `str` from urlconf',
-            hint=None,
+            'View tests.dummy_project.views.year_archive: parameter `year` is annotated as `int`, '
+            'but the URL passes `str`.',
+            hint=('Annotate `year` as `str`, or change the URL pattern so it passes the type the view expects.'),
             obj=URLPattern(
                 pattern=RoutePattern(route='articles/<str:year>/', is_endpoint=True),
                 callback=year_archive,
@@ -186,9 +222,12 @@ def test_converters():
         assert error_eql(
             errors[0],
             checks.Warning(
-                msg="Don't know output type for converter "
-                "tests.dummy_project.urls.converter_urls.YearConverterNoTypeHint, can't verify URL signatures.",
-                hint=None,
+                msg="Converter tests.dummy_project.urls.converter_urls.YearConverterNoTypeHint: output type is "
+                "unknown, so URL arguments using it can't be checked.",
+                hint=(
+                    "Annotate the return type of the converter's `to_python()`, e.g. "
+                    "`def to_python(self, value: str) -> int`."
+                ),
                 obj=converter_urls.YearConverterNoTypeHint,
                 id='urlchecker.W002.tests.dummy_project.urls.converter_urls.YearConverterNoTypeHint',
             ),
@@ -196,9 +235,9 @@ def test_converters():
         assert error_eql(
             errors[1],
             checks.Error(
-                msg="View tests.dummy_project.views.year_archive for parameter `year`, "
-                "annotated type int does not match expected `float` from urlconf",
-                hint=None,
+                msg="View tests.dummy_project.views.year_archive: parameter `year` is annotated as `int`, "
+                "but the URL passes `float`.",
+                hint="Annotate `year` as `float`, or change the URL pattern so it passes the type the view expects.",
                 obj=URLPattern(
                     pattern=RoutePattern(route="articles_yyyy_float/<yyyy_float:year>/", is_endpoint=True),
                     callback=year_archive,
@@ -231,9 +270,9 @@ def test_path_kwargs():
         assert error_eql(
             errors[0],
             checks.Error(
-                msg="View tests.dummy_project.views.year_archive signature contains `year` parameter "
-                "without default or URLconf parameter",
-                hint=None,
+                msg="View tests.dummy_project.views.year_archive: required parameter `year` gets no value "
+                "from the URL.",
+                hint="Capture `year` in the URL pattern, pass it in the URL pattern's kwargs, or give it a default.",
                 obj=URLPattern(
                     pattern=RoutePattern(route='articles-2021/', is_endpoint=True),
                     callback=year_archive,
@@ -246,9 +285,9 @@ def test_path_kwargs():
         assert error_eql(
             errors[1],
             checks.Error(
-                msg="View tests.dummy_project.views.year_archive: for parameter `year`, default argument"
-                " '2022' in urlconf, type str, does not match annotated type int from view signature",
-                hint=None,
+                msg="View tests.dummy_project.views.year_archive: parameter `year` is annotated as `int`, but the "
+                "URL pattern's kwargs passes '2022' (`str`).",
+                hint="Change the value in the URL pattern's kwargs, or annotate `year` to accept `str`.",
                 obj=URLPattern(
                     pattern=RoutePattern(route='articles-2022/', is_endpoint=True),
                     callback=year_archive,
@@ -261,9 +300,9 @@ def test_path_kwargs():
         assert error_eql(
             errors[2],
             checks.Error(
-                msg="View tests.dummy_project.views.year_archive is being passed additional unexpected "
-                "parameter `other` from default arguments in urlconf",
-                hint=None,
+                msg="View tests.dummy_project.views.year_archive: the URL pattern's kwargs passes `other`, but the "
+                "view has no `other` parameter.",
+                hint="Accept `other` in the view, or remove it from the URL pattern's kwargs.",
                 obj=URLPattern(
                     pattern=RoutePattern(route='articles-2023/', is_endpoint=True),
                     callback=year_archive,
@@ -275,9 +314,9 @@ def test_path_kwargs():
         assert error_eql(
             errors[3],
             checks.Warning(
-                msg="View tests.dummy_project.views.year_archive_untyped missing type annotation for "
-                "parameter `year`, can't check type.",
-                hint=None,
+                msg="View tests.dummy_project.views.year_archive_untyped: parameter `year` has no type annotation, "
+                "so its type can't be checked.",
+                hint="Annotate `year` as `int`.",
                 obj=URLPattern(
                     pattern=RoutePattern(route='articles-2024/', is_endpoint=True),
                     callback=year_archive_untyped,
@@ -376,27 +415,27 @@ _ROUTE_SEMANTICS_CASES = [
     pytest.param("child-override/", [], None, id="include-child-override"),
     pytest.param("capture-override/", [], None, id="include-capture-override"),
     pytest.param("parent-ok/", [], None, id="regex-parent-ok"),
-    pytest.param("parent-missing/", ["urlchecker.E003"], "does not contain `slug`", id="regex-parent-missing"),
-    pytest.param("parent-int/", ["urlchecker.E002"], "expected `str` from urlconf", id="regex-parent-int"),
+    pytest.param("parent-missing/", ["urlchecker.E003"], "the URL passes `slug`", id="regex-parent-missing"),
+    pytest.param("parent-int/", ["urlchecker.E002"], "the URL passes `str`", id="regex-parent-int"),
     pytest.param("child-converter/<int:year>/", [], None, id="regex-parent-child-converter"),
     pytest.param("nested-regex/<int:year>/", [], None, id="regex-nested"),
     pytest.param(r"^regex-leaf/(?P<slug>[-\w]+)/$", [], None, id="re-path-leaf-ok"),
     pytest.param(
         r"^regex-leaf-int/(?P<slug>[-\w]+)/$",
         ["urlchecker.E002"],
-        "expected `str` from urlconf",
+        "the URL passes `str`",
         id="re-path-leaf-int",
     ),
     pytest.param(
         r"^regex-leaf-missing/(?P<slug>[-\w]+)/$",
         ["urlchecker.E003"],
-        "does not contain `slug`",
+        "the URL passes `slug`",
         id="re-path-leaf-missing",
     ),
     pytest.param(
         r"^regex-leaf-extra/(?P<slug>[-\w]+)/$",
         ["urlchecker.E004"],
-        "`missing` parameter",
+        "required parameter `missing`",
         id="re-path-leaf-required-extra",
     ),
     pytest.param(
@@ -409,64 +448,64 @@ _ROUTE_SEMANTICS_CASES = [
     pytest.param(
         r"^regex-leaf-kwargs/$",
         ["urlchecker.W001"],
-        "*args or **kwarg syntax",
+        "signature takes *args or **kwargs",
         id="re-path-leaf-varkw",
     ),
     pytest.param(r"^positional/(\w+)/(\w+)/$", [], None, id="positional-ok"),
     pytest.param(
         r"^positional-too-many/(\w+)/(\w+)/$",
         ["urlchecker.E007"],
-        "receives 2 positional argument(s)",
+        "the URL passes 2 positional argument(s)",
         id="positional-too-many",
     ),
     pytest.param(
         r"^positional-too-few/(\w+)/$",
         ["urlchecker.E004"],
-        "`second` parameter",
+        "required parameter `second`",
         id="positional-too-few",
     ),
     pytest.param(r"^(?P<slug>\w+)/$", [], None, id="parent-positional-dropped-by-child-name"),
     pytest.param(
         r"^positional-star/(\w+)/$",
         ["urlchecker.W001"],
-        "*args or **kwarg syntax",
+        "signature takes *args or **kwargs",
         id="positional-varargs",
     ),
     pytest.param(
         "varkw-mismatch/<int:pk>/",
         ["urlchecker.W001", "urlchecker.E002"],
-        "expected `int` from urlconf",
+        "the URL passes `int`",
         id="star-varkw-named-parameter",
     ),
     pytest.param(
         "varkw-required/",
         ["urlchecker.W001", "urlchecker.E004"],
-        "`required` parameter",
+        "required parameter `required`",
         id="star-varkw-required-parameter",
     ),
     pytest.param(
         "varkw-extra/",
         ["urlchecker.W001"],
-        "*args or **kwarg syntax",
+        "signature takes *args or **kwargs",
         id="star-varkw-unmatched-extra",
     ),
     pytest.param(
         r"^star-varargs-surplus/(\w+)/(\w+)/$",
         ["urlchecker.W001"],
-        "*args or **kwarg syntax",
+        "signature takes *args or **kwargs",
         id="star-varargs-surplus",
     ),
     pytest.param(
         r"^star-varargs-named/(\w+)/$",
         ["urlchecker.W001", "urlchecker.E002"],
-        "expected `str` from urlconf",
+        "the URL passes `str`",
         id="star-varargs-named-parameter",
     ),
     pytest.param("default-good/<int:pk>/", [], None, id="default-overrides-capture-ok"),
     pytest.param(
         "default-wrong/<int:pk>/",
         ["urlchecker.E005"],
-        "default argument 'wrong'",
+        "URL pattern's kwargs passes 'wrong'",
         id="default-overrides-capture-wrong-type",
     ),
 ]
@@ -499,7 +538,7 @@ def test_re_path_views_can_be_silenced():
 def test_optional_regex_groups_warn_only_without_a_view_default():
     errors = check_url_signatures(None)
     assert [error.id for error in errors] == ["urlchecker.W004"]
-    assert "parameter `page` is captured by an optional regex group but has no default" in errors[0].msg
+    assert "parameter `page` is captured by an optional regex group but has no default." in errors[0].msg
 
 
 @override_settings(ROOT_URLCONF="tests.dummy_project.urls.i18n_routes")
