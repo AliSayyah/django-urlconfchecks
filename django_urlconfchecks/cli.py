@@ -42,10 +42,10 @@ def run(
     resolved_quiet = quiet if quiet is not None else bool(config.quiet)
     resolved_format = format or (config.format if config.format in (None, "json") else None)
 
-    from django_urlconfchecks.check import _DEFAULT_SILENCED_VIEWS, check_url_signatures
+    from django_urlconfchecks.check import DEFAULT_SILENCED_VIEWS, check_url_signatures
 
     if config.silenced_views and not getattr(django_settings, "URLCONFCHECKS_SILENCED_VIEWS", None):
-        merged_silencers = {**_DEFAULT_SILENCED_VIEWS, **config.silenced_views}
+        merged_silencers = {**DEFAULT_SILENCED_VIEWS, **config.silenced_views}
         django_settings.URLCONFCHECKS_SILENCED_VIEWS = merged_silencers
 
     errors = check_url_signatures(None)

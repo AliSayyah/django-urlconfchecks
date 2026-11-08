@@ -1,6 +1,7 @@
 """Tests for `django_urlconfchecks` package."""
 
 import typing as t
+from pathlib import Path
 
 import pytest
 from django.core import checks
@@ -10,8 +11,9 @@ from django.urls import URLPattern, URLResolver, resolve
 from django.urls.resolvers import RoutePattern, get_resolver
 
 from django_urlconfchecks.check import (
-    _DEFAULT_SILENCED_VIEWS,
+    DEFAULT_SILENCED_VIEWS,
     _get_callable_globals,
+    _get_converter_output_type,
     _instance_is_compatible,
     _optional_regex_groups,
     _type_is_compatible,
@@ -19,7 +21,6 @@ from django_urlconfchecks.check import (
     check_url_args_match,
     check_url_signatures,
     get_all_routes,
-    get_converter_output_type,
 )
 from tests.dummy_project.urls import converter_urls
 from tests.dummy_project.views import year_archive, year_archive_untyped
@@ -132,7 +133,7 @@ def test_silencing():
 
 def test_default_silencing_for_cbv():
     with override_settings(
-        ROOT_URLCONF="tests.dummy_project.urls.cbv_urls", URLCONFCHECKS_SILENCED_VIEWS=_DEFAULT_SILENCED_VIEWS
+        ROOT_URLCONF="tests.dummy_project.urls.cbv_urls", URLCONFCHECKS_SILENCED_VIEWS=DEFAULT_SILENCED_VIEWS
     ):
         assert len(check_url_signatures(None)) == 0
 
@@ -145,7 +146,8 @@ def test_all_urls_checked():
     """
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.correct_urls'):
         resolver = get_resolver()
-        routes = get_all_routes(resolver, {})
+        with pytest.warns(DeprecationWarning, match=r"get_all_routes\(\) is deprecated"):
+            routes = get_all_routes(resolver, {})
         assert len(list(routes)) == 3
 
 
@@ -157,7 +159,8 @@ def test_child_urls_checked():
     """
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.parent_urls'):
         resolver = get_resolver()
-        routes = get_all_routes(resolver, {})
+        with pytest.warns(DeprecationWarning, match=r"get_all_routes\(\) is deprecated"):
+            routes = get_all_routes(resolver, {})
         assert len(list(routes)) == 5
 
 
@@ -173,9 +176,9 @@ def test_admin_urls_ignored():
 
 
 def test_converters():
-    assert get_converter_output_type(converter_urls.YearConverterViaSubclass()) is int
-    assert get_converter_output_type(converter_urls.YearConverterAsFloat()) is float
-    assert get_converter_output_type(converter_urls.BoolConverter()) is bool
+    assert _get_converter_output_type(converter_urls.YearConverterViaSubclass()) is int
+    assert _get_converter_output_type(converter_urls.YearConverterAsFloat()) is float
+    assert _get_converter_output_type(converter_urls.BoolConverter()) is bool
 
     with override_settings(ROOT_URLCONF='tests.dummy_project.urls.converter_urls'):
         errors = check_url_signatures(None)
@@ -525,7 +528,8 @@ def test_legacy_checker_and_type_helpers_cover_edge_cases():
         return None
 
     pattern = URLPattern(RoutePattern("none/"), no_parameters)
-    errors = check_url_args_match(pattern, {})
+    with pytest.warns(DeprecationWarning, match=r"check_url_args_match\(\) is deprecated"):
+        errors = check_url_args_match(pattern, {})
     assert [error.id for error in errors] == ["urlchecker.E001"]
     assert not _type_is_compatible(__import__("inspect").Parameter.empty, str)
     assert _type_is_compatible(str, object)
@@ -548,3 +552,37 @@ def test_callable_globals_resolves_bound_methods():
             return None
 
     assert _get_callable_globals(Example().method) == globals()
+
+
+def test_public_api():
+    import django_urlconfchecks.check as check_module
+
+    assert sorted(check_module.__all__) == ["DEFAULT_SILENCED_VIEWS", "check_url_signatures"]
+    assert check_module.DEFAULT_SILENCED_VIEWS["django.contrib.*"] == "W003"
+    assert (Path(check_module.__file__).parent / "py.typed").is_file()
+
+
+@pytest.mark.parametrize(
+    ("old_name", "new_name"),
+    [
+        ("Problem", "_Problem"),
+        ("ConverterOutputType", "_ConverterOutputType"),
+        ("CONVERTER_TYPES", "_CONVERTER_TYPES"),
+        ("get_converter_output_type", "_get_converter_output_type"),
+        ("ViewSilencer", "_ViewSilencer"),
+        ("_DEFAULT_SILENCED_VIEWS", "DEFAULT_SILENCED_VIEWS"),
+    ],
+)
+def test_formerly_public_names_warn(old_name, new_name):
+    import django_urlconfchecks.check as check_module
+
+    with pytest.warns(DeprecationWarning, match=f"check.{old_name} is not part of the public API"):
+        value = getattr(check_module, old_name)
+    assert value is getattr(check_module, new_name)
+
+
+def test_unknown_module_attribute_raises():
+    import django_urlconfchecks.check as check_module
+
+    with pytest.raises(AttributeError, match="no_such_name"):
+        check_module.no_such_name  # noqa: B018

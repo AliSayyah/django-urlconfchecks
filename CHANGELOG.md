@@ -225,3 +225,15 @@ Found by differential fuzzing against Django's resolver and by running the check
 - `urlchecker.W004` is no longer reported for an optional regex group whose name a parent `include()` kwarg also supplies: when the group doesn't match, Django passes the include's value.
 
 ## [Unreleased]
+
+### Added
+
+- `django_urlconfchecks.check.DEFAULT_SILENCED_VIEWS` is public, so settings can merge the defaults into their own `URLCONFCHECKS_SILENCED_VIEWS` instead of copying them.
+- The package ships a `py.typed` marker, so type checkers use its annotations (#347).
+
+### Deprecated
+
+The public Python API is now `check_url_signatures` and `DEFAULT_SILENCED_VIEWS` in `django_urlconfchecks.check` (#342). The names below emit a `DeprecationWarning` and will be removed in 1.0:
+
+- `check_url_args_match()` and `get_all_routes()`, legacy interfaces that predate `re_path()` and `include()` kwargs support. Use the `check_url_signatures` system check or the `urlconfchecks` CLI.
+- `Problem`, `ConverterOutputType`, `CONVERTER_TYPES`, `get_converter_output_type`, `ViewSilencer` and `_DEFAULT_SILENCED_VIEWS` in `django_urlconfchecks.check`, which are internal.

@@ -9,6 +9,7 @@ import re
 import types
 import typing as t
 import uuid
+import warnings
 from dataclasses import dataclass, replace
 from inspect import Parameter, _empty, signature
 from typing import Any, get_args, get_origin
@@ -18,7 +19,9 @@ from django.core import checks
 from django.urls import URLPattern, URLResolver, converters, get_resolver
 from django.urls.resolvers import RegexPattern, RoutePattern
 
-Problem = checks.Error | checks.Warning
+__all__ = ["DEFAULT_SILENCED_VIEWS", "check_url_signatures"]
+
+_Problem = checks.Error | checks.Warning
 
 
 @dataclass(frozen=True)
@@ -39,8 +42,9 @@ class _RouteInfo:
     positional: tuple[_RouteArgument, ...]
 
 
+# The defaults used when URLCONFCHECKS_SILENCED_VIEWS isn't set. Merge it into your own setting to keep them.
 # Update docs about default value if you change this:
-_DEFAULT_SILENCED_VIEWS = {
+DEFAULT_SILENCED_VIEWS: dict[str, str] = {
     # for CBVs
     "*.View.as_view": "W001",
     # RedirectView is used in a way that makes it appear directly, and it has **kwargs
@@ -51,7 +55,7 @@ _DEFAULT_SILENCED_VIEWS = {
 
 
 @checks.register(checks.Tags.urls)
-def check_url_signatures(app_configs, **kwargs) -> list[Problem]:
+def check_url_signatures(app_configs, **kwargs) -> list[_Problem]:
     """Check that all callbacks in the main urlconf have the correct signature.
 
     Args:
@@ -66,21 +70,21 @@ def check_url_signatures(app_configs, **kwargs) -> list[Problem]:
 
     resolver = get_resolver()
     errors = []
-    silencers = _build_view_silencers(getattr(settings, "URLCONFCHECKS_SILENCED_VIEWS", _DEFAULT_SILENCED_VIEWS))
+    silencers = _build_view_silencers(getattr(settings, "URLCONFCHECKS_SILENCED_VIEWS", DEFAULT_SILENCED_VIEWS))
     unknown_converters = set()
     for route in _walk_routes(resolver):
         errors.extend(_check_route_info(route, unknown_converters))
     return _collapse_star_args_warnings(_filter_errors(errors, silencers))
 
 
-def _collapse_star_args_warnings(problems: list[Problem]) -> list[Problem]:
+def _collapse_star_args_warnings(problems: list[_Problem]) -> list[_Problem]:
     """Report W001 once per view, with how many routes use it.
 
     Decorators and framework wrappers (e.g. a permission decorator without functools.wraps) are
     often shared by hundreds of routes; one warning per route buries everything else.
     """
     route_counts = collections.Counter(_problem_view_name(p) for p in problems if p.id == "urlchecker.W001")
-    collapsed: list[Problem] = []
+    collapsed: list[_Problem] = []
     reported: set[str] = set()
     for problem in problems:
         if problem.id == "urlchecker.W001":
@@ -94,12 +98,21 @@ def _collapse_star_args_warnings(problems: list[Problem]) -> list[Problem]:
     return collapsed
 
 
-def _problem_view_name(problem: Problem) -> str:
+def _problem_view_name(problem: _Problem) -> str:
     return getattr(problem, _VIEW_NAME_ATTR, None) or _make_callback_repr(getattr(problem.obj, "callback", None))
 
 
 def get_all_routes(resolver: URLResolver, parent_converters: dict) -> cabc.Iterable[tuple[URLPattern, dict]]:
-    """Recursively get all routes from the resolver."""
+    """Recursively get all ``path()`` routes from the resolver.
+
+    .. deprecated:: 0.18.0
+        Legacy interface that ignores ``re_path()`` routes and ``include()`` kwargs. It will be removed in 1.0.
+    """
+    _warn_deprecated("get_all_routes()")
+    return _get_all_routes(resolver, parent_converters)
+
+
+def _get_all_routes(resolver: URLResolver, parent_converters: dict) -> cabc.Iterable[tuple[URLPattern, dict]]:
     for pattern in resolver.url_patterns:
         if isinstance(pattern, URLResolver):
             if hasattr(pattern, 'pattern') and pattern.pattern is not None:
@@ -109,7 +122,7 @@ def get_all_routes(resolver: URLResolver, parent_converters: dict) -> cabc.Itera
                 new_parent_converters = {**parent_converters, **getattr(pattern.pattern, "converters", {})}
             else:
                 new_parent_converters = parent_converters
-            yield from get_all_routes(pattern, new_parent_converters)
+            yield from _get_all_routes(pattern, new_parent_converters)
         else:
             if isinstance(pattern.pattern, RoutePattern):
                 yield pattern, parent_converters
@@ -375,8 +388,13 @@ def _resolve_annotation(annotation, globalns):
 
 def check_url_args_match(
     url_pattern: URLPattern, parent_converters: dict, unknown_converters: set[type] | None = None
-) -> list[Problem]:
-    """Check one URL pattern using the legacy converter-only route interface."""
+) -> list[_Problem]:
+    """Check one URL pattern using the legacy converter-only route interface.
+
+    .. deprecated:: 0.18.0
+        Use the ``check_url_signatures`` system check instead. This will be removed in 1.0.
+    """
+    _warn_deprecated("check_url_args_match()")
     if unknown_converters is None:
         unknown_converters = set()
     kwargs, positional = _pattern_arguments(url_pattern.pattern)
@@ -390,13 +408,13 @@ def check_url_args_match(
     return _check_route_info(_RouteInfo(url_pattern, kwargs, positional), unknown_converters)
 
 
-def _check_route_info(route: _RouteInfo, unknown_converters: set[type]) -> list[Problem]:
+def _check_route_info(route: _RouteInfo, unknown_converters: set[type]) -> list[_Problem]:
     """Check one leaf route against the arguments Django passes."""
     url_pattern = route.pattern
     callback = url_pattern.callback
     cbv_handlers = _get_cbv_handlers(callback)
     if cbv_handlers is not None:
-        errors: list[Problem] = []
+        errors: list[_Problem] = []
         for handler, callback_repr, class_repr, drop_handler_self in cbv_handlers:
             errors.extend(
                 _check_callable_route(
@@ -428,7 +446,7 @@ def _check_callable_route(
     is_cbv_handler: bool = False,
     class_repr: str | None = None,
     drop_handler_self: bool = False,
-) -> list[Problem]:
+) -> list[_Problem]:
     """Check one callable using the arguments accumulated for a URL route."""
     url_pattern = route.pattern
     try:
@@ -441,7 +459,7 @@ def _check_callable_route(
         sig = _drop_handler_self(sig)
     parameters = sig.parameters
     has_varargs, has_varkw = _star_argument_flags(parameters)
-    errors: list[Problem] = []
+    errors: list[_Problem] = []
 
     _append_star_args_warning(errors, url_pattern, callback_repr, has_varargs or has_varkw, is_cbv_handler)
     used_from_sig = _check_request_parameter(errors, url_pattern, callback_repr, sig, has_varargs or has_varkw)
@@ -461,7 +479,7 @@ def _check_callable_route(
         errors, route, url_pattern, callback_repr, positional_parameters, has_varargs, used_from_sig
     )
     _check_leftover_required_parameters(errors, url_pattern, callback_repr, parameters, used_from_sig)
-    # Record which view (and CBV class) each problem is about, for ViewSilencer.
+    # Record which view (and CBV class) each problem is about, for _ViewSilencer.
     _attach_error_view_names(errors, url_pattern, callback_repr, class_repr)
     return errors
 
@@ -803,7 +821,7 @@ def _check_route_kwarg_value(errors, url_pattern, callback_repr, name, argument,
 
 def _check_converter_argument(errors, url_pattern, callback_repr, name, converter, parameter, unknown_converters):
     """Check a converter capture against a named view parameter."""
-    urlconf_type = get_converter_output_type(converter)
+    urlconf_type = _get_converter_output_type(converter)
     if urlconf_type is Parameter.empty:
         obj = converter.__class__
         if obj not in unknown_converters:
@@ -1094,9 +1112,9 @@ def _name_type(type_hint):
     return type_hint.__name__ if (hasattr(type_hint, "__name__") and isinstance(type_hint, type)) else repr(type_hint)
 
 
-ConverterOutputType: t.TypeAlias = type[int] | type[str] | type[uuid.UUID] | type[_empty]
+_ConverterOutputType: t.TypeAlias = type[int] | type[str] | type[uuid.UUID] | type[_empty]
 
-CONVERTER_TYPES: dict[type, ConverterOutputType] = {
+_CONVERTER_TYPES: dict[type, _ConverterOutputType] = {
     converters.IntConverter: int,
     converters.StringConverter: str,
     converters.UUIDConverter: uuid.UUID,
@@ -1106,17 +1124,17 @@ CONVERTER_TYPES: dict[type, ConverterOutputType] = {
 _CONVERTER_METHOD_MISSING = object()
 
 
-def get_converter_output_type(converter) -> ConverterOutputType:
+def _get_converter_output_type(converter) -> _ConverterOutputType:
     """Return the type that the converter will output."""
     return _converter_output_type_for_class(converter.__class__)
 
 
 @functools.cache
-def _converter_output_type_for_class(converter_cls) -> ConverterOutputType:
+def _converter_output_type_for_class(converter_cls) -> _ConverterOutputType:
     """Cached resolution of converter output type by class."""
     for cls in converter_cls.__mro__:
-        if cls in CONVERTER_TYPES:
-            return CONVERTER_TYPES[cls]
+        if cls in _CONVERTER_TYPES:
+            return _CONVERTER_TYPES[cls]
 
         to_python = _converter_to_python(cls)
         if to_python is _CONVERTER_METHOD_MISSING:
@@ -1127,7 +1145,7 @@ def _converter_output_type_for_class(converter_cls) -> ConverterOutputType:
         if sig is None:
             return Parameter.empty
         if sig.return_annotation != Parameter.empty:
-            return t.cast(ConverterOutputType, sig.return_annotation)
+            return t.cast(_ConverterOutputType, sig.return_annotation)
 
     return Parameter.empty
 
@@ -1150,14 +1168,14 @@ def _converter_signature(to_python):
         return None
 
 
-class ViewSilencer:
+class _ViewSilencer:
     """Utility that checks whether errors for a view or set of views should be ignored."""
 
     def __init__(self, view_glob: str, errors: cabc.Iterable[str]):
         self.view_glob = view_glob
         self.errors = set(errors)
 
-    def matches(self, error: Problem):
+    def matches(self, error: _Problem):
         """Returns True if this silencer matches the given error or warning."""
         url_pattern = error.obj
         if not isinstance(url_pattern, URLPattern):
@@ -1173,12 +1191,45 @@ class ViewSilencer:
         return class_name is not None and fnmatch.fnmatch(class_name, self.view_glob)
 
 
-def _build_view_silencers(silenced_views: dict[str, str]) -> list[ViewSilencer]:
+def _build_view_silencers(silenced_views: dict[str, str]) -> list[_ViewSilencer]:
     return [
-        ViewSilencer(view_glob=view_glob, errors=[f"urlchecker.{error}" for error in error_list.split(",")])
+        _ViewSilencer(view_glob=view_glob, errors=[f"urlchecker.{error}" for error in error_list.split(",")])
         for view_glob, error_list in silenced_views.items()
     ]
 
 
-def _filter_errors(errors: list[Problem], silencers: list[ViewSilencer]) -> list[Problem]:
+def _filter_errors(errors: list[_Problem], silencers: list[_ViewSilencer]) -> list[_Problem]:
     return [error for error in errors if not any(silencer.matches(error) for silencer in silencers)]
+
+
+def _warn_deprecated(name: str) -> None:
+    warnings.warn(
+        f"django_urlconfchecks.check.{name} is deprecated and will be removed in django-urlconfchecks 1.0. "
+        "Use the check_url_signatures system check (or the urlconfchecks CLI) instead.",
+        DeprecationWarning,
+        stacklevel=3,
+    )
+
+
+# Names that used to be public; importing them still works until 1.0 but warns.
+_DEPRECATED_ALIASES = {
+    "Problem": "_Problem",
+    "ConverterOutputType": "_ConverterOutputType",
+    "CONVERTER_TYPES": "_CONVERTER_TYPES",
+    "get_converter_output_type": "_get_converter_output_type",
+    "ViewSilencer": "_ViewSilencer",
+    "_DEFAULT_SILENCED_VIEWS": "DEFAULT_SILENCED_VIEWS",
+}
+
+
+def __getattr__(name: str) -> Any:
+    """Resolve deprecated names, warning that they are going away."""
+    if name in _DEPRECATED_ALIASES:
+        warnings.warn(
+            f"django_urlconfchecks.check.{name} is not part of the public API and will be removed in "
+            "django-urlconfchecks 1.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return globals()[_DEPRECATED_ALIASES[name]]
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
