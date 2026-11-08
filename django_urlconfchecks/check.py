@@ -45,9 +45,9 @@ class _RouteInfo:
 # The defaults used when URLCONFCHECKS_SILENCED_VIEWS isn't set. Merge it into your own setting to keep them.
 # Update docs about default value if you change this:
 DEFAULT_SILENCED_VIEWS: dict[str, str] = {
-    # for CBVs
+    # Deprecated, remove in 1.0 (#345): CBV handlers are checked directly and never get W001, so these only
+    # hide W001 for CBVs whose handlers can't be resolved.
     "*.View.as_view": "W001",
-    # RedirectView is used in a way that makes it appear directly, and it has **kwargs
     "django.views.generic.base.RedirectView": "W001",
     # Django contrib views currently don’t have type annotations:
     "django.contrib.*": "W003",

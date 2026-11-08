@@ -237,3 +237,5 @@ The public Python API is now `check_url_signatures` and `DEFAULT_SILENCED_VIEWS`
 
 - `check_url_args_match()` and `get_all_routes()`, legacy interfaces that predate `re_path()` and `include()` kwargs support. Use the `check_url_signatures` system check or the `urlconfchecks` CLI.
 - `Problem`, `ConverterOutputType`, `CONVERTER_TYPES`, `get_converter_output_type`, `ViewSilencer` and `_DEFAULT_SILENCED_VIEWS` in `django_urlconfchecks.check`, which are internal.
+
+The `"*.View.as_view": "W001"` and `"django.views.generic.base.RedirectView": "W001"` entries in `DEFAULT_SILENCED_VIEWS` (#345). Class-based view handlers are checked directly and never get `W001`, so these entries no longer silence anything for ordinary views. The only exception is a CBV whose handlers can't be resolved, where hiding the warning is unhelpful. They will be removed from the defaults in 1.0.
