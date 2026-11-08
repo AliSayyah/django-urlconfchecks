@@ -246,6 +246,8 @@ def test_hostile_signature_callback_emits_w005():
 
     errors = _checked_urlconf([path("x/", BrokenCallable())])
     assert _ids(errors) == ["urlchecker.W005"]
+    assert errors[0].msg.endswith("so it can't be checked.")
+    assert errors[0].hint.startswith("If this is a wrapper, use `functools.wraps`")
     assert "RuntimeError: signature property" in errors[0].msg
 
 
@@ -370,6 +372,9 @@ def test_positional_url_value_and_keyword_for_the_same_parameter():
     assert (
         "parameter `parent` gets both a positional value from the URL and a keyword argument."
         in next(e for e in errors if e.id == "urlchecker.E008").msg
+    )
+    assert next(e for e in errors if e.id == "urlchecker.E008").hint.startswith(
+        "Turn the unnamed group into a named group"
     )
 
 
