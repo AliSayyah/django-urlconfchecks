@@ -55,7 +55,7 @@ CBV_HANDLER_CASES = [
     pytest.param(
         "extra/",
         ["urlchecker.E005"],
-        [f"{_P}ExtraView.get: parameter `flag` is annotated as `int`, but the URL pattern's kwargs passes"],
+        [f"{_P}ExtraView.get: parameter `flag` is annotated as `int`, but the URL pattern's kwargs pass"],
         id="path-kwargs",
     ),
     pytest.param(

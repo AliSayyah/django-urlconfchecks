@@ -114,8 +114,7 @@ def test_future_annotations_are_resolved_for_default_args():
         errors = check_url_signatures(None)
         assert [error.id for error in errors] == ['urlchecker.E005']
         assert (
-            "parameter `year` is annotated as `int`, but the URL pattern's kwargs passes '2024' (`str`)."
-            in errors[0].msg
+            "parameter `year` is annotated as `int`, but the URL pattern's kwargs pass '2024' (`str`)." in errors[0].msg
         )
 
 
@@ -286,7 +285,7 @@ def test_path_kwargs():
             errors[1],
             checks.Error(
                 msg="View tests.dummy_project.views.year_archive: parameter `year` is annotated as `int`, but the "
-                "URL pattern's kwargs passes '2022' (`str`).",
+                "URL pattern's kwargs pass '2022' (`str`).",
                 hint="Change the value in the URL pattern's kwargs, or annotate `year` to accept `str`.",
                 obj=URLPattern(
                     pattern=RoutePattern(route='articles-2022/', is_endpoint=True),
@@ -300,7 +299,7 @@ def test_path_kwargs():
         assert error_eql(
             errors[2],
             checks.Error(
-                msg="View tests.dummy_project.views.year_archive: the URL pattern's kwargs passes `other`, but the "
+                msg="View tests.dummy_project.views.year_archive: the URL pattern's kwargs pass `other`, but the "
                 "view has no `other` parameter.",
                 hint="Accept `other` in the view, or remove it from the URL pattern's kwargs.",
                 obj=URLPattern(
@@ -505,7 +504,7 @@ _ROUTE_SEMANTICS_CASES = [
     pytest.param(
         "default-wrong/<int:pk>/",
         ["urlchecker.E005"],
-        "URL pattern's kwargs passes 'wrong'",
+        "URL pattern's kwargs pass 'wrong'",
         id="default-overrides-capture-wrong-type",
     ),
 ]
