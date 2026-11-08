@@ -801,7 +801,7 @@ def _report_unaccepted_route_argument(errors, url_pattern, callback_repr, name, 
         source = "the include() kwargs" if argument.kind == "include_extra" else "the URL pattern's kwargs"
         errors.append(
             checks.Error(
-                f"View {callback_repr}: {source} passes `{name}`, but the view has no `{name}` parameter.",
+                f"View {callback_repr}: {source} pass `{name}`, but the view has no `{name}` parameter.",
                 hint=f"Accept `{name}` in the view, or remove it from {source}.",
                 obj=url_pattern,
                 id="urlchecker.E006",
@@ -975,7 +975,7 @@ def _check_extra_argument(errors, url_pattern, callback_repr, name, argument, si
         errors.append(
             checks.Error(
                 f"View {callback_repr}: parameter `{name}` is annotated as `{_name_type(sig_type)}`, but {source} "
-                f"passes {argument.value!r} (`{value_type}`).",
+                f"pass {argument.value!r} (`{value_type}`).",
                 hint=f"Change the value in {source}, or annotate `{name}` to accept `{value_type}`.",
                 obj=url_pattern,
                 id="urlchecker.E005",
