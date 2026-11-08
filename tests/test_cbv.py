@@ -24,12 +24,23 @@ CBV_HANDLER_CASES = [
     pytest.param(
         "bad/<int:pk>/",
         ["urlchecker.E002", "urlchecker.E003"],
-        [f"{_P}BadView.get for parameter `pk`", f"{_P}BadView.post signature does not contain `pk`"],
+        [
+            f"{_P}BadView.get: parameter `pk` is annotated as `str`, but the URL passes `int`.",
+            f"{_P}BadView.post: the URL passes `pk`, but the view has no `pk` parameter.",
+        ],
         id="faulty-get-and-post-reported-separately",
     ),
-    pytest.param("no-request/<int:pk>/", ["urlchecker.E001"], [f"{_P}NoRequestView.get signature"], id="no-request"),
     pytest.param(
-        "required/<int:pk>/", ["urlchecker.E004"], ["`required` parameter without default"], id="extra-required"
+        "no-request/<int:pk>/",
+        ["urlchecker.E001"],
+        [f"{_P}NoRequestView.get: first positional parameter is `pk`, expected `request`."],
+        id="no-request",
+    ),
+    pytest.param(
+        "required/<int:pk>/",
+        ["urlchecker.E004"],
+        ["required parameter `required` gets no value from the URL."],
+        id="extra-required",
     ),
     pytest.param("star/<int:pk>/", ["urlchecker.E002"], [f"{_P}StarView.get"], id="star-args-named-param-checked"),
     pytest.param("dispatch/<int:pk>/", ["urlchecker.E002"], [f"{_P}DispatchView.dispatch"], id="explicit-dispatch"),
@@ -38,14 +49,19 @@ CBV_HANDLER_CASES = [
     pytest.param(
         "inherited-bad/<int:pk>/",
         ["urlchecker.E003"],
-        [f"View {_P}InheritedBadView.get signature does not contain `pk`"],
+        [f"View {_P}InheritedBadView.get: the URL passes `pk`, but the view has no `pk` parameter."],
         id="inherited-handler-reported-under-url-class",
     ),
-    pytest.param("extra/", ["urlchecker.E005"], [f"{_P}ExtraView.get: for parameter `flag`"], id="path-kwargs"),
+    pytest.param(
+        "extra/",
+        ["urlchecker.E005"],
+        [f"{_P}ExtraView.get: parameter `flag` is annotated as `int`, but the URL pattern's kwargs passes"],
+        id="path-kwargs",
+    ),
     pytest.param(
         r"^regex/(?P<pk>\d+)/$",
         ["urlchecker.E002", "urlchecker.E002"],
-        [f"{_P}CleanView.get", f"{_P}CleanView.post"],
+        [f"{_P}CleanView.get:", f"{_P}CleanView.post:"],
         id="re-path-captures-are-str",
     ),
 ]
@@ -143,7 +159,7 @@ def test_drf_cbv_handlers_and_viewset_actions():
     assert [error.id for error in grouped["^bad/(?P<pk>[^/.]+)/$"]] == ["urlchecker.E002"]
     broken_action = grouped["^bad/(?P<pk>[^/.]+)/broken/$"]
     assert [error.id for error in broken_action] == ["urlchecker.E003"]
-    assert "BadViewSet.broken signature does not contain `pk`" in broken_action[0].msg
+    assert "BadViewSet.broken: the URL passes `pk`, but the view has no `pk` parameter." in broken_action[0].msg
     assert not any(
         "ArticleAPIView" in error.msg or "ArticleViewSet" in error.msg
         for errors in grouped.values()

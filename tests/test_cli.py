@@ -43,8 +43,10 @@ def test_cli_urlconf_incorrect_one_error():
     assert (
         "1 error(s), 0 warning(s) found:\n"
         "\t<URLPattern 'articles/<str:year>/'>: (urlchecker.E002) View"
-        " tests.dummy_project.views.year_archive for parameter `year`,"
-        " annotated type int does not match expected `str` from urlconf\n" in result.output
+        " tests.dummy_project.views.year_archive: parameter `year` is annotated as `int`,"
+        " but the URL passes `str`.\n"
+        "\tHINT: Annotate `year` as `str`, or change the URL pattern so it passes the type the view expects.\n"
+        in result.output
     )
     assert result.exit_code == 1
 
@@ -56,18 +58,23 @@ def test_cli_urlconf_incorrect_multiple_errors():
     assert (
         "5 error(s), 0 warning(s) found:\n"
         "\t<URLPattern 'articles/<str:year>/<str:month>/'>: (urlchecker.E002) View"
-        " tests.dummy_project.views.month_archive for parameter `year`,"
-        " annotated type int does not match expected `str` from urlconf\n"
+        " tests.dummy_project.views.month_archive: parameter `year` is annotated as `int`,"
+        " but the URL passes `str`.\n"
+        "\tHINT: Annotate `year` as `str`, or change the URL pattern so it passes the type the view expects.\n"
         "\t<URLPattern 'articles/<str:year>/<str:month>/'>: (urlchecker.E002) View"
-        " tests.dummy_project.views.month_archive for parameter `month`,"
-        " annotated type int does not match expected `str` from urlconf\n"
+        " tests.dummy_project.views.month_archive: parameter `month` is annotated as `int`,"
+        " but the URL passes `str`.\n"
+        "\tHINT: Annotate `month` as `str`, or change the URL pattern so it passes the type the view expects.\n"
         "\t<URLPattern 'articles/<str:year>/<int:month>/<slug:slug>/'>: (urlchecker.E002) View"
-        " tests.dummy_project.views.article_detail for parameter `year`,"
-        " annotated type int does not match expected `str` from urlconf\n"
-        "\t<URLPattern '<slug:slug>/'>: (urlchecker.E001) View tests.dummy_project.views.bad_view signature "
-        "does not start with `request` parameter, found `slug`.\n"
-        "\t<URLPattern 'special-case/<int:param>/'>: (urlchecker.E003) View tests.dummy_project.views.special_case "
-        "signature does not contain `param` parameter\n" == result.output
+        " tests.dummy_project.views.article_detail: parameter `year` is annotated as `int`,"
+        " but the URL passes `str`.\n"
+        "\tHINT: Annotate `year` as `str`, or change the URL pattern so it passes the type the view expects.\n"
+        "\t<URLPattern '<slug:slug>/'>: (urlchecker.E001) View tests.dummy_project.views.bad_view: "
+        "first positional parameter is `slug`, expected `request`.\n"
+        "\tHINT: Rename `slug` to `request`, or silence E001 for this view in URLCONFCHECKS_SILENCED_VIEWS.\n"
+        "\t<URLPattern 'special-case/<int:param>/'>: (urlchecker.E003) View tests.dummy_project.views.special_case: "
+        "the URL passes `param`, but the view has no `param` parameter.\n"
+        "\tHINT: Add a `param` parameter, or accept `**kwargs`.\n" == result.output
     )
     assert result.exit_code == 1
 
@@ -178,7 +185,10 @@ def test_cli_manage_py_human_output(django_project):
     result = _run_cli(django_project)
     assert result.returncode == 1
     assert "1 error(s), 0 warning(s) found:" in result.stdout
-    assert "(urlchecker.E002) View proj.views.bad for parameter `pk`" in result.stdout
+    assert (
+        "(urlchecker.E002) View proj.views.bad: parameter `pk` is annotated as `str`, but the URL passes `int`."
+        in result.stdout
+    )
 
 
 @pytest.mark.parametrize("flag", ["-f", "--format"])

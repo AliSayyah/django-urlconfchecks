@@ -74,7 +74,8 @@ def test_one_w001_per_view_with_route_count():
     )
     assert [p.id for p in problems] == ["urlchecker.W001"]
     assert problems[0].msg == (
-        f"View {WRAPPER} signature contains *args or **kwarg syntax, can't properly check args (used by 3 routes)"
+        f"View {WRAPPER}: signature takes *args or **kwargs, so its arguments can't be fully checked "
+        "(used by 3 routes)."
     )
     assert str(problems[0].obj.pattern) == "a/<int:pk>/"
 
@@ -90,7 +91,9 @@ def test_different_views_get_separate_warnings():
     problems = _check([path("a/<int:pk>/", detail), path("f/", forwarding), path("g/", forwarding)])
     assert [p.id for p in problems] == ["urlchecker.W001", "urlchecker.W001"]
     assert WRAPPER in problems[0].msg and "(used by 2 routes)" not in problems[0].msg
-    assert f"{__name__}.forwarding signature" in problems[1].msg and problems[1].msg.endswith("(used by 2 routes)")
+    assert f"{__name__}.forwarding: signature takes *args or **kwargs" in problems[1].msg and problems[1].msg.endswith(
+        "(used by 2 routes)."
+    )
 
 
 def test_silenced_view_is_not_reported_or_counted():
@@ -101,7 +104,7 @@ def test_silenced_view_is_not_reported_or_counted():
 def test_other_problems_on_star_args_views_stay_per_route():
     problems = _check([path("a/<int:pk>/", named_and_star), path("b/<int:pk>/", named_and_star)])
     assert [p.id for p in problems] == ["urlchecker.W001", "urlchecker.E002", "urlchecker.E002"]
-    assert problems[0].msg.endswith("(used by 2 routes)")
+    assert problems[0].msg.endswith("(used by 2 routes).")
     assert [str(p.obj.pattern) for p in problems[1:]] == ["a/<int:pk>/", "b/<int:pk>/"]
 
 
