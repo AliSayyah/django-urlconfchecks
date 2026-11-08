@@ -396,3 +396,33 @@ def test_optional_group_supplied_by_an_include_kwarg_is_always_present():
     without_fallback = _checked_urlconf([path("x/", include([re_path(r"^f/(?P<p0>[a-z]+)?/$", view)]))])
     assert "urlchecker.W004" not in _ids(with_fallback)
     assert "urlchecker.W004" in _ids(without_fallback)
+
+
+def test_keyword_only_request_is_reported_once():
+    """E001 covers `request`; it isn't also reported as getting no value (E004)."""
+
+    def view(*, request, pk: int):
+        return HttpResponse()
+
+    errors = _checked_urlconf([path("<int:pk>/", view)])
+    assert _ids(errors) == ["urlchecker.E001"]
+
+
+def test_keyword_only_request_still_reports_other_unsourced_parameters():
+    def view(*, request, missing):
+        return HttpResponse()
+
+    errors = _checked_urlconf([path("x/", view)])
+    assert _ids(errors) == ["urlchecker.E001", "urlchecker.E004"]
+    assert "`missing`" in errors[1].msg
+
+
+def test_positional_and_keyword_collision_checks_only_the_keyword_type():
+    """With E008, the positional value can't be bound; don't give a second, conflicting W003 hint."""
+
+    def view(request, parent):
+        return HttpResponse()
+
+    errors = _checked_urlconf([path("<int:parent>/", include([re_path(r"^f/([a-z]+)/$", view)]))])
+    assert sorted(_ids(errors)) == ["urlchecker.E008", "urlchecker.W003"]
+    assert next(e for e in errors if e.id == "urlchecker.W003").hint == "Annotate `parent` as `int`."

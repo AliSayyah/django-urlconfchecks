@@ -741,6 +741,9 @@ def _check_request_parameter(errors, url_pattern, callback_repr, sig, has_star_a
                 id="urlchecker.E001",
             )
         )
+        # A keyword-only `request` is what E001 reports; don't also report it as getting no value (E004).
+        if any(parameter.name == "request" and parameter.kind is Parameter.KEYWORD_ONLY for parameter in parameters):
+            used_from_sig.append("request")
     elif positional.kind is not Parameter.VAR_POSITIONAL:
         # Django passes the request to this parameter whatever its name.
         used_from_sig.append(positional.name)
@@ -907,6 +910,8 @@ def _check_positional_arguments(
                     id="urlchecker.E008",
                 )
             )
+            # Django can't bind the positional value, so only the keyword argument's type is checked.
+            continue
         used_from_sig.append(name)
         _check_typed_argument(errors, url_pattern, callback_repr, name, str, parameter.annotation)
 

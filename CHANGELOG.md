@@ -241,3 +241,8 @@ The public Python API is now `check_url_signatures` and `DEFAULT_SILENCED_VIEWS`
 
 - `check_url_args_match()` and `get_all_routes()`, legacy interfaces that predate `re_path()` and `include()` kwargs support. Use the `check_url_signatures` system check or the `urlconfchecks` CLI.
 - `Problem`, `ConverterOutputType`, `CONVERTER_TYPES`, `get_converter_output_type`, `ViewSilencer` and `_DEFAULT_SILENCED_VIEWS` in `django_urlconfchecks.check`, which are internal.
+
+### Fixed
+
+- A view with a keyword-only `request` (`def view(*, request)`) got `E004` for `request` on top of `E001`. Only `E001` is reported now.
+- When a parameter gets both a positional URL value and a keyword argument (`E008`), the positional value is no longer type-checked as well. That produced a second `W003`/`E002` for the same parameter, with a conflicting hint.
